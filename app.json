@@ -1,12 +1,4 @@
 {
-  "name": "Creator",
-  "displayName": "Creator",
-  "expo": {
-    "name": "Creator",
-    "slug": "Creator",
-    "version": "1.0.0",
-    "assetBundlePatterns": [
-      "**/*"
-    ]
-  }
+  "name": "FlourichCreator",
+  "displayName": "FlourichCreator"
 }

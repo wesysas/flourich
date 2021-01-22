@@ -35,12 +35,12 @@ android_library(
 
 android_build_config(
     name = "build_config",
-    package = "com.creator",
+    package = "com.flourichcreator",
 )
 
 android_resource(
     name = "res",
-    package = "com.creator",
+    package = "com.flourichcreator",
     res = "src/main/res",
 )
 
