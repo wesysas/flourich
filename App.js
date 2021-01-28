@@ -57,19 +57,14 @@ const HomeTabs = () => {
         tabStyle:{marginTop:10},
         activeTintColor:'black',}}
     >
-      <Tab.Screen name="Profile" component={Profile}
-        options={{
-          tabBarIcon: () => (
-            <FontAwesomeIcon name="user-circle" color="#2f2f2f" size={25} />
-          ),
-        }} />
-      <Tab.Screen name="Explore"
+      
+      {/* <Tab.Screen name="Explore"
         component={Explore}
         options={{
           tabBarIcon: () => (
             <FontAwesomeIcon name="search" color="#2f2f2f" size={25} />
           ),
-        }} /> 
+        }} />  */}
       <Tab.Screen name="Booking"
         component={Booking}
         options={{
@@ -98,13 +93,12 @@ const HomeTabs = () => {
             <Icon name="camera-outline" color="#2f2f2f" size={25} />
           ),
         }} />
-      {/* <Tab.Screen name="Profile" component={ProfileStacks}
+        <Tab.Screen name="Profile" component={Profile}
         options={{
-          tabBarLabel: <Text style={{ fontSize: 15, color: 'black' }}>Profile</Text>,
           tabBarIcon: () => (
-            <FontAwesomeIcon name="user-circle" color="black" size={25} />
+            <FontAwesomeIcon name="user-circle" color="#2f2f2f" size={25} />
           ),
-        }} /> */}
+        }} />
     </Tab.Navigator>
   )
 }

@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1085563457064",
+    "project_id": "flourichapp-e775b",
+    "storage_bucket": "flourichapp-e775b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1085563457064:android:ffdfbfd380831589da2f1d",
+        "android_client_info": {
+          "package_name": "com.flourichcreator"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1085563457064-lof9jq7vakodp5p4lc33sgffre6bc0nj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.flourichcreator",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "1085563457064-43ck0r04f04gegko1qvaaolo3fvr6c1m.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAO3fMdoM31eThRRmLv0DIQ1HFLl5waQMw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1085563457064-43ck0r04f04gegko1qvaaolo3fvr6c1m.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

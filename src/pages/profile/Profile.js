@@ -1,4 +1,4 @@
-import React, { useState, Dimentiions } from 'react';
+import React, { useState, Dimentiions, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, Image, TouchableOpacity, SafeAreaView } from 'react-native';
 import { Picker } from '@react-native-community/picker';
 import { Button, Input, CheckBox, Avatar, ListItem, BottomSheet } from 'react-native-elements';
@@ -9,8 +9,11 @@ import { Col, Row, Grid } from 'react-native-easy-grid';
 
 import ReviewItem from '../../components/ReviewItem';
 import BackButton from '../../components/BackButton';
+import ProfileAvatar from '../../components/ProfileAvatar';
 
 import RBSheet from 'react-native-raw-bottom-sheet';
+import AsyncStorage from '@react-native-community/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 
 const styles = StyleSheet.create({
     container: {
@@ -84,67 +87,10 @@ const _renderCarouselItem = ({ item, index }) => {
     );
 }
 
-const ProfileAvatar = () => {
-    return (
-
-        <View style={{
-            position: 'absolute',
-            right: 30,
-            bottom: -70,
-        }}>
-            <Avatar
-                rounded
-                size="xlarge"
-                avatarStyle={{
-
-                    borderColor: 'white',
-                    borderWidth: 3
-                }}
-                containerStyle={{ padding: 10 }}
-                source={require('../../assets/img/test.jpg')}
-            />
-            <View style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                alignSelf: 'center',
-                justifyContent: 'center',
-                position: 'absolute',
-                zIndex: 1,
-                backgroundColor: 'white',
-                // bottom: -60,
-                // right: 65,
-                bottom: 0,
-                // right:0,
-                // left:0,
-                width: 100,
-                borderRadius: 10,
-                borderColor: 'transparent',
-                borderWidth: 1,
-                shadowColor: "#000000",
-                shadowOffset: {
-                    width: 0,
-                    height: 20,
-                },
-                shadowOpacity: 0.9,
-                shadowRadius: 8,
-                elevation: 1,
-                padding: 2
-
-            }}
-
-            >
-                <Icon name="star" color="green" size={15} />
-                <Text>4.5 (123)</Text>
-            </View>
-        </View>
-
-
-
-
-    )
-}
-
 const Profile = ({ navigation }) => {
+
+    const [currentUser, setCurrentUser] = useState(null)
+    
     const [selectedValue, setSelectedValue] = useState("private_company");
     const [value1, onChangeText1] = useState('100');
     const [value2, onChangeText2] = useState('500');
@@ -175,6 +121,41 @@ const Profile = ({ navigation }) => {
         ])
 
     const [isVisible, setIsVisible] = useState(false);
+
+    useEffect(() => {
+        retrieveData();
+    }, [])
+
+    useFocusEffect(
+        React.useCallback(() => {
+            // retrieveData();
+            console.log('profile page')
+        }, [])
+    );
+
+    const retrieveData = async () => {
+        try {
+            const user = await AsyncStorage.getItem('@user')
+            if (user) {
+                console.log(user);
+                setCurrentUser(user);
+            }
+        } catch (e) {
+            console.log(e);
+            alert('Failed to load name.')
+        }
+    }
+
+    const save = async (key, data) => {
+        try {
+          await AsyncStorage.setItem(key, data)
+          console.log('Data successfully saved!')
+        } catch (e) {
+            console.log(e);
+          alert('Failed to save name.')
+        }
+      }
+
     const bottomSheetList = [
         {
             title: 'Create New',
@@ -208,6 +189,13 @@ const Profile = ({ navigation }) => {
     const goStory = () => {
         alert('goStory');
     }
+    
+    const logout = () => {
+        // save('@token', '');
+        // save('@user', '');
+        navigation.navigate('Index');
+    }
+    
 
     var RBSheetR = null;
 
@@ -330,9 +318,9 @@ const Profile = ({ navigation }) => {
                 }}
                 openDuration={250}
                 customStyles={{
-                    container:{
-                        borderTopRightRadius:20,
-                        borderTopLeftRadius:20    
+                    container: {
+                        borderTopRightRadius: 20,
+                        borderTopLeftRadius: 20
                     }
                 }}
             >

@@ -5,6 +5,9 @@ import { Card, ListItem, Button, CheckBox, Overlay } from 'react-native-elements
 
 import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import AsyncStorage from '@react-native-community/async-storage';
+
+import BackButton from '../../components/BackButton';
 
 const IconText = ({ iconName, size, txt }) => {
     return (
@@ -57,7 +60,7 @@ const InnerOverLay = () => {
         <View style={{
             alignItems: 'center',
         }}>
-             <View style={{flexDirection: 'row'}}>
+            <View style={{ flexDirection: 'row' }}>
                 <Image
                     style={styles.newImage}
                     resizeMode="cover"
@@ -78,14 +81,14 @@ const InnerOverLay = () => {
                 </Text>
             </View>
             <View style={{ flexDirection: 'column', justifyContent: 'space-around' }}>
-            <Text style={[styles.title,{textAlign:'center'}]}>Availability</Text>
-            <Text style={[styles.title,{textAlign:'center'}]}>from 12:00 to 24:00</Text>
+                <Text style={[styles.title, { textAlign: 'center' }]}>Availability</Text>
+                <Text style={[styles.title, { textAlign: 'center' }]}>from 12:00 to 24:00</Text>
             </View>
             <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
-                    <CheckBox title='Accept' checked={true} />
-                    <CheckBox title='Decline' checked={false} />
-                    <CheckBox title='Postpone' checked={false} />
-                </View>
+                <CheckBox title='Accept' checked={true} />
+                <CheckBox title='Decline' checked={false} />
+                <CheckBox title='Postpone' checked={false} />
+            </View>
         </View>
     )
 }
@@ -145,18 +148,32 @@ const PastTabCard = () => {
 }
 export default class Booking extends Component {
 
-    constructor() {
-        super();
-        this.init();
+    constructor(props) {
+        super(props);
+        // this.init();
         this.state = {
-            visible: false
+            visible: false,
+            approved: false
         }
     }
+
+
+    async retrieveData() {
+        try {
+            const user = await AsyncStorage.getItem('@user')
+            if (user) {
+                this.setState({ approved: JSON.parse(user).approved })
+
+            }
+        } catch (e) {
+            console.log(e);
+            alert('Failed to load value.')
+        }
+    }
+
     UNSAFE_componentWillMount() {
-        // if (Platform.OS === 'ios') {
-        //   CardIOUtilities.preload();
-        // }
-        // alert('kokok')
+
+        this.retrieveData();
     }
 
     init() {
@@ -169,28 +186,29 @@ export default class Booking extends Component {
         console.log(this.state.visible);
     }
 
+    _approved() {
+        if (this.state.approved) {
+            return (
+                <Text>Approved</Text>
+            )
+        } else {
+            return (
+                <Text style={styles.alertMsg}>Un Approved</Text>
+            )
+        }
 
+    }
 
     render() {
         return (
             <View style={{
                 flex: 1,
-                marginTop: 10
+                // marginTop: 10
             }}>
-                <Button
-                    icon={
-                        <Icon
-                            name="arrow-left"
-                            size={25}
-                            color="black"
-                        />
-                    }
-                    type="outline"
-                    buttonStyle={{ width: 50, height: 50, zIndex: 1, borderRadius: 25, borderColor: 'transparent' }}
-                    titleStyle={{ color: 'black' }}
-                    iconContainerStyle={styles.btnIcon}
-                />
-                <Text style={{ fontSize: 25, fontWeight: 'bold', color: 'black', textAlign: 'center' }}>Booking</Text>
+                <BackButton navigation={this.props.navigation} />
+                
+                <Text style={{ fontSize: 25, fontWeight: 'bold', color: 'black', textAlign: 'center', marginTop: 50 }}>Booking</Text>
+                {this._approved()}
                 <ScrollableTabView
                     style={styles.container}
                     renderTabBar={() =>
@@ -205,7 +223,7 @@ export default class Booking extends Component {
                         <NewTabCard key={1} onPress={() => this.toggleOverlay()} />
 
                         <Overlay isVisible={this.state.visible} onBackdropPress={() => this.toggleOverlay()}
-                        overlayStyle={{margin:30}}>
+                            overlayStyle={{ margin: 30 }}>
                             <InnerOverLay />
                         </Overlay>
                     </ScrollView>
@@ -232,6 +250,16 @@ const styles = StyleSheet.create({
     container: {
         marginTop: 10,
         zIndex: 1
+    },
+    alertMsg:{
+        fontSize: 20, 
+        padding:10,
+        marginHorizontal:20,
+        fontWeight: 'bold', 
+        color: 'black', 
+        textAlign: 'center', 
+        backgroundColor:'#ff5b90',
+        borderRadius:5
     },
     innerTab: {
         marginVertical: 50,

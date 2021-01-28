@@ -1,4 +1,4 @@
-import React, { useState, Dimentiions } from 'react';
+import React, { useState, Dimentiions, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, Image, TouchableOpacity, SafeAreaView } from 'react-native';
 import { Picker } from '@react-native-community/picker';
 import { Button, Input, CheckBox, Avatar, ListItem, BottomSheet } from 'react-native-elements';
@@ -9,6 +9,9 @@ import { Col, Row, Grid } from 'react-native-easy-grid';
 
 import ReviewItem from '../../components/ReviewItem';
 import BackButton from '../../components/BackButton';
+import ProfileAvatar from '../../components/ProfileAvatar';
+import AsyncStorage from '@react-native-community/async-storage';
+import axios from 'axios';
 
 import RBSheet from 'react-native-raw-bottom-sheet';
 
@@ -78,166 +81,32 @@ const styles = StyleSheet.create({
 
 });
 
-const ProfileAvatar = () => {
-    return (
-
-        <View style={{
-            position: 'absolute',
-            right: 30,
-            bottom: -70,
-        }}>
-            <Avatar
-                rounded
-                size="xlarge"
-                avatarStyle={{
-
-                    borderColor: 'white',
-                    borderWidth: 3
-                }}
-                containerStyle={{ padding: 10 }}
-                source={require('../../assets/img/test.jpg')}
-            />
-            <View style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                alignSelf: 'center',
-                justifyContent: 'center',
-                position: 'absolute',
-                zIndex: 1,
-                backgroundColor: 'white',
-                // bottom: -60,
-                // right: 65,
-                bottom: 0,
-                // right:0,
-                // left:0,
-                width: 100,
-                borderRadius: 10,
-                borderColor: 'transparent',
-                borderWidth: 1,
-                shadowColor: "#000000",
-                shadowOffset: {
-                    width: 0,
-                    height: 20,
-                },
-                shadowOpacity: 0.9,
-                shadowRadius: 8,
-                elevation: 1,
-                padding: 2
-
-            }}
-
-            >
-                <Icon name="star" color="green" size={15} />
-                <Text>4.5 (123)</Text>
-            </View>
-        </View>
-
-
-
-
-    )
-}
-
 const ProfileEdit = ({ navigation }) => {
-    const [selectedValue, setSelectedValue] = useState("private_company");
-    const [value1, onChangeText1] = useState('100');
-    const [value2, onChangeText2] = useState('500');
+    const [currentUser, setCurrentUser] = useState();
+    const [min_price, onChangeMinPrice] = useState('100');
+    const [max_price, onChangeMaxPrice] = useState('500');
+   
+    useEffect(() => {
+        retrieveUserData();
+    }, [])
 
-    const [activIndex, setActiveIndex] = useState(3);
-    const [carouselItems, setCarouselItems] = useState(
-        [
-            {
-                title: "Item 1",
-                text: "Text 1",
-            },
-            {
-                title: "Item 2",
-                text: "Text 2",
-            },
-            {
-                title: "Item 3",
-                text: "Text 3",
-            },
-            {
-                title: "Item 4",
-                text: "Text 4",
-            },
-            {
-                title: "Item 5",
-                text: "Text 5",
-            },
-        ])
-
-    const activeSections = useState(0)
-
-    const [isVisible, setIsVisible] = useState(false);
-    const bottomSheetList = [
-        {
-            title: 'Create New',
-            containerStyle: {
-                borderTopRightRadius: 20,
-                borderTopLeftRadius: 20,
+    const retrieveUserData = async () => {
+        try {
+            const user = await AsyncStorage.getItem('@user');
+            if (user) {
+                setCurrentUser(user);
             }
-        },
-        {
-            title: 'Portfolio Post',
-            titleStyle: { fontWeight: 'bold' },
-            onPress: () => goPortfolioPost()
-        },
-        {
-            title: 'Story',
-            titleStyle: { fontWeight: 'bold' },
-            onPress: () => goStory()
-        },
-        {
-            title: 'Story Highlight',
-            titleStyle: { fontWeight: 'bold' },
-            onPress: () => goStoryHilight()
-        },
-    ];
-
-    const goPortfolioPost = () => {
-        RBSheetR.close()
-        navigation.navigate('ProfileAdd');
+        } catch (e) {
+            console.log(e);
+            alert('Failed to load name.')
+        }
     }
 
-    const goStory = () => {
-        alert('goStory');
+    const save = ()=>{
+        console.log(min_price, max_price, currentUser);
     }
 
-    var RBSheetR = null;
-
-    const goStoryHilight = () => {
-        alert('goStoryHilight');
-    }
-
-    const _renderSectionTitle = section => {
-        return (
-            <View style={styles.content}>
-                <Text>{section.content}</Text>
-            </View>
-        );
-    };
-
-    const _renderHeader = section => {
-        return (
-            <View style={styles.header}>
-                <Text style={styles.headerText}>{section.title}</Text>
-            </View>
-        );
-    };
-
-    const _renderContent = section => {
-        return (
-            <View style={styles.content}>
-                <Text>{section.content}</Text>
-            </View>
-        );
-    };
-
-    const _updateSections = activeSections => {
-        useState({ activeSections });
-    };
+    
 
     return (
         <ScrollView contentContainerStyle={{}}>
@@ -358,8 +227,8 @@ const ProfileEdit = ({ navigation }) => {
                                         borderRadius: 5,
                                         paddingLeft: 20,
                                     }}
-                                    onChangeText={text => onChangeText1(text)}
-                                    value={value1}
+                                    onChangeText={text => onChangeMinPrice(text)}
+                                    value={min_price}
                                     keyboardType={'numeric'}
                                 />
                             </View>
@@ -384,8 +253,8 @@ const ProfileEdit = ({ navigation }) => {
                                         backgroundColor: 'black',
                                         color: "white"
                                     }}
-                                    onChangeText={text => onChangeText2(text)}
-                                    value={value2}
+                                    onChangeText={text => onChangeMaxPrice(text)}
+                                    value={max_price}
                                     keyboardType={'numeric'}
                                 />
                             </View>
@@ -425,7 +294,6 @@ const ProfileEdit = ({ navigation }) => {
                         <Input placeholder='Flourich Marketing Ltd' />
                     </CollapseBody>
                 </Collapse>
-
 
                 <View style={styles.separate}>
                     <Text style={styles.headerTitle}>SUPPORT</Text>
@@ -467,11 +335,11 @@ const ProfileEdit = ({ navigation }) => {
                         start: { x: 0, y: 0.5 },
                         end: { x: 1, y: 0.5 },
                     }}
-                    title="Log out"
-                    onPress={() => {alert('click')}}
+                    title="Save"
+                    onPress={() => save()}
                 />
 
-                <Text style={{alignSelf:'center'}}>Flourich Version 3.0 (01012021)</Text>
+                <Text style={{ alignSelf: 'center' }}>Flourich Version 3.0 (01012021)</Text>
 
             </View>
 
