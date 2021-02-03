@@ -4,5 +4,8 @@ export default StyleSheet.create({
         borderRadius:15,
         color: 'red',
 
+    },
+    error: {
+        color:'red'
     }
 })

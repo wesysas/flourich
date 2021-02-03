@@ -1,6 +1,5 @@
 import React, { useState, Dimentiions, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, Image, TouchableOpacity, SafeAreaView } from 'react-native';
-import { Picker } from '@react-native-community/picker';
 import { Button, Input, CheckBox, Avatar, ListItem, BottomSheet } from 'react-native-elements';
 import LinearGradient from 'react-native-linear-gradient/index';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -12,21 +11,30 @@ import BackButton from '../../components/BackButton';
 import ProfileAvatar from '../../components/ProfileAvatar';
 import AsyncStorage from '@react-native-community/async-storage';
 import axios from 'axios';
+import { TextInputMask } from 'react-native-masked-text';
+
+import { useForm, Controller } from 'react-hook-form';
+
+import { CustomInput, CustomMaskInput, CustomPhoneMaskInput } from '../../components/CustomInputs';
 
 import RBSheet from 'react-native-raw-bottom-sheet';
 
 import { Collapse, CollapseHeader, CollapseBody } from 'accordion-collapse-react-native';
 
-const SECTIONS = [
-    {
-        title: 'First',
-        content: 'Lorem ipsum...',
-    },
-    {
-        title: 'Second',
-        content: 'Lorem ipsum...',
-    },
-];
+// const CusInput = (props) => {
+//     return (
+//       <View style={styles.wrapper}>
+//         <TextInput
+//           style={[styles.input, props.error && {color:'red'}, props.style]}
+//           {...props}
+//         />
+//         {props.errorText && (
+//           <Text style={styles.errorText}>{props.errorText}</Text>
+//         )}
+//       </View>
+//     );
+//   }
+
 
 const styles = StyleSheet.create({
     container: {
@@ -77,7 +85,7 @@ const styles = StyleSheet.create({
     },
     bottomSheetItem: {
         // backgroundColor:'transparent',
-    },
+    }
 
 });
 
@@ -85,9 +93,45 @@ const ProfileEdit = ({ navigation }) => {
     const [currentUser, setCurrentUser] = useState();
     const [min_price, onChangeMinPrice] = useState('100');
     const [max_price, onChangeMaxPrice] = useState('500');
-   
+    const [birthday, onChangeBirthday] = useState();
+    // const onSubmit = data =>{
+    //     console.log(data);
+    // }
+    const { control, handleSubmit, errors } = useForm();
+
+    const [allValues, setAllValues] = useState({
+        mobile: '',
+        username: '',
+        email: '',
+        password: '',
+        confirmPassword: ''
+    });
+    const changeHandler = e => {
+        console.log(e);
+        setAllValues({ ...allValues, [e.target.name]: e.target.value })
+    }
+    //  return (
+    //     <input type="text"
+    //         className="form-control"
+    //         id="mobile"
+    //         name="mobile"
+    //         placeholder="Enter a valid mobile number"
+    //         onChange={changeHandler}
+    //     />
+    //     // ...
+    //  )
+
+
+
+    const onSubmit = data => {
+        console.log('err',errors);
+        console.log('data', data);
+    }
+
     useEffect(() => {
         retrieveUserData();
+        // register("firstName");
+        // register("lastName");
     }, [])
 
     const retrieveUserData = async () => {
@@ -102,11 +146,21 @@ const ProfileEdit = ({ navigation }) => {
         }
     }
 
-    const save = ()=>{
-        console.log(min_price, max_price, currentUser);
-    }
-
     
+
+    const save = () => {
+        console.log(min_price, max_price, birthday);
+        console.log(datetimeField.isValid());
+    }
+    var datetimeField;
+
+    const errorStyle = () => {
+        
+
+            return {
+                borderBottomColor: 'red'
+            }
+    }
 
     return (
         <ScrollView contentContainerStyle={{}}>
@@ -116,7 +170,7 @@ const ProfileEdit = ({ navigation }) => {
                 <ProfileAvatar />
             </View>
             <View style={styles.container}>
-                <Text style={styles.headerTitle}>Edit My Profile</Text>
+                <Text style={styles.headerTitle}>Edit My Profile</Text>              
 
                 <Collapse style={{ marginVertical: 10 }}>
                     <CollapseHeader>
@@ -127,24 +181,24 @@ const ProfileEdit = ({ navigation }) => {
                     </CollapseHeader>
                     <CollapseBody style={{ margin: 10 }}>
                         <Text>First Name</Text>
-                        <Input placeholder='Leteechia' />
+                        <CustomInput _filedName="first_name" _control={control} _errors={errors} _placeholder="Leteechia" _defaultValue=""/>
 
                         <Text>Last Name</Text>
-                        <Input placeholder='Rungasamy' />
+                        <CustomInput _filedName="last_name" _control={control} _errors={errors} _placeholder="Rungasamy" _defaultValue=""/>
 
                         <Text>Birth Date</Text>
-                        <Input placeholder='dd/mm/yy' />
+                        <CustomMaskInput _filedName="birth_date" _control={control} _errors={errors} _placeholder="DD/MM/YY" _defaultValue=""/>
 
                         <Text>Phone Number</Text>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <Text>For notifications, reminders and help logging in</Text>
+                        <View style={{ marginTop:-10,flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <Text style={{fontSize:12}}>For notifications, reminders and help logging in</Text>
                             <Button
                                 type="clear"
                                 title="add"
                                 titleStyle={{ textDecorationLine: 'underline' }}
                             />
                         </View>
-                        <Input placeholder='123456789' keyboardType={'numeric'} />
+                        <CustomPhoneMaskInput _filedName="phone_number" _control={control} _errors={errors} _placeholder="(99) 99999-9999" _defaultValue=""/>
 
                         <Text>Industry/Services</Text>
                         <View style={{
@@ -336,7 +390,7 @@ const ProfileEdit = ({ navigation }) => {
                         end: { x: 1, y: 0.5 },
                     }}
                     title="Save"
-                    onPress={() => save()}
+                    onPress={handleSubmit(onSubmit)}
                 />
 
                 <Text style={{ alignSelf: 'center' }}>Flourich Version 3.0 (01012021)</Text>

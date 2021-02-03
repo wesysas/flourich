@@ -203,7 +203,7 @@ export default class Booking extends Component {
         return (
             <View style={{
                 flex: 1,
-                // marginTop: 10
+                marginTop: 10,
             }}>
                 <BackButton navigation={this.props.navigation} />
                 
@@ -262,7 +262,7 @@ const styles = StyleSheet.create({
         borderRadius:5
     },
     innerTab: {
-        marginVertical: 50,
+        marginTop:50,
         marginHorizontal: 20
     },
     new: {

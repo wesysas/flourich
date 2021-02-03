@@ -1,6 +1,5 @@
 import React, { useState, Dimentiions } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, Image, TouchableOpacity, SafeAreaView } from 'react-native';
-import { Picker } from '@react-native-community/picker';
 import { Button, Input, CheckBox, Avatar, ListItem } from 'react-native-elements';
 import LinearGradient from 'react-native-linear-gradient/index';
 import Icon from 'react-native-vector-icons/FontAwesome';

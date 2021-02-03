@@ -1,6 +1,5 @@
 import React, { useState, Dimentiions, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, Image, TouchableOpacity, SafeAreaView } from 'react-native';
-import { Picker } from '@react-native-community/picker';
 import { Button, Input, CheckBox, Avatar, ListItem, BottomSheet } from 'react-native-elements';
 import LinearGradient from 'react-native-linear-gradient/index';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -137,7 +136,7 @@ const Profile = ({ navigation }) => {
         try {
             const user = await AsyncStorage.getItem('@user')
             if (user) {
-                console.log(user);
+                // console.log(user);
                 setCurrentUser(user);
             }
         } catch (e) {

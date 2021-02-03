@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
         zIndex: 1
     },
     innerTab: {
-        marginVertical: 50,
+        marginTop:50,
         marginHorizontal: 20
     },
     new: {

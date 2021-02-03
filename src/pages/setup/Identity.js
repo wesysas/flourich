@@ -1,10 +1,21 @@
-import React, {  useState, useCallback, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Picker, TextInput } from 'react-native';
+import React, { useState, Component  } from 'react';
+import { View, Text, StyleSheet, ScrollView, TextInput } from 'react-native';
 import { Button, Input, CheckBox } from 'react-native-elements';
 import LinearGradient from 'react-native-linear-gradient/index';
 import Cardscan from 'react-native-cardscan';
 import { CardView } from 'react-native-credit-card-input';
+import {Picker} from '@react-native-picker/picker';
+import { ActionSheetCustom as ActionSheet } from 'react-native-actionsheet'
+import { LogBox } from 'react-native';
+import ImagePicker from 'react-native-image-crop-picker';
+import { uploadCard, uploadAvatar } from '../../shared/service/api';
+import { getStorage, getUserId } from '../../shared/service/storage';
 
+const options = [
+    'Cancel', 
+    'Camera', 
+    'Gallery', 
+  ]
 const styles = StyleSheet.create({
     container: {
         flexGrow: 1,
@@ -29,91 +40,185 @@ const styles = StyleSheet.create({
         marginVertical: 10, borderRadius: 8
     }
 });
+export default class Identity extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            userid: '',
+            country: '',
+            cardtype: '',
+            filename: '',
+            image: '',
+            availAvatar: false,
+        }
+    }
 
-const Identity = ({ navigation }) => {
-    const [compatible, setCompatible] = useState(null);
-    const [card, setCard] = useState(null);
-    const [recentAction, setRecentAction] = useState('none');
+    componentDidMount() {
+        LogBox.ignoreLogs(['Animated: `useNativeDriver`']);
+    }
+    showActionSheet = () => {
+        this.ActionSheet.show()
+    }
 
-    const scanCard = useCallback(async () => {
-        const { action, scanId, payload, canceledReason } = await Cardscan.scan();
-        setRecentAction(action);
-        if (action === 'scanned') {
-            var issuer = payload.issuer || '??';
-            if (issuer === 'MasterCard') {
-                issuer = 'master-card';
-            } else if (issuer === 'American Express') {
-                issuer = 'american-express';
-            } else {
-                issuer = issuer.toLowerCase();
-            }
-            setCard({
-                number: payload.number,
-                expiryDay: payload.expiryDay || '',
-                expiryMonth: payload.expiryMonth || '??',
-                expiryYear: payload.expiryYear || '??',
-                issuer: issuer,
-                cvc: payload.cvc || '??',
-                cardholderName: payload.cardholderName || '??',
-                error: payload.error || ''
+    openPicker = () => {
+        if(this.state.availAvatar) {
+            ImagePicker.openPicker({
+                width: 300,
+                height: 300,
+                cropping: true,
+                includeBase64:true,
+                cropperCircleOverlay:true,
+                showCropGuidelines:false,
+              }).then(image => {
+                this.uploadAvatarImage(image);
+              }).catch(err => {
+                console.log(err);
+            });
+        }else{
+            ImagePicker.openPicker({
+                width: 400,
+                height: 300,
+                cropping: true,
+                includeBase64:true,
+                // cropperCircleOverlay:true,
+                showCropGuidelines:false,
+              }).then(image => {
+                this.uploadCardImage(image);
+              }).catch(err => {
+                console.log(err);
             });
         }
+    }
 
-        if (action === 'canceled') {
-            if (canceledReason === 'enter_card_manually') {
-                alert('Enter card manually');
-            }
-
-            if (canceledReason === 'user_canceled') {
-                alert('User canceled scan');
-            }
-
-            if (canceledReason === 'camera_error') {
-                alert('Camera error during scan');
-            }
-
-            if (canceledReason === 'fatal_error') {
-                alert('Processing error during scan');
-            }
-
-            if (canceledReason === 'unknown') {
-                alert('Unknown reason for scan cancellation');
-            }
+    openCamera = () => {
+        if(this.state.availAvatar) {
+            ImagePicker.openCamera({
+                width: 300,
+                height: 300,
+                cropping: true,
+                includeBase64:true,
+                showCropGuidelines:false,
+              }).then(image => {
+                this.uploadAvatarImage(image);
+              }).catch(err => {
+                  console.log(err);
+              });
+    
+        }else{
+            ImagePicker.openCamera({
+                width: 400,
+                height: 300,
+                cropping: true,
+                includeBase64:true,
+                showCropGuidelines:false,
+              }).then(image => {
+                this.uploadCardImage(image);
+              }).catch(err => {
+                  console.log(err);
+              });
+    
         }
-    }, [setCard, setRecentAction]);
+    }
+    uploadCardImage = async (image) => {
+        var userid = await getUserId();
+        this.setState({"userid": userid});
 
-    const checkCompatible = useCallback(async () => {
-        const isCompatible = await Cardscan.isSupportedAsync();
-        setCompatible(isCompatible);
-    }, [setCompatible]);
+        var ext = image.mime;
+        var ext_a = ext.split("/");
+        if(ext_a.length > 1) {
+            ext = ext_a[1];
+        }
+        var data = image.data;
+        var filename = `${userid}.${ext}`;
+        this.setState({"image": data});
+        this.setState({"filename": filename});
+        var res = await uploadCard(this.state);
+        console.log(res);
+        if(res != null) {
+            this.setState({"availAvatar": true});
+        }
+    }
+    uploadAvatarImage = async (image) => {
+        var userid = await getUserId();
+        this.setState({"userid": userid});
 
-    useEffect(() => {
-        checkCompatible();
-    }, []);
+        var ext = image.mime;
+        var ext_a = ext.split("/");
+        if(ext_a.length > 1) {
+            ext = ext_a[1];
+        }
+        var data = image.data;
+        var filename = `${userid}.${ext}`;
+        this.setState({"image": data});
+        this.setState({"filename": filename});
+        var res = await uploadAvatar(this.state);
+        console.log(res);
+        if(res != null) {
+            this.props.navigation.navigate("PendingAccount");
+        }
+    }
+    render() {
+        return (
+            <ScrollView contentContainerStyle={styles.container}>
+                <View style={{
+                    marginVertical: 30
+                }}>
+                    <Text style={styles.headerTitle}>Continue Set Up</Text>
+                    <View style={styles.separate}>
+                        <Text style={styles.subTitle}>Select the type of ID to proceed</Text>
+                        <Text>Country</Text>
+                        <Picker
+                            selectedValue={this.state.country}
+                            style={{ textAlign: 'right' }}
+                            onValueChange={(itemValue, itemIndex) => this.setState({"country": itemValue})}
+                        >
+                            <Picker.Item label="United Kingdom" value="uk" />
+                            <Picker.Item label="France" value="fr" />
+                        </Picker>
+                    </View>
 
-    const [selectedValue, setSelectedValue] = useState("uk");
-    const [value1, onChangeText1] = useState('100');
-    const [value2, onChangeText2] = useState('500');
-    return (
-        <ScrollView contentContainerStyle={styles.container}>
-            <View style={{
-                marginVertical: 30
-            }}>
-                <Text style={styles.headerTitle}>Continue Set Up</Text>
-                <View style={styles.separate}>
-                    <Text style={styles.subTitle}>Select the type of ID to proceed</Text>
-                    <Text>Country</Text>
-                    <Picker
-                        selectedValue={selectedValue}
-                        style={{ textAlign: 'right' }}
-                        onValueChange={(itemValue, itemIndex) => setSelectedValue(itemValue)}
-                    >
-                        <Picker.Item label="United Kingdom" value="uk" />
-                        <Picker.Item label="France" value="fr" />
-                    </Picker>
-                </View>
+                    <View style={styles.separate}>
+                        <Button
+                            buttonStyle={styles.btnStyle}
+                            ViewComponent={LinearGradient}
+                            titleStyle={styles.btnTitle}
+                            linearGradientProps={{
+                                colors: ["#c84e77", "#f13e3a"],
+                                start: { x: 0, y: 0.5 },
+                                end: { x: 1, y: 0.5 },
+                            }}
+                            title="Identity Card"
+                            onPress={()=> {
+                                this.setState({'cardtype': 'Identity Card'});
+                                this.showActionSheet();
+                            }}
+                        />
+                        <Button
+                            buttonStyle={styles.btnStyle}
+                            titleStyle={styles.btnTitle}
+                            title="Passport"
+                            type="outline"
+                            onPress={()=> {
+                                this.setState({'cardtype': 'Passport'});
+                                this.showActionSheet();
+                            }}
+                        />
+                        <Button
+                            buttonStyle={styles.btnStyle}
+                            titleStyle={styles.btnTitle}
+                            title="Drivers License"
+                            type="outline"
+                            onPress={()=> {
+                                this.setState({'cardtype': 'Drivers License'});
+                                this.showActionSheet();
+                            }}
+                        />
+                    </View>
 
-                <View style={styles.separate}>
+                    <View style={{ marginVertical: 20, alignItems: 'center' }}>
+                        <Text>For security reasons, you will be required</Text>
+                        <Text>to complete the verification process within 10 minutes</Text>
+                    </View>
                     <Button
                         buttonStyle={styles.btnStyle}
                         ViewComponent={LinearGradient}
@@ -123,48 +228,31 @@ const Identity = ({ navigation }) => {
                             start: { x: 0, y: 0.5 },
                             end: { x: 1, y: 0.5 },
                         }}
-                        title="Identity Card"
-                        onPress={scanCard}
-                    />
-                    <Button
-                        buttonStyle={styles.btnStyle}
-                        titleStyle={styles.btnTitle}
-                        title="Passport"
-                        type="outline"
-                        // () => navigation.navigate('IdCardScan')
-                        onPress={() => {}}
-                    />
-                    <Button
-                        buttonStyle={styles.btnStyle}
-                        titleStyle={styles.btnTitle}
-                        title="Drivers License"
-                        type="outline"
-                        onPress={() => navigation.navigate('PendingAccount')}
+                        title="Next"
+                        disabled={!this.state.availAvatar}
+                        onPress={()=> {
+                            this.showActionSheet();
+                        }}
                     />
                 </View>
-                {card &&
-                    <View style={{ margin: 20, flexDirection: 'row', flex: 1, justifyContent: 'center' }}>
-                    <CardView
-                        number={card.number}
-                        expiry={`${card.expiryMonth.padStart(2, '0')}/${card.expiryYear.slice(-2)}`}
-                        brand={card.issuer.toLowerCase()}
-                        name={card.cardholderName}
-                        cvc={card.cvc}
+                <View>
+                    <ActionSheet
+                    ref={o => this.ActionSheet = o}
+                    title={<Text style={{color: '#000', fontSize: 18}}>Select Option</Text>}
+                    options={options}
+                    cancelButtonIndex={0}
+                    // destructiveButtonIndex={2}
+                    onPress={(index) => { 
+                        if(index == 1) {
+                            this.openCamera();
+                        }
+                        if(index == 2) {
+                            this.openPicker();
+                        }
+                        }}
                     />
-                    </View>
-                }
-
-                <View style={{ marginVertical: 20, alignItems: 'center' }}>
-                    <Text>For security reasons, you will be required</Text>
-                    <Text>to complete the verification process within 10 minutes</Text>
                 </View>
-
-            </View>
-
-        </ScrollView>
-    )
-
-
+            </ScrollView>
+        )
+    }
 }
-
-export default Identity;

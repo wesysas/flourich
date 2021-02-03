@@ -7,7 +7,7 @@ import LinearGradient from 'react-native-linear-gradient/index';
 import {API_URL, googleConfig} from '../globalconfig';
 
 import { GoogleSignin, statusCodes } from 'react-native-google-signin';
-import { loginWithGoogle, loginWithEmail} from '../shared/service/auth';
+import { loginWithGoogle, registerWithEmail} from '../shared/service/auth';
 import { saveStorage, getStorage } from '../shared/service/storage';
 import ValidationComponent from 'react-native-form-validator';
 // import { LoginManager, AccessToken } from "react-native-fbsdk";
@@ -48,13 +48,16 @@ const styles = StyleSheet.create({
     }
 });
 
-export default class LoginPage extends ValidationComponent {
+export default class SignupPage extends ValidationComponent {
 
     constructor(props) {
+
+        console.log(API_URL);
         super(props);
         this.state = {
-            email: '',
-            password: ''
+            email: 't@g.com',
+            password: '123123',
+            confirmPassword :'123123'
         }
             // const [selectedValue, setSelectedValue] = useState("java");
         // const [value, onChangeText] = useState('');
@@ -99,14 +102,6 @@ export default class LoginPage extends ValidationComponent {
         }catch(error) {
             if (error.code === statusCodes.SIGN_IN_CANCELLED) {
                 // when user cancels sign in process,
-                var res = await loginWithGoogle({"googletoken":'userinfo.idToken'});
-                if(res != null) {
-                    // go next page
-                    await saveStorage(local.isLogin, 'true');
-                    await saveStorage(local.token, res.token);
-                    await saveStorage(local.user, JSON.stringify(res.user));
-                    this.props.navigation.navigate('Home');
-                }
                 alert('Process Cancelled');
             } else if (error.code === statusCodes.IN_PROGRESS) {
               // when in progress already
@@ -145,14 +140,15 @@ export default class LoginPage extends ValidationComponent {
     //         }
     //     );
     // }
-    _loginWithEmail = async() => {
+    _signupWithEmail = async() => {
         var validate = this.validate({
-            email: {email: true, required: true},
-            password: {minlength:6, required: true},
+            email: {email: true},
+            password: {minlength:6},
+            confirmPassword : {equalPassword : this.state.password}
         });
         if(validate) {
             console.log(this.state);
-            var res = await loginWithEmail(this.state);
+            var res = await registerWithEmail(this.state);
             if(res != null) {
                 // go next page
                 await saveStorage(local.isLogin, 'true');
@@ -178,15 +174,15 @@ export default class LoginPage extends ValidationComponent {
                             alignItems: 'center',
                             justifyContent: 'space-evenly',
                         }}>
-                        <Text style={{ textAlign: 'center' }}>New User?   
+                        <Text style={{ textAlign: 'center' }}>Create Account With Email  
                             <Text 
                                 style={{ 
                                     color:'#03489c',
                                 }}
                                 onPress={()=> {
-                                    this.props.navigation.navigate('Signup',{transition:'vertical'})
+                                    this.props.navigation.navigate('Login',{transition:'vertical'})
                                 }}
-                                > Create an account
+                                > Go to Login
                             </Text>
                         </Text>
                     </View>
@@ -212,13 +208,28 @@ export default class LoginPage extends ValidationComponent {
                         onChangeText={value => {
                             this.setState({"password":value});
                             // this.validate({
-                            //     email: {email: true, required: true},
-                            //     password: {minlength:6, required: true},
+                            //     email: {email: true},
+                            //     password: {minlength:6},
                             // });
                         }}
                         secureTextEntry={true}
                     ></TextInput>
                     {this.isFieldInError('password') && this.getErrorsInField('password').map(errorMessage => <Text style={styles.error}>{errorMessage}</Text>) }
+
+                    <TextInput
+                        style={{ borderWidth:1, borderRadius:4, borderColor:'gray', paddingHorizontal:10, fontSize: 18, marginVertical:10}}
+                        placeholder="Confirmation password"
+                        value={this.state.confirmPassword}
+                        onChangeText={value => {
+                            this.setState({"confirmPassword":value});
+                            // this.validate({
+                            //     email: {email: true},
+                            //     password: {minlength:6},
+                            // });
+                        }}
+                        secureTextEntry={true}
+                    ></TextInput>
+                    {this.isFieldInError('confirmPassword') && this.getErrorsInField('confirmPassword').map(errorMessage => <Text style={styles.error}>{errorMessage}</Text>) }
 
                     <View style={{ alignItems: 'flex-end' }}>
                         <Button
@@ -233,12 +244,11 @@ export default class LoginPage extends ValidationComponent {
                             title="Continue"
                             onPress={() => {
                                 // navigation.navigate('Verify')
-                                this._loginWithEmail();
+                                this._signupWithEmail();
                             }}
                         />
                     </View>
                     <Text style={{ marginVertical:10, textAlign:'center'}}>Or</Text>
-
                     <TouchableOpacity
                         style={{
                             flexDirection: 'row',

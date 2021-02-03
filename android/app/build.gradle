@@ -134,6 +134,8 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+        missingDimensionStrategy 'react-native-camera', 'general' // react native camera
+        vectorDrawables.useSupportLibrary = true // react-native-image-crop-picker
     }
     splits {
         abi {

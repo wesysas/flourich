@@ -1,5 +1,5 @@
 import React, { useState, useCallback, Component } from 'react';
-import { View, Text, Picker, StyleSheet, Image, TouchableOpacity, ScrollView, TextInput } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, TextInput } from 'react-native';
 import { Button, SocialIcon, Input } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { RectButton } from 'react-native-gesture-handler';
