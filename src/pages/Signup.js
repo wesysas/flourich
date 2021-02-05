@@ -12,6 +12,7 @@ import { saveStorage, getStorage } from '../shared/service/storage';
 import ValidationComponent from 'react-native-form-validator';
 // import { LoginManager, AccessToken } from "react-native-fbsdk";
 import { local } from '../shared/const/local';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 const styles = StyleSheet.create({
     container: {
@@ -52,12 +53,12 @@ export default class SignupPage extends ValidationComponent {
 
     constructor(props) {
 
-        console.log(API_URL);
         super(props);
         this.state = {
-            email: 't@g.com',
-            password: '123123',
-            confirmPassword :'123123'
+            email: '',
+            password: '',
+            confirmPassword :'',
+            spinner: false,
         }
             // const [selectedValue, setSelectedValue] = useState("java");
         // const [value, onChangeText] = useState('');
@@ -112,7 +113,6 @@ export default class SignupPage extends ValidationComponent {
             } else {
               // some other error
               alert('Something else went wrong... ', error.toString());
-              console.log(error);
             //   setError(error);
             }
         }
@@ -148,7 +148,9 @@ export default class SignupPage extends ValidationComponent {
         });
         if(validate) {
             console.log(this.state);
+            this.setState({spinner: true});
             var res = await registerWithEmail(this.state);
+            this.setState({spinner: false});
             if(res != null) {
                 // go next page
                 await saveStorage(local.isLogin, 'true');
@@ -167,6 +169,9 @@ export default class SignupPage extends ValidationComponent {
         // const { user } = this.state;
         return (
             <View style={styles.container}>
+                <Spinner
+                    visible={this.state.spinner}
+                />
                 <Image style={styles.image} source={require('../assets/img/get_started_logo.jpg')} />
                 <ScrollView contentContainerStyle={styles.btnContainer}>
                     <View style={{

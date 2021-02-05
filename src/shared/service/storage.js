@@ -5,7 +5,6 @@ import { local } from '../const/local';
       await AsyncStorage.setItem(key, data)
       return true;
     } catch (e) {
-        console.log(e);
         return false;
     }
   }
@@ -15,7 +14,6 @@ import { local } from '../const/local';
       const value = await AsyncStorage.getItem(key);
       return value;
     } catch (e) {
-        console.log(e);
         return null;
     }
   }
@@ -27,7 +25,6 @@ import { local } from '../const/local';
       var userid = user.cid;
       return userid;
     }catch(e) {
-      console.log(e);
       return null;
     }
   }

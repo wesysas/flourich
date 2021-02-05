@@ -1,4 +1,4 @@
-import React, { useState, Dimentiions, useEffect } from 'react';
+import React, { Component, useState, Dimentiions, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, Image, TouchableOpacity, SafeAreaView } from 'react-native';
 import { Button, Input, CheckBox, Avatar, ListItem, BottomSheet } from 'react-native-elements';
 import LinearGradient from 'react-native-linear-gradient/index';
@@ -13,6 +13,13 @@ import ProfileAvatar from '../../components/ProfileAvatar';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import AsyncStorage from '@react-native-community/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
+import { getStorage, getUserId, saveStorage } from '../../shared/service/storage';
+import { local } from '../../shared/const/local';
+import { LogBox } from 'react-native';
+import ImagePicker from 'react-native-image-crop-picker';
+import Spinner from 'react-native-loading-spinner-overlay';
+import { getCreatorMediaData, uploadPortfolio, uploadStory } from '../../shared/service/api';
+
 
 const styles = StyleSheet.create({
     container: {
@@ -85,18 +92,17 @@ const _renderCarouselItem = ({ item, index }) => {
         </View>
     );
 }
+export default class Profile extends Component {
 
-const Profile = ({ navigation }) => {
+    constructor(props) {
+        super(props);
+        this.state = {
+            userid: '',
+            spinner: false,
+        };
+        this.activIndex = 3,
 
-    const [currentUser, setCurrentUser] = useState(null)
-    
-    const [selectedValue, setSelectedValue] = useState("private_company");
-    const [value1, onChangeText1] = useState('100');
-    const [value2, onChangeText2] = useState('500');
-
-    const [activIndex, setActiveIndex] = useState(3);
-    const [carouselItems, setCarouselItems] = useState(
-        [
+        this.carouselItems = [
             {
                 title: "Item 1",
                 text: "Text 1",
@@ -117,227 +123,338 @@ const Profile = ({ navigation }) => {
                 title: "Item 5",
                 text: "Text 5",
             },
-        ])
+        ];
+        this.user = null;
+        this.RBSheetR = null;
+        this.bottomSheetList = [
+            {
+                title: 'Create New',
+                containerStyle: {
+                    borderTopRightRadius: 20,
+                    borderTopLeftRadius: 20,
+                }
+            },
+            {
+                title: 'Portfolio Post',
+                titleStyle: { fontWeight: 'bold' },
+                onPress: () => {this.openPortfolioPicker() }
+            },
+            {
+                title: 'Story (Photo)',
+                titleStyle: { fontWeight: 'bold' },
+                onPress: () => {
+                    this.openStoryPicker();
+                }
+            },
+            {
+                title: 'Story (Video)',
+                titleStyle: { fontWeight: 'bold' },
+                onPress: () => {
+                    this.openStoryVideoPicker();
+                }
+            },
+        ];
+    }
 
-    const [isVisible, setIsVisible] = useState(false);
+    async componentDidMount() {
+        LogBox.ignoreLogs(['Animated: `useNativeDriver`']);
+        this.user = await getStorage(local.user);
+        this._getCreatorMediaData();
+    }
 
-    useEffect(() => {
-        retrieveData();
-    }, [])
+    _getCreatorMediaData = async () => {
+        this.carouselItems = [
+            {
+                title: "Item 1",
+                text: "Text 1",
+            },
+            {
+                title: "Item 2",
+                text: "Text 2",
+            },
+            {
+                title: "Item 3",
+                text: "Text 3",
+            },
+            {
+                title: "Item 4",
+                text: "Text 4",
+            },
+            {
+                title: "Item 5",
+                text: "Text 5",
+            },
+        ];
+    }
 
-    useFocusEffect(
-        React.useCallback(() => {
-            // retrieveData();
-            console.log('profile page')
-        }, [])
-    );
+    refreshScreen = ()=> {
+        this._getCreatorMediaData();
+    }
+    /**
+     *  open image picker for portfolio
+     */
+    openPortfolioPicker = () => {
+        this.RBSheetR.close();
+        ImagePicker.openPicker({
+            width: 300,
+            height: 400,
+            cropping: true,
+            includeBase64:true,
+            showCropGuidelines:false,
+          }).then(image => {
+            this.uploadPortfolioImage(image);
+          }).catch(err => {
+            console.log(err);
+        });
+    }
+    /**
+     * 
+     * @param {*} image 
+     * upload portfolio to user portfolio
+     */
+    uploadPortfolioImage = async (image) => {
+        var userid = await getUserId();
+        this.setState({"userid": userid});
 
-    const retrieveData = async () => {
-        try {
-            const user = await AsyncStorage.getItem('@user')
-            if (user) {
-                // console.log(user);
-                setCurrentUser(user);
-            }
-        } catch (e) {
-            console.log(e);
-            alert('Failed to load name.')
+        var ext = image.mime;
+        var ext_a = ext.split("/");
+        if(ext_a.length > 1) {
+            ext = ext_a[1];
+        }
+        var data = image.data;
+        this.setState({spinner: true});
+        var params = {
+            userid: userid,
+            media: data,
+            ext: ext,
+        }
+        var res = await uploadPortfolio(params);
+        this.setState({spinner: false});
+        if(res != null) {
+            alert('success');
+            this.refreshScreen();
         }
     }
 
-    const save = async (key, data) => {
-        try {
-          await AsyncStorage.setItem(key, data)
-          console.log('Data successfully saved!')
-        } catch (e) {
-            console.log(e);
-          alert('Failed to save name.')
-        }
-      }
+    /**
+     * open image camera for story
+     */
+    openStoryPicker = () => {
+        this.RBSheetR.close();
 
-    const bottomSheetList = [
-        {
-            title: 'Create New',
-            containerStyle: {
-                borderTopRightRadius: 20,
-                borderTopLeftRadius: 20,
-            }
-        },
-        {
-            title: 'Portfolio Post',
-            titleStyle: { fontWeight: 'bold' },
-            onPress: () => goPortfolioPost()
-        },
-        {
-            title: 'Story',
-            titleStyle: { fontWeight: 'bold' },
-            onPress: () => goStory()
-        },
-        {
-            title: 'Story Highlight',
-            titleStyle: { fontWeight: 'bold' },
-            onPress: () => goStoryHilight()
-        },
-    ];
-
-    const goPortfolioPost = () => {
-        RBSheetR.close()
-        navigation.navigate('ProfileAdd');
+        ImagePicker.openCamera({
+            width: 300,
+            height: 400,
+            cropping: true,
+            includeBase64:true,
+            showCropGuidelines:false,
+          }).then(image => {
+            this._uploadStory(image, "photo");
+          }).catch(err => {
+              console.log(err);
+          });
     }
 
-    const goStory = () => {
+    /**
+     * 
+     * @param {*} media 
+     * upload story image and video to server.
+     */
+    _uploadStory = async (media, media_type="photo") => {
+        var userid = await getUserId();
+        this.setState({"userid": userid});
+
+        var ext = media.mime;
+        var ext_a = ext.split("/");
+        if(ext_a.length > 1) {
+            ext = ext_a[1];
+        }
+        var data = media.data;
+        console.log(media_type, data);
+        this.setState({spinner: true});
+        var params = {
+            userid: userid,
+            media: data,
+            ext: ext,
+            media_type: media_type
+        }
+        var res = await uploadStory(params);
+        this.setState({spinner: false});
+        if(res != null) {
+            alert('success');
+            this.refreshScreen();
+        }
+    }
+    openStoryVideoPicker = () => {
+        this.RBSheetR.close();
+
+        ImagePicker.openCamera({
+            includeBase64:true,
+            showCropGuidelines:false,
+            mediaType: 'video',
+          }).then(video => {
+              console.log('videodd_______', video);
+            this._uploadStory(video, "video");
+          }).catch(err => {
+              console.log(err);
+          });
+    }
+
+    goPortfolioPost = () => {
+        this.RBSheetR.close()
+        this.props.navigation.navigate('ProfileAdd');
+    }
+
+    goStory = () => {
         alert('goStory');
     }
     
-    const logout = () => {
-        // save('@token', '');
-        // save('@user', '');
-        navigation.navigate('Index');
+    logout = async () => {
+        saveStorage(local.user, null);
+        saveStorage(local.token, null);
+        this.props.navigation.navigate('Index');
     }
     
 
-    var RBSheetR = null;
-
-    const goStoryHilight = () => {
+    goStoryHilight = () => {
         alert('goStoryHilight');
     }
-
-    return (
-        <ScrollView contentContainerStyle={styles.container}>
-            <View style={{
-                alignItems: 'stretch'
-            }}>
-                <BackButton navigation={navigation} />
-                <Image style={styles.image} source={require('../../assets/img/profile_logo.jpg')} />
-                <ProfileAvatar />
-            </View>
-            <View style={{
-                marginVertical: 30,
-                marginHorizontal: 20
-            }}>
-                <Text style={styles.headerTitle}>Argin Rgn production</Text>
-                <Text >Hackeny, London</Text>
-                <Text >£ 100-500</Text>
-                <Text >Food, Fashion, Events</Text>
-                <Text >http://www.freelancerwebste.com</Text>
-
-                {/* summary header */}
-
-                <View style={[styles.separate, { flexDirection: 'row', justifyContent: 'space-around' }]}>
-                    <TouchableOpacity onPress={() => { navigation.navigate('ProfileEdit') }}>
-                        <Text style={{ fontSize: 20 }} >Edit Profile</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => RBSheetR.open()}>
-                        <Text style={{ fontSize: 20 }}>Create New</Text>
-                    </TouchableOpacity>
-                </View>
-
-                {/* carousel part */}
-                <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', }}>
-                    <Carousel
-                        layout={"default"}
-                        //   ref={ref => this.carousel = ref}
-                        data={carouselItems}
-                        sliderWidth={300}
-                        itemWidth={100}
-                        renderItem={_renderCarouselItem}
-                        firstItem={1}
-                        onSnapToItem={index => setActiveIndex({ index })} />
-                </View>
-
-                {/* image mozaic part */}
-                <View style={{
-                    marginTop: 30
-                }}>
-                    <Grid>
-                        <Row>
-                            <Col>
-                                <Image style={styles.mozaicImg} source={require('../../assets/img/test.jpg')} />
-                            </Col>
-                            <Col>
-                                <Image style={styles.mozaicImg} source={require('../../assets/img/test.jpg')} />
-                            </Col>
-                            <Col>
-                                <Image style={styles.mozaicImg} source={require('../../assets/img/test.jpg')} />
-                            </Col>
-                        </Row>
-                        <Row style={{ alignItems: 'center', justifyContent: 'flex-end' }}>
-                            <Col size={1} >
-
-                                <Image style={styles.mozaicImg} source={require('../../assets/img/test.jpg')} />
-                                <Image style={styles.mozaicImg} source={require('../../assets/img/test.jpg')} />
-
-                            </Col>
-                            <Col size={2}>
-                                <Image style={styles.mozaicImgLarge} source={require('../../assets/img/test.jpg')} />
-                            </Col>
-                        </Row>
-                        <Row>
-                            <Col>
-                                <Image style={styles.mozaicImg} source={require('../../assets/img/test.jpg')} />
-                            </Col>
-                            <Col>
-                                <Image style={styles.mozaicImg} source={require('../../assets/img/test.jpg')} />
-                            </Col>
-                            <Col>
-                                <Image style={styles.mozaicImg} source={require('../../assets/img/test.jpg')} />
-                            </Col>
-                        </Row>
-                    </Grid>
-
-                </View>
-
-                <View style={[styles.separate, {
-                    flexDirection: 'row',
-                    alignItems: 'center',
-
-                }]}
-
-                >
-                    <Icon name="star" color="green" size={25} />
-                    <Text style={{ fontSize: 20 }}>4.5 (123)</Text>
-                </View>
-
-                <View>
-                    <ReviewItem />
-                </View>
-                <Button
-                    type="clear"
-
-                    titleStyle={{ textDecorationLine: 'underline' }}
-
-                    title="see all reviews"
-                    onPress={() => navigation.navigate('AllReview')}
+    render () {
+        return (
+            <ScrollView contentContainerStyle={styles.container}>
+                <Spinner
+                    visible={this.state.spinner}
                 />
-
-            </View>
-            <RBSheet
-                ref={ref => {
-                    RBSheetR = ref;
-                }}
-                openDuration={250}
-                customStyles={{
-                    container: {
-                        borderTopRightRadius: 20,
-                        borderTopLeftRadius: 20
-                    }
-                }}
-            >
-                {bottomSheetList.map((l, i) => (
-                    <ListItem key={i} containerStyle={[styles.bottomSheetItem, l.containerStyle]} onPress={l.onPress}>
-                        <ListItem.Content style={{ alignItems: 'center' }}>
-                            <ListItem.Title style={l.titleStyle}>{l.title}</ListItem.Title>
-                        </ListItem.Content>
-                    </ListItem>
-                ))}
-            </RBSheet>
-
-
-
-
-        </ScrollView>
-    )
-
+                <View style={{
+                    alignItems: 'stretch'
+                }}>
+                    <BackButton navigation={this.props.navigation} />
+                    <Image style={styles.image} source={require('../../assets/img/profile_logo.jpg')} />
+                    <ProfileAvatar />
+                </View>
+                <View style={{
+                    marginVertical: 30,
+                    marginHorizontal: 20
+                }}>
+                    <Text style={styles.headerTitle}>Argin Rgn production</Text>
+                    <Text >Hackeny, London</Text>
+                    <Text >£ 100-500</Text>
+                    <Text >Food, Fashion, Events</Text>
+                    <Text >http://www.freelancerwebste.com</Text>
+    
+                    {/* summary header */}
+    
+                    <View style={[styles.separate, { flexDirection: 'row', justifyContent: 'space-around' }]}>
+                        <TouchableOpacity onPress={() => { this.props.navigation.navigate('ProfileEdit') }}>
+                            <Text style={{ fontSize: 20 }} >Edit Profile</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => this.RBSheetR.open()}>
+                            <Text style={{ fontSize: 20 }}>Create New</Text>
+                        </TouchableOpacity>
+                    </View>
+    
+                    {/* carousel part */}
+                    <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', }}>
+                        <Carousel
+                            layout={"default"}
+                            //   ref={ref => this.carousel = ref}
+                            data={this.carouselItems}
+                            sliderWidth={300}
+                            itemWidth={100}
+                            renderItem={_renderCarouselItem}
+                            firstItem={1}
+                            onSnapToItem={index => {
+                                this.activIndex = index;
+                            }} />
+                    </View>
+    
+                    {/* image mozaic part */}
+                    <View style={{
+                        marginTop: 30
+                    }}>
+                        <Grid>
+                            <Row>
+                                <Col>
+                                    <Image style={styles.mozaicImg} source={require('../../assets/img/test.jpg')} />
+                                </Col>
+                                <Col>
+                                    <Image style={styles.mozaicImg} source={require('../../assets/img/test.jpg')} />
+                                </Col>
+                                <Col>
+                                    <Image style={styles.mozaicImg} source={require('../../assets/img/test.jpg')} />
+                                </Col>
+                            </Row>
+                            <Row style={{ alignItems: 'center', justifyContent: 'flex-end' }}>
+                                <Col size={1} >
+    
+                                    <Image style={styles.mozaicImg} source={require('../../assets/img/test.jpg')} />
+                                    <Image style={styles.mozaicImg} source={require('../../assets/img/test.jpg')} />
+    
+                                </Col>
+                                <Col size={2}>
+                                    <Image style={styles.mozaicImgLarge} source={require('../../assets/img/test.jpg')} />
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col>
+                                    <Image style={styles.mozaicImg} source={require('../../assets/img/test.jpg')} />
+                                </Col>
+                                <Col>
+                                    <Image style={styles.mozaicImg} source={require('../../assets/img/test.jpg')} />
+                                </Col>
+                                <Col>
+                                    <Image style={styles.mozaicImg} source={require('../../assets/img/test.jpg')} />
+                                </Col>
+                            </Row>
+                        </Grid>
+    
+                    </View>
+    
+                    <View style={[styles.separate, {
+                        flexDirection: 'row',
+                        alignItems: 'center',
+    
+                    }]}
+    
+                    >
+                        <Icon name="star" color="green" size={25} />
+                        <Text style={{ fontSize: 20 }}>4.5 (123)</Text>
+                    </View>
+    
+                    <View>
+                        <ReviewItem />
+                    </View>
+                    <Button
+                        type="clear"
+    
+                        titleStyle={{ textDecorationLine: 'underline' }}
+    
+                        title="see all reviews"
+                        onPress={() => this.props.navigation.navigate('AllReview')}
+                    />
+    
+                </View>
+                <RBSheet
+                    ref={ref => {
+                        this.RBSheetR = ref;
+                    }}
+                    openDuration={250}
+                    customStyles={{
+                        container: {
+                            borderTopRightRadius: 20,
+                            borderTopLeftRadius: 20
+                        }
+                    }}
+                >
+                    {this.bottomSheetList.map((l, i) => (
+                        <ListItem key={i} containerStyle={[styles.bottomSheetItem, l.containerStyle]} onPress={l.onPress}>
+                            <ListItem.Content style={{ alignItems: 'center' }}>
+                                <ListItem.Title style={l.titleStyle}>{l.title}</ListItem.Title>
+                            </ListItem.Content>
+                        </ListItem>
+                    ))}
+                </RBSheet>
+            </ScrollView>
+        )
+    }
 }
-
-export default Profile;

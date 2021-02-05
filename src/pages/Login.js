@@ -1,5 +1,5 @@
 import React, { Component, useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, TextInput, Linking } from 'react-native';
+import { ActivityIndicator, View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, TextInput, Linking } from 'react-native';
 import { Button, SocialIcon, Input } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import LinearGradient from 'react-native-linear-gradient/index';
@@ -8,10 +8,13 @@ import {API_URL, googleConfig} from '../globalconfig';
 
 import { GoogleSignin, statusCodes } from 'react-native-google-signin';
 import { loginWithGoogle, loginWithEmail} from '../shared/service/auth';
+import { getMe } from '../shared/service/api';
+
 import { saveStorage, getStorage } from '../shared/service/storage';
 import ValidationComponent from 'react-native-form-validator';
 // import { LoginManager, AccessToken } from "react-native-fbsdk";
 import { local } from '../shared/const/local';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 const styles = StyleSheet.create({
     container: {
@@ -45,7 +48,10 @@ const styles = StyleSheet.create({
     },
     error: {
         color:'red'
-    }
+    },
+    spinnerTextStyle: {
+        color: '#FFF'
+    },
 });
 
 export default class LoginPage extends ValidationComponent {
@@ -54,7 +60,8 @@ export default class LoginPage extends ValidationComponent {
         super(props);
         this.state = {
             email: '',
-            password: ''
+            password: '',
+            spinner:false,
         }
             // const [selectedValue, setSelectedValue] = useState("java");
         // const [value, onChangeText] = useState('');
@@ -117,7 +124,6 @@ export default class LoginPage extends ValidationComponent {
             } else {
               // some other error
               alert('Something else went wrong... ', error.toString());
-              console.log(error);
             //   setError(error);
             }
         }
@@ -147,30 +153,57 @@ export default class LoginPage extends ValidationComponent {
     // }
     _loginWithEmail = async() => {
         var validate = this.validate({
-            email: {email: true, required: true},
-            password: {minlength:6, required: true},
+            email: {email: true},
+            password: {minlength:6},
         });
         if(validate) {
             console.log(this.state);
+            this.setState({spinner: true});
             var res = await loginWithEmail(this.state);
+            this.setState({spinner: false});
             if(res != null) {
                 // go next page
                 await saveStorage(local.isLogin, 'true');
                 await saveStorage(local.token, res.token);
                 await saveStorage(local.user, JSON.stringify(res.user));
-                var profile_id = res.user.creator_id;
-                if(profile_id === null) {
-                    this.props.navigation.navigate('SignUpStacks');
-                }else{
-                    this.props.navigation.navigate('Home');
-                }
+                this._getMe();
             }
         }
     }
+
+    /**
+     * This is redundent function.
+     * Can optimize with login function by getting user with user profile.
+     */
+    _getMe = () => {
+        this.setState({spinner: true});
+        getMe(this.state).then( data => {
+            console.log(data);
+            this.setState({spinner: false});
+            if(data != null ){
+                var confirm_approved = data.confirm_approved;
+                var approved = data.approved;
+                var finish_setup = data.finish_setup;
+                if(confirm_approved == 1) {
+                    this.props.navigation.navigate("Home");
+                }else if( approved == 1){
+                    // get verify code
+                    this.props.navigation.navigate("Verify");
+                }else if(finish_setup == 1){
+                    // else get finish, go to pending
+                    this.props.navigation.navigate("SignUpStacks", {screen: "PendingAccount"});
+                }
+            }
+        })
+    }
+
     render() {
         // const { user } = this.state;
         return (
             <View style={styles.container}>
+                <Spinner
+                    visible={this.state.spinner}
+                />
                 <Image style={styles.image} source={require('../assets/img/get_started_logo.jpg')} />
                 <ScrollView contentContainerStyle={styles.btnContainer}>
                     <View style={{

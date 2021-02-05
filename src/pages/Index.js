@@ -9,6 +9,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { local } from '../shared/const/local';
 import { saveStorage, getStorage, getUserId} from '../shared/service/storage';
 import { getMe } from '../shared/service/api';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 const styles = StyleSheet.create({
     container: {
@@ -43,16 +44,17 @@ export default class Index extends Component {
         super(props);
         this.state = {
             userid: '',
+            spinner: false,
         }
     }
     componentDidMount() {
-        getUserId(local.user).then( userid => {
+        getUserId().then( userid => {
             if(userid != null) {
                 this.setState({'userid': userid});
                 if(userid != null) {
                     getStorage(local.token).then(token => {
                         if(token != null) {
-                            this.getMe();
+                            this._getMe();
                         }
                     }).catch(err => {
     
@@ -64,20 +66,24 @@ export default class Index extends Component {
         })
     }
 
-    getMe = () => {
-        console.log(this.state);
+    _getMe = () => {
+        this.setState({spinner: true});
         getMe(this.state).then( data => {
-            var confirm_approved = data.confirm_approved;
-            var approved = data.approved;
-            var finish_setup = data.finish_setup;
-            if(confirm_approved == 1) {
-                this.props.navigation.navigate("Home");
-            }else if( approved == 1){
-                // get verify code
-                this.props.navigation.navigate("Verify");
-            }else if(finish_setup == 1){
-                // else get finish, go to pending
-                this.props.navigation.navigate("SignUpStacks", {screen: "PendingAccount"});
+            console.log(data);
+            this.setState({spinner: false});
+            if(data != null ){
+                var confirm_approved = data.confirm_approved;
+                var approved = data.approved;
+                var finish_setup = data.finish_setup;
+                if(confirm_approved == 1) {
+                    this.props.navigation.navigate("Home");
+                }else if( approved == 1){
+                    // get verify code
+                    this.props.navigation.navigate("Verify");
+                }else if(finish_setup == 1){
+                    // else get finish, go to pending
+                    this.props.navigation.navigate("SignUpStacks", {screen: "PendingAccount"});
+                }
             }
         })
     }
@@ -85,6 +91,9 @@ export default class Index extends Component {
     render() {
         return (
             <View style={styles.container}>
+                <Spinner
+                    visible={this.state.spinner}
+                />
                 <Image style={styles.image} source={require('../assets/img/login_signup.jpg')} />
                 <Text style={styles.text}>Make money on the go{"\n"}doing what you love.</Text>
                 <View style={styles.btnContainer}>
@@ -95,8 +104,8 @@ export default class Index extends Component {
                         title="Log In"
                         onPress={() => {
                             // currentUser ? navigation.navigate('Home') :
-                                // this.props.navigation.navigate('Login');
-                                this.props.navigation.navigate("SignUpStacks", {screen: "PendingAccount"});
+                                this.props.navigation.navigate('Login');
+                                // this.props.navigation.navigate("SignUpStacks", {screen: "PendingAccount"});
                         }}
                     />
                     <Button

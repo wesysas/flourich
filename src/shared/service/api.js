@@ -7,14 +7,13 @@ import { local } from '../const/local';
 const _post = async (url, data)=> {
     const token = await getStorage('@token');
     const options = {
-        headers: {'Authorization': `Bearer ${token}`}
+        headers: {'Authorization': `Bearer ${token}`},
       };
     return new Promise((resolve, reject) =>{
         axios.post(API_URL + url, data, options)
             .then(response => {
                 resolve(response.data);
           }).catch(error => {
-              console.log(error)
               reject(error);
             });
 
@@ -22,16 +21,22 @@ const _post = async (url, data)=> {
 } 
 
 const _handleError = (err) => {
-    const message = err.response.data.message;
-    const status = err.response.status;
-    if(status == 401) {
-        saveStorage(local.user, null);
-        saveStorage(local.token, null);
-        alert("Token expired, Please login again.");
+
+    if( err.response == null) {
+        alert(err);
     }else{
-        alert(message);
+        const message = err.response.data.message;
+        const status = err.response.status;
+        if(status == 401) {
+            saveStorage(local.user, null);
+            saveStorage(local.token, null);
+            alert("Token expired, Please login again.");
+        }else{
+            alert(message);
+        }
     }
 }
+
 
 export const createProfile = async (data) => {
     try {
@@ -73,8 +78,71 @@ export const getMe = async (data) => {
     } catch (err) {
         // Handle Error Here
         _handleError(err);
-        console.log(err);
         return null;
     }
 }
 
+export const needApprove = async (data) => {
+    try {
+        var res = await _post('/v1/profile/needapprove', data);
+        return res;
+    } catch (err) {
+        // Handle Error Here
+        _handleError(err);
+        return null;
+    }
+}
+
+export const verifyCode = async (data) => {
+    try {
+        var res = await _post('/v1/profile/verifycode', data);
+        return res;
+    } catch (err) {
+        // Handle Error Here
+        _handleError(err);
+        return null;
+    }
+}
+
+/**
+ * get creator review, story, portfolio
+ */
+
+ export const getCreatorMediaData = async (data) => {
+    try {
+        var res = await _post('/v1/profile/getmediadata', data);
+        return res;
+    } catch (err) {
+        // Handle Error Here
+        _handleError(err);
+        return null;
+    }
+ }
+
+ /**
+  * upload portfolio image
+  */
+ export const uploadPortfolio = async (data) => {
+    try {
+        var resp = await _post('/v1/profile/uploadportfolio', data);
+        return resp;
+    } catch (err) {
+        // Handle Error Here
+        _handleError(err);
+        return null;
+    }
+}
+
+ /**
+  * upload story
+  */
+ export const uploadStory = async (data) => {
+    try {
+        var resp = await _post('/v1/profile/uploadstory', data);
+        return resp;
+    } catch (err) {
+        // Handle Error Here
+        _handleError(err);
+        return null;
+    }
+}

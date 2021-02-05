@@ -2,7 +2,6 @@ import React, { useState, Component  } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput } from 'react-native';
 import { Button, Input, CheckBox } from 'react-native-elements';
 import LinearGradient from 'react-native-linear-gradient/index';
-import Cardscan from 'react-native-cardscan';
 import { CardView } from 'react-native-credit-card-input';
 import {Picker} from '@react-native-picker/picker';
 import { ActionSheetCustom as ActionSheet } from 'react-native-actionsheet'
@@ -10,6 +9,7 @@ import { LogBox } from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
 import { uploadCard, uploadAvatar } from '../../shared/service/api';
 import { getStorage, getUserId } from '../../shared/service/storage';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 const options = [
     'Cancel', 
@@ -50,6 +50,7 @@ export default class Identity extends Component {
             filename: '',
             image: '',
             availAvatar: false,
+            spinner: false,
         }
     }
 
@@ -132,8 +133,9 @@ export default class Identity extends Component {
         var filename = `${userid}.${ext}`;
         this.setState({"image": data});
         this.setState({"filename": filename});
+        this.setState({spinner: true});
         var res = await uploadCard(this.state);
-        console.log(res);
+        this.setState({spinner: false});
         if(res != null) {
             this.setState({"availAvatar": true});
         }
@@ -151,8 +153,9 @@ export default class Identity extends Component {
         var filename = `${userid}.${ext}`;
         this.setState({"image": data});
         this.setState({"filename": filename});
+        this.setState({spinner: true});
         var res = await uploadAvatar(this.state);
-        console.log(res);
+        this.setState({spinner: false});
         if(res != null) {
             this.props.navigation.navigate("PendingAccount");
         }
@@ -160,6 +163,9 @@ export default class Identity extends Component {
     render() {
         return (
             <ScrollView contentContainerStyle={styles.container}>
+                <Spinner
+                    visible={this.state.spinner}
+                />
                 <View style={{
                     marginVertical: 30
                 }}>

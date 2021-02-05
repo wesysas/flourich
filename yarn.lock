@@ -6024,11 +6024,6 @@ react-native-camera@^3.42.0:
   dependencies:
     prop-types "^15.6.2"
 
-react-native-cardscan@^1.1.26:
-  version "1.1.26"
-  resolved "https://registry.yarnpkg.com/react-native-cardscan/-/react-native-cardscan-1.1.26.tgz#bbcc05cd628b57325c5c85ccb3a7a7b940ef2ae8"
-  integrity sha512-vpNUaYI79XnrhZ3L7f7iCgMeWNHxY0d6KetJk5wYWCQbnFRidXMn92emy/aRv8OuvO828m1cH01M8NIR1weiUQ==
-
 react-native-credit-card-input@^0.4.1:
   version "0.4.1"
   resolved "https://registry.yarnpkg.com/react-native-credit-card-input/-/react-native-credit-card-input-0.4.1.tgz#e62dd1a9beeab6787e5373ba23b93831cbf5f3de"
@@ -6109,6 +6104,13 @@ react-native-linear-gradient@^2.5.6:
   version "2.5.6"
   resolved "https://registry.yarnpkg.com/react-native-linear-gradient/-/react-native-linear-gradient-2.5.6.tgz#96215cbc5ec7a01247a20890888aa75b834d44a0"
   integrity sha512-HDwEaXcQIuXXCV70O+bK1rizFong3wj+5Q/jSyifKFLg0VWF95xh8XQgfzXwtq0NggL9vNjPKXa016KuFu+VFg==
+
+react-native-loading-spinner-overlay@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/react-native-loading-spinner-overlay/-/react-native-loading-spinner-overlay-2.0.0.tgz#30934b6f07cb39711020d6b422a02a2a56763a73"
+  integrity sha512-V38M+N1Wk9GlpbfrD6znsJA1K2+09b3naxq3UjDjqNTA3MOBfj4W87alKSI3P+4ZawczQASTv2fTzhEQ7Z+SVA==
+  dependencies:
+    prop-types "^15.6.2"
 
 react-native-location@^2.5.0:
   version "2.5.0"

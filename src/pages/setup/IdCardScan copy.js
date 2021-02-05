@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Text, SafeAreaView, TouchableOpacity, View } from 'react-native';
-import Cardscan from 'react-native-cardscan';
+// import Cardscan from 'react-native-cardscan';
 import { CardView } from 'react-native-credit-card-input';
 
 const StyledText = ({ color, bold, ...otherProps }) => (

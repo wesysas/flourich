@@ -10,7 +10,7 @@ import com.facebook.react.ReactPackage;
 import com.facebook.soloader.SoLoader;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-import com.getbouncer.RNCardscanModule;
+// import com.getbouncer.RNCardscanModule;
 
 public class MainApplication extends Application implements ReactApplication {
 
@@ -48,13 +48,13 @@ public class MainApplication extends Application implements ReactApplication {
     initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
 
     // set your generated API key
-    RNCardscanModule.apiKey = "zlWPxzP1aEw46KwvTC2eV6PvqnZvZKeO";
+    // RNCardscanModule.apiKey = "zlWPxzP1aEw46KwvTC2eV6PvqnZvZKeO";
     // set to true for experimental name extraction
-    RNCardscanModule.enableNameExtraction = false;
+    // RNCardscanModule.enableNameExtraction = false;
     // set to true for experimental expiry extraction
-    RNCardscanModule.enableExpiryExtraction = false;
+    // RNCardscanModule.enableExpiryExtraction = false;
     // set to true to display an "Enter Card Manually" button
-    RNCardscanModule.enableEnterCardManually = false;
+    // RNCardscanModule.enableEnterCardManually = false;
   }
 
   /**

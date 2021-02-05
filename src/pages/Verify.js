@@ -6,6 +6,10 @@ import GlobalStyles from '../GlobalStyles';
 import { RectButton } from 'react-native-gesture-handler';
 import LinearGradient from 'react-native-linear-gradient';
 import { render } from 'react-dom';
+import { getStorage, getUserId } from '../shared/service/storage';
+import { verifyCode, needApprove } from '../shared/service/api';
+
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -41,6 +45,7 @@ const styles = StyleSheet.create({
 
 const imgVerification = require('../assets/img/verification.jpg');
 const imgVerifying = require('../assets/img/verifying.jpg');
+const imgVerified = require('../assets/img/verified.png');
 
 export default class Verify extends Component {
 
@@ -48,19 +53,21 @@ export default class Verify extends Component {
         super();
         this.state = {
             imgURL: imgVerification,
-            value: '',
-            buttonShow: false
+            code: '',
+            buttonShow: false,
+            userid:'',
+            confirm: false,
         };
     }
 
     setText(text) {
-        this.setState({ value: text });
+        this.setState({ code: text });
         if (text.length == 4) {
             this.setState({ imgURL: imgVerifying });
             this.setState({ buttonShow: true });
-            // setTimeout(()=>{
-            //     this.goHome();
-            // }, 2000)
+        }else{
+            this.setState({ imgURL: imgVerification });
+            this.setState({ buttonShow: false });
         }
     }
 
@@ -68,59 +75,107 @@ export default class Verify extends Component {
         this.props.navigation.navigate('Home');
     }
 
-    _renderButton() {
-        if (this.state.buttonShow) {
-            return (
-                <View style={{flex:1, justifyContent:'space-around'}}>
-                    <Button
-                        buttonStyle={styles.btn}
-                        ViewComponent={LinearGradient}
-                        titleStyle={styles.btnTitle}
-                        linearGradientProps={{
-                            colors: ["#c84e77", "#f13e3a"],
-                            start: { x: 0, y: 0.5 },
-                            end: { x: 1, y: 0.5 },
-                        }}
-                        title="Continue"
-                        onPress={() => this.goHome()}
-                    />
-                </View>
-            )
-        } else {
-            return (
-                <View>
+    /**
+     * resend approve request
+     */
+    needApprove = async() => {
+        var userid = await getUserId();
+        this.setState({"userid": userid});
+        var res = await needApprove(this.state);
+        alert("Successfully send approve request!");
+    }
 
-                    <View style={{ flexDirection: 'row', alignSelf: 'center' }}>
-                        <Text>Didn't receive code?</Text>
-                        <TouchableOpacity>
-                            <Text style={{ fontWeight: 'bold', marginHorizontal: 10, color: '#000022' }}>Resend</Text>
-                        </TouchableOpacity>
-                    </View>
-                    <TouchableOpacity style={{ alignItems: 'center' }}>
-                        <Text style={{ color: '#000022', fontWeight: 'bold', textDecorationLine: 'underline' }}>Call me instead</Text>
-                    </TouchableOpacity>
-                </View>
-            );
+    /**
+     * verify code
+     */
+    verifyCode = async() => {
+        var userid = await getUserId();
+        this.setState({"userid": userid});
+        var res = await verifyCode(this.state);
+        if(res != null) {
+            this.setState({confirm:true});
+            this.setState({imgURL: imgVerified});
+            setTimeout(()=>{
+                this.goHome();
+            }, 3000);
         }
     }
 
+    _renderButton() {
+        if(this.state.confirm){
+            return (
+                <View></View>
+            )
+        }else{
+            if (this.state.buttonShow) {
+                return (
+                    <View style={{flex:1, justifyContent:'space-around'}}>
+                        <Button
+                            buttonStyle={styles.btn}
+                            ViewComponent={LinearGradient}
+                            titleStyle={styles.btnTitle}
+                            linearGradientProps={{
+                                colors: ["#c84e77", "#f13e3a"],
+                                start: { x: 0, y: 0.5 },
+                                end: { x: 1, y: 0.5 },
+                            }}
+                            title="Continue"
+                            onPress={() => {
+                                this.verifyCode();
+                            }}
+                        />
+                    </View>
+                )
+            } else {
+                return (
+                    <View style={{ justifyContent:'space-around'}}>
+                        <View style={{ flexDirection: 'row', alignSelf: 'center' }}>
+                            <Text>Didn't receive code?</Text>
+                            <TouchableOpacity>
+                                <Text style={{ fontWeight: 'bold', marginHorizontal: 10, color: '#000022' }} onPress={this.needApprove}>Resend</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <TouchableOpacity style={{ alignItems: 'center' }}>
+                            <Text style={{ color: '#000022', fontWeight: 'bold', textDecorationLine: 'underline' }}>Call me instead</Text>
+                        </TouchableOpacity>
+                    </View>
+                );
+            }
+        }
+
+    }
+
+    _renderImage() {
+        if(this.state.confirm) {
+            return (
+                <View style={{flex:1}}>
+                    <Image style={{ width: '100%', height:'100%'}} source={ require('../assets/img/verified.png') }/>
+                </View>
+            )
+        }else{
+            return (
+                <View >
+                    <Image style={styles.image} source={this.state.imgURL} />
+                    <View style={styles.numberPart}>
+
+                        <TextInput
+                            style={styles.textbox}
+                            value={this.state.value}
+                            placeholder="0000"
+                            keyboardType={'numeric'}
+                            onChangeText={text => this.setText(text)}
+                            maxLength={4} />
+
+                    </View>
+                </View>
+            )
+        }
+    }
     render() {
 
         return (
             <View style={styles.container}>
-                <Image style={styles.image} source={this.state.imgURL} />
-                <View style={styles.numberPart}>
-
-                    <TextInput
-                        style={styles.textbox}
-                        value={this.state.value}
-                        placeholder="0000"
-                        keyboardType={'numeric'}
-                        onChangeText={text => this.setText(text)}
-                        maxLength={4} />
-
-                </View>
-
+                {this._renderImage()}
                 {this._renderButton()}
             </View>
 

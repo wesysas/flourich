@@ -2,6 +2,7 @@
 import axios from 'axios';
 import {API_URL} from '../../globalconfig';
 
+
 const _post = async (url, data)=> {
     return new Promise((resolve, reject) =>{
         axios.post(API_URL + url, data)
@@ -16,8 +17,19 @@ const _post = async (url, data)=> {
 } 
 
 const _handleError = (err) => {
-    const message = err.response.data.message;
-    alert(message);
+    if( err.response == null) {
+        alert(err);
+    }else{
+        const message = err.response.data.message;
+        const status = err.response.status;
+        if(status == 401) {
+            saveStorage(local.user, null);
+            saveStorage(local.token, null);
+            alert("Token expired, Please login again.");
+        }else{
+            alert(message);
+        }
+    }
 }
 
 export const loginWithGoogle = async (data) => {
