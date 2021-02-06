@@ -166,7 +166,8 @@ export default class LoginPage extends ValidationComponent {
                 await saveStorage(local.isLogin, 'true');
                 await saveStorage(local.token, res.token);
                 await saveStorage(local.user, JSON.stringify(res.user));
-                this._getMe();
+                var userid = res.user.cid;
+                this._getMe(userid);
             }
         }
     }
@@ -175,9 +176,10 @@ export default class LoginPage extends ValidationComponent {
      * This is redundent function.
      * Can optimize with login function by getting user with user profile.
      */
-    _getMe = () => {
+    _getMe = (userid) => {
         this.setState({spinner: true});
-        getMe(this.state).then( data => {
+        var data = {userid: userid};
+        getMe(data).then( data => {
             console.log(data);
             this.setState({spinner: false});
             if(data != null ){

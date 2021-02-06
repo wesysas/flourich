@@ -19,7 +19,7 @@ import { LogBox } from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
 import Spinner from 'react-native-loading-spinner-overlay';
 import { getCreatorMediaData, uploadPortfolio, uploadStory } from '../../shared/service/api';
-
+import { SERVER_RUL } from '../../globalconfig';
 
 const styles = StyleSheet.create({
     container: {
@@ -85,7 +85,7 @@ const _renderCarouselItem = ({ item, index }) => {
                     padding: 5,
                     borderStyle: 'dotted'
                 }}
-                source={require('../../assets/img/test.jpg')}
+                source={{uri: SERVER_RUL+item.media_url }}
             />
             {/* <Text style={{fontSize: 30}}>{item.title}</Text> */}
             {/* <Text>{item.text}</Text> */}
@@ -99,31 +99,11 @@ export default class Profile extends Component {
         this.state = {
             userid: '',
             spinner: false,
+            story:[],
+            portfolio: [],
         };
         this.activIndex = 3,
 
-        this.carouselItems = [
-            {
-                title: "Item 1",
-                text: "Text 1",
-            },
-            {
-                title: "Item 2",
-                text: "Text 2",
-            },
-            {
-                title: "Item 3",
-                text: "Text 3",
-            },
-            {
-                title: "Item 4",
-                text: "Text 4",
-            },
-            {
-                title: "Item 5",
-                text: "Text 5",
-            },
-        ];
         this.user = null;
         this.RBSheetR = null;
         this.bottomSheetList = [
@@ -163,28 +143,17 @@ export default class Profile extends Component {
     }
 
     _getCreatorMediaData = async () => {
-        this.carouselItems = [
-            {
-                title: "Item 1",
-                text: "Text 1",
-            },
-            {
-                title: "Item 2",
-                text: "Text 2",
-            },
-            {
-                title: "Item 3",
-                text: "Text 3",
-            },
-            {
-                title: "Item 4",
-                text: "Text 4",
-            },
-            {
-                title: "Item 5",
-                text: "Text 5",
-            },
-        ];
+
+        var userid = await getUserId();
+        var data = {
+            userid: userid,
+        }
+        var result = await getCreatorMediaData(data);
+        var portfolio = result.portfolio;
+
+        this.setState({story: result.story});
+        console.log(this.carouselItems);
+        console.log('result', portfolio);
     }
 
     refreshScreen = ()=> {
@@ -270,8 +239,8 @@ export default class Profile extends Component {
             ext = ext_a[1];
         }
         var data = media.data;
-        console.log(media_type, data);
         this.setState({spinner: true});
+
         var params = {
             userid: userid,
             media: data,
@@ -293,8 +262,7 @@ export default class Profile extends Component {
             showCropGuidelines:false,
             mediaType: 'video',
           }).then(video => {
-              console.log('videodd_______', video);
-            this._uploadStory(video, "video");
+            // this._uploadStory(video, "video");
           }).catch(err => {
               console.log(err);
           });
@@ -357,8 +325,8 @@ export default class Profile extends Component {
                     <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', }}>
                         <Carousel
                             layout={"default"}
-                            //   ref={ref => this.carousel = ref}
-                            data={this.carouselItems}
+                            ref={(c) => { this._carousel = c; }}
+                            data={this.state.story}
                             sliderWidth={300}
                             itemWidth={100}
                             renderItem={_renderCarouselItem}
