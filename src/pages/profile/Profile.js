@@ -1,5 +1,5 @@
 import React, { Component, useState, Dimentiions, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, Image, TouchableOpacity, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput, Image, TouchableOpacity, SafeAreaView, Platform } from 'react-native';
 import { Button, Input, CheckBox, Avatar, ListItem, BottomSheet } from 'react-native-elements';
 import LinearGradient from 'react-native-linear-gradient/index';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -153,7 +153,6 @@ export default class Profile extends Component {
 
         this.setState({story: result.story});
         console.log(this.carouselItems);
-        console.log('result', portfolio);
     }
 
     refreshScreen = ()=> {
@@ -215,7 +214,7 @@ export default class Profile extends Component {
             width: 300,
             height: 400,
             cropping: true,
-            includeBase64:true,
+            // includeBase64:true,
             showCropGuidelines:false,
           }).then(image => {
             this._uploadStory(image, "photo");
@@ -229,25 +228,31 @@ export default class Profile extends Component {
      * @param {*} media 
      * upload story image and video to server.
      */
+
     _uploadStory = async (media, media_type="photo") => {
         var userid = await getUserId();
         this.setState({"userid": userid});
-
+        console.log(userid);
         var ext = media.mime;
         var ext_a = ext.split("/");
         if(ext_a.length > 1) {
             ext = ext_a[1];
         }
-        var data = media.data;
+
         this.setState({spinner: true});
 
-        var params = {
-            userid: userid,
-            media: data,
-            ext: ext,
-            media_type: media_type
-        }
-        var res = await uploadStory(params);
+        const data = new FormData();
+        data.append("media", {
+            name: "creator." + ext,
+            type: media.mime,
+            uri:
+              Platform.OS === "android" ? media.path : media.path.replace("file://", "")
+          });
+        data.append("userid", userid);
+        data.append("media_type", media_type);
+
+        console.log(data);
+        var res = await uploadStory(data);
         this.setState({spinner: false});
         if(res != null) {
             alert('success');
@@ -262,7 +267,7 @@ export default class Profile extends Component {
             showCropGuidelines:false,
             mediaType: 'video',
           }).then(video => {
-            // this._uploadStory(video, "video");
+            this._uploadStory(video, 'video');
           }).catch(err => {
               console.log(err);
           });
