@@ -1,8 +1,8 @@
 export const API_URL = 'http://10.0.2.2:4000/api';
-export const SERVER_RUL = 'http://10.0.2.2:4000/';
+export const SERVER_URL = 'http://10.0.2.2:4000/';
 
 // export const API_URL = 'http://leti.flourich.co.uk/api';
-// export const SERVER_RUL = 'http://leti.flourich.co.uk';
+// export const SERVER_URL = 'http://leti.flourich.co.uk';
 export const facebook = {
     clientID: 'INSERT-CLIENT-ID-HERE',
     clientSecret: 'INSERT-CLIENT-SECRET-HERE',

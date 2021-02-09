@@ -75,6 +75,14 @@ export default class Index extends Component {
                 var confirm_approved = data.confirm_approved;
                 var approved = data.approved;
                 var finish_setup = data.finish_setup;
+
+                getStorage(local.user).then(user => {
+                    if(user != null) {
+                        global.user=JSON.parse(user);
+                    }
+                }).catch(err => {
+
+                })
                 if(confirm_approved == 1) {
                     this.props.navigation.navigate("Home");
                 }else if( approved == 1){

@@ -166,14 +166,10 @@ export default class SetupDetail extends ValidationComponent {
                             
                             <Text>Birth Date</Text>
                             <DatePicker
-                                date={this.state.user.birthday == null ? new Date() : new Date(this.state.user.birthday.replace(/-/g, '\/')) }
+                                date={new Date(this.state.user.birthday) }
                                 mode="date"
-                                onDateChange={(date) => {                                    
-                                    var d = date.getDate();
-                                    var m = date.getMonth() + 1;
-                                    var y = date.getFullYear();
-                                    var dateString = y + '-' + (m <= 9 ? '0' + m : m) + '-' + (d <= 9 ? '0' + d : d);
-                                    this.state.user.birthday = dateString;
+                                onDateChange={(date) => {  
+                                    this.state.user.birthday = date.toISOString();
                                     this.setState({user:this.state.user});
                                 }}
                                 /> 

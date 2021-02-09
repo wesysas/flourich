@@ -81,7 +81,7 @@ export default class LoginPage extends ValidationComponent {
         try{
             await GoogleSignin.hasPlayServices();
             const userInfo = await GoogleSignin.signIn();
-            console.log(userInfo);
+            //console.log(userInfo);
             // {
             //     idToken: string,
             //     serverAuthCode: string,
@@ -101,6 +101,7 @@ export default class LoginPage extends ValidationComponent {
                 await saveStorage(local.isLogin, 'true');
                 await saveStorage(local.token, res.token);
                 await saveStorage(local.user, JSON.stringify(res.user));
+                global.user = JSON.stringify(res.user);
                 this.props.navigation.navigate('Home');
             }
         }catch(error) {
@@ -157,7 +158,6 @@ export default class LoginPage extends ValidationComponent {
             password: {minlength:6},
         });
         if(validate) {
-            console.log(this.state);
             this.setState({spinner: true});
             var res = await loginWithEmail(this.state);
             this.setState({spinner: false});
@@ -166,6 +166,8 @@ export default class LoginPage extends ValidationComponent {
                 await saveStorage(local.isLogin, 'true');
                 await saveStorage(local.token, res.token);
                 await saveStorage(local.user, JSON.stringify(res.user));
+                                
+                global.user = res.user;
                 var userid = res.user.cid;
                 this._getMe(userid);
             }

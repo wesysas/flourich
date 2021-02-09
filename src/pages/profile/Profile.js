@@ -19,7 +19,7 @@ import { LogBox } from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
 import Spinner from 'react-native-loading-spinner-overlay';
 import { getCreatorMediaData, uploadPortfolio, uploadStory } from '../../shared/service/api';
-import { SERVER_RUL } from '../../globalconfig';
+import { SERVER_URL } from '../../globalconfig';
 
 const styles = StyleSheet.create({
     container: {
@@ -85,7 +85,7 @@ const _renderCarouselItem = ({ item, index }) => {
                     padding: 5,
                     borderStyle: 'dotted'
                 }}
-                source={{uri: SERVER_RUL+item.media_url }}
+                source={{uri: SERVER_URL+item.media_url }}
             />
             {/* <Text style={{fontSize: 30}}>{item.title}</Text> */}
             {/* <Text>{item.text}</Text> */}

@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Avatar } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { SERVER_URL } from '../globalconfig';
 
 const ProfileAvatar = ({ navigation }) => {
     return (
@@ -12,6 +13,7 @@ const ProfileAvatar = ({ navigation }) => {
                 avatarStyle={styles.avatar}
                 containerStyle={styles.avatarContainer}
                 source={require('../assets/img/test.jpg')}
+                source={{uri: SERVER_URL+ global.user.avatar }}
             />
             <View style={styles.markContainer}>
                 <Icon name="star" color="green" size={15} />
