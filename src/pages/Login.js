@@ -257,7 +257,7 @@ export default class LoginPage extends ValidationComponent {
                     ></TextInput>
                     {this.isFieldInError('password') && this.getErrorsInField('password').map(errorMessage => <Text style={styles.error}>{errorMessage}</Text>) }
 
-                    <View style={{ alignItems: 'flex-end' }}>
+                    <View>
                         <Button
                         buttonStyle={ styles.btn }
                             ViewComponent={LinearGradient}

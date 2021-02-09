@@ -236,7 +236,7 @@ export default class SignupPage extends ValidationComponent {
                     ></TextInput>
                     {this.isFieldInError('confirmPassword') && this.getErrorsInField('confirmPassword').map(errorMessage => <Text style={styles.error}>{errorMessage}</Text>) }
 
-                    <View style={{ alignItems: 'flex-end' }}>
+                    <View>
                         <Button
                         buttonStyle={ styles.btn }
                             ViewComponent={LinearGradient}
