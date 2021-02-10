@@ -1,7 +1,6 @@
 import React, { Component, useState, Dimentiions, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, Image, TouchableOpacity, SafeAreaView, Platform } from 'react-native';
 import { Button, Input, CheckBox, Avatar, ListItem, BottomSheet } from 'react-native-elements';
-import LinearGradient from 'react-native-linear-gradient/index';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Carousel from 'react-native-snap-carousel';
 import { Col, Row, Grid } from 'react-native-easy-grid';
@@ -11,11 +10,9 @@ import BackButton from '../../components/BackButton';
 import ProfileAvatar from '../../components/ProfileAvatar';
 
 import RBSheet from 'react-native-raw-bottom-sheet';
-import AsyncStorage from '@react-native-community/async-storage';
-import { useFocusEffect } from '@react-navigation/native';
 import { getStorage, getUserId, saveStorage } from '../../shared/service/storage';
 import { local } from '../../shared/const/local';
-import { LogBox } from 'react-native';
+import { LogBox,FlatList } from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
 import Spinner from 'react-native-loading-spinner-overlay';
 import { getCreatorMediaData, uploadPortfolio, uploadStory } from '../../shared/service/api';
@@ -92,6 +89,7 @@ const _renderCarouselItem = ({ item, index }) => {
         </View>
     );
 }
+
 export default class Profile extends Component {
 
     constructor(props) {
@@ -101,6 +99,7 @@ export default class Profile extends Component {
             spinner: false,
             story:[],
             portfolio: [],
+            user: global.user
         };
         this.activIndex = 3,
 
@@ -137,26 +136,21 @@ export default class Profile extends Component {
     }
 
     async componentDidMount() {
-        LogBox.ignoreLogs(['Animated: `useNativeDriver`']);
-        this.user = await getStorage(local.user);
-        this._getCreatorMediaData();
+        LogBox.ignoreLogs(['Animated: `useNativeDriver`']);        
+        this._unsubscribe = this.props.navigation.addListener('focus', () => {
+            this.refreshScreen();
+        });
+    }
+  
+    componentWillUnmount() {
+      this._unsubscribe();
     }
 
-    _getCreatorMediaData = async () => {
-
-        var userid = await getUserId();
-        var data = {
-            userid: userid,
-        }
-        var result = await getCreatorMediaData(data);
-        var portfolio = result.portfolio;
-
+   async refreshScreen() {
+        var result = await getCreatorMediaData({ userid: global.user.cid });
+        this.setState({user: global.user});
         this.setState({story: result.story});
-        console.log(this.carouselItems);
-    }
-
-    refreshScreen = ()=> {
-        this._getCreatorMediaData();
+        this.setState({portfolio: result.portfolio});
     }
     /**
      *  open image picker for portfolio
@@ -286,12 +280,12 @@ export default class Profile extends Component {
         saveStorage(local.user, null);
         saveStorage(local.token, null);
         this.props.navigation.navigate('Index');
-    }
-    
+    }    
 
     goStoryHilight = () => {
         alert('goStoryHilight');
     }
+
     render () {
         return (
             <ScrollView contentContainerStyle={styles.container}>
@@ -309,11 +303,11 @@ export default class Profile extends Component {
                     marginVertical: 30,
                     marginHorizontal: 20
                 }}>
-                    <Text style={styles.headerTitle}>Argin Rgn production</Text>
-                    <Text >Hackeny, London</Text>
-                    <Text >£ 100-500</Text>
-                    <Text >Food, Fashion, Events</Text>
-                    <Text >http://www.freelancerwebste.com</Text>
+                    <Text style={styles.headerTitle}>{this.state.user.first_name} {this.state.user.last_name}</Text>
+                    <Text >{this.state.user.fulladdress}, {this.state.user.street}</Text>
+                    <Text >£ {this.state.user.min_price}-{this.state.user.max_price}</Text>
+                    <Text >{this.state.user.services}</Text>
+                    <Text >{this.state.user.weburl}</Text>
     
                     {/* summary header */}
     
@@ -340,48 +334,13 @@ export default class Profile extends Component {
                                 this.activIndex = index;
                             }} />
                     </View>
-    
                     {/* image mozaic part */}
-                    <View style={{
-                        marginTop: 30
-                    }}>
-                        <Grid>
-                            <Row>
-                                <Col>
-                                    <Image style={styles.mozaicImg} source={require('../../assets/img/test.jpg')} />
-                                </Col>
-                                <Col>
-                                    <Image style={styles.mozaicImg} source={require('../../assets/img/test.jpg')} />
-                                </Col>
-                                <Col>
-                                    <Image style={styles.mozaicImg} source={require('../../assets/img/test.jpg')} />
-                                </Col>
-                            </Row>
-                            <Row style={{ alignItems: 'center', justifyContent: 'flex-end' }}>
-                                <Col size={1} >
-    
-                                    <Image style={styles.mozaicImg} source={require('../../assets/img/test.jpg')} />
-                                    <Image style={styles.mozaicImg} source={require('../../assets/img/test.jpg')} />
-    
-                                </Col>
-                                <Col size={2}>
-                                    <Image style={styles.mozaicImgLarge} source={require('../../assets/img/test.jpg')} />
-                                </Col>
-                            </Row>
-                            <Row>
-                                <Col>
-                                    <Image style={styles.mozaicImg} source={require('../../assets/img/test.jpg')} />
-                                </Col>
-                                <Col>
-                                    <Image style={styles.mozaicImg} source={require('../../assets/img/test.jpg')} />
-                                </Col>
-                                <Col>
-                                    <Image style={styles.mozaicImg} source={require('../../assets/img/test.jpg')} />
-                                </Col>
-                            </Row>
-                        </Grid>
-    
-                    </View>
+                    <FlatList style={{ marginTop: 30 }}
+                        data={this.state.portfolio}
+                        numColumns={3}
+                        renderItem={({ item }) => <View><Image style={styles.mozaicImg} source={{uri: SERVER_URL+item.media_url }} /></View>}
+                        />
+                    
     
                     <View style={[styles.separate, {
                         flexDirection: 'row',

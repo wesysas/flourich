@@ -108,14 +108,12 @@ export default class SetupDetail extends ValidationComponent {
 
     _validate = async() => {
 
-        console.log(this.state.user);        
-
         this.setState({spinner:true});
         var res = await updateProfile(this.state.user);
         this.setState({spinner:false});
         if(res != null) {            
             await saveStorage(local.user, JSON.stringify(this.state.user));
-            console.log(local.user);
+            global.user = this.state.user;
         }
         
     }
@@ -254,9 +252,9 @@ export default class SetupDetail extends ValidationComponent {
                                             borderRadius: 5, 
                                             paddingLeft:20,
                                             }}
-                                        value={this.state.user.minprice}
+                                        value={'' + this.state.user.min_price}
                                         onChangeText={value => {
-                                            this.state.user.minprice = value.replace(/[^0-9]/g, '');
+                                            this.state.user.min_price = value.replace(/[^0-9]/g, '');
                                             this.setState({user:this.state.user});
                                         }}
                                         keyboardType={'numeric'}
@@ -281,9 +279,9 @@ export default class SetupDetail extends ValidationComponent {
                                             paddingLeft:20,
                                             backgroundColor: 'black',
                                             color: "white" }}
-                                        value={this.state.user.maxprice}
+                                        value={'' + this.state.user.max_price}
                                         onChangeText={value => {
-                                            this.state.user.maxprice = value.replace(/[^0-9]/g, '');
+                                            this.state.user.max_price = value.replace(/[^0-9]/g, '');
                                             this.setState({user:this.state.user});
                                         }}
                                         keyboardType={'numeric'}
