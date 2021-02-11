@@ -4,7 +4,6 @@ import ValidationComponent from 'react-native-form-validator';
 import { getStorage, saveStorage } from '../../shared/service/storage';
 import Spinner from 'react-native-loading-spinner-overlay';
 import React from 'react'
-import DatePicker from 'react-native-date-picker'
 import { View, Text, StyleSheet, ScrollView, TextInput, LogBox , Image } from 'react-native';
 import { Button, Input, ListItem } from 'react-native-elements';
 import LinearGradient from 'react-native-linear-gradient/index';
@@ -12,7 +11,8 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { updateProfile } from '../../shared/service/api';
 import BackButton from '../../components/BackButton';
 import ProfileAvatar from '../../components/ProfileAvatar';
-
+import DateTimePickerModal from "react-native-modal-datetime-picker";
+import Moment from 'moment';
 
 import { Collapse, CollapseHeader, CollapseBody } from 'accordion-collapse-react-native';
 import { local } from '../../shared/const/local';
@@ -62,16 +62,23 @@ export default class SetupDetail extends ValidationComponent {
     constructor(props) {
         super(props);
         this.state = {
+            date: new Date(),
+            dateTitle: 'MM/DD/YYYY',
             services: [],
             spinner:false,
-            user:{}
+            user:{},
+            isDatePickerVisible: false,
         }
     }
-    async componentDidMount() {
-        LogBox.ignoreLogs(['Warning: `componentWillReceiveProps`']);
-        var user = await getStorage(local.user);
-        this.setState({user:JSON.parse(user)});
-        this.setState({services:this.state.user.services.split(',')});
+    async componentDidMount() {       
+        
+        if (global.user.birthday != null && global.user.birthday != '0000-00-00') {
+            this.setState({date:new Date(global.user.birthday)});
+            this.setState({dateTitle:Moment(global.user.birthday).format('DD/MM/YYYY')});
+        }
+                    
+        this.setState({user:global.user});
+        this.setState({services:global.user.services.split(',')});
     }
     _singleTapMultipleSelectedButtons = (interest) =>{
         var services = this.state.services;
@@ -108,12 +115,14 @@ export default class SetupDetail extends ValidationComponent {
 
     _validate = async() => {
 
-        this.setState({spinner:true});
-        var res = await updateProfile(this.state.user);
+        this.setState({spinner:true});        
+        var user = this.state.user;
+        user.birthday = this.state.date;
+        var res = await updateProfile(user);
         this.setState({spinner:false});
         if(res != null) {            
-            await saveStorage(local.user, JSON.stringify(this.state.user));
-            global.user = this.state.user;
+            await saveStorage(local.user, JSON.stringify(user));
+            global.user = user;
         }
         
     }
@@ -163,14 +172,38 @@ export default class SetupDetail extends ValidationComponent {
                             {this.isFieldInError('lastname') && this.getErrorsInField('lastname').map(errorMessage => <Text key="lastname" style={{ color:'red', textAlign: 'center'}}>{errorMessage}</Text>) }
                             
                             <Text>Birth Date</Text>
-                            <DatePicker
-                                date={new Date(this.state.user.birthday) }
-                                mode="date"
-                                onDateChange={(date) => {  
-                                    this.state.user.birthday = date.toISOString();
-                                    this.setState({user:this.state.user});
+                            <Button 
+                                buttonStyle={{
+                                    borderWidth: 0,
+                                    justifyContent: 'flex-start',
+                                    borderColor: '#696969',
+                                    borderBottomWidth: 1,
+                                    margin: 10
                                 }}
-                                /> 
+                                titleStyle={{
+                                    color: '#696969',
+                                    fontSize: 18
+                                }}
+                                type='outline'
+                                title={this.state.dateTitle} 
+                                onPress={() => {
+                                        this.setState({isDatePickerVisible:true});
+                                  }} 
+                                  />
+                            <DateTimePickerModal
+                                isVisible={this.state.isDatePickerVisible}
+                                date={this.state.date}
+                                mode="date"
+                                onConfirm={(date) => {   
+                                    this.setState({isDatePickerVisible:false});                                 
+                                    this.setState({date:date});
+                                    this.setState({dateTitle:Moment(this.state.date).format('DD/MM/YYYY')});                                    
+                                  }}
+                                onCancel={() => {
+                                    this.setState({isDatePickerVisible:false});
+                                  }}
+                            />
+                            
                             {this.isFieldInError('birthday') && this.getErrorsInField('birthday').map(errorMessage => <Text key="birthday" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
 
                             <Text>Phone Number</Text>
