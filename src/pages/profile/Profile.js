@@ -12,7 +12,7 @@ import ProfileAvatar from '../../components/ProfileAvatar';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import { getStorage, getUserId, saveStorage } from '../../shared/service/storage';
 import { local } from '../../shared/const/local';
-import { LogBox,FlatList } from 'react-native';
+import { LogBox, FlatList } from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
 import Spinner from 'react-native-loading-spinner-overlay';
 import { getCreatorMediaData, uploadPortfolio, uploadStory } from '../../shared/service/api';

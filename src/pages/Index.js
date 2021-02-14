@@ -1,7 +1,7 @@
 import React, { useEffect, useState, Component } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
-import GlobalStyles from '../GlobalStyles';
+import {GlobalStyles, btnGradientProps} from '../GlobalStyles';
 import { Button } from 'react-native-elements';
 import LinearGradient from 'react-native-linear-gradient/index';
 import axios from 'axios';
@@ -119,11 +119,7 @@ export default class Index extends Component {
                     <Button
                         buttonStyle={styles.btn}
                         ViewComponent={LinearGradient}
-                        linearGradientProps={{
-                            colors: ["#c84e77", "#f13e3a"],
-                            start: { x: 0, y: 0.5 },
-                            end: { x: 1, y: 0.5 },
-                        }}
+                        linearGradientProps={btnGradientProps}
                         title="Sign Up"
                         onPress={() => this.props.navigation.navigate('Signup')}
                     />

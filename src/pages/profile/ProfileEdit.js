@@ -17,7 +17,7 @@ import Moment from 'moment';
 import { Collapse, CollapseHeader, CollapseBody } from 'accordion-collapse-react-native';
 import { local } from '../../shared/const/local';
 
-const ios_blue = "#007AFF";
+import {ios_red_color} from "../../GlobalStyles";
 
 const styles = StyleSheet.create({
     container: {
@@ -246,8 +246,8 @@ export default class SetupDetail extends ValidationComponent {
                                             borderColor: "gray",
                                             backgroundColor: "transparent",
                                             textColor: "gray",
-                                            borderTintColor: ios_blue,
-                                            backgroundTintColor: ios_blue,
+                                            borderTintColor: ios_red_color,
+                                            backgroundTintColor: ios_red_color,
                                             textTintColor: "white"
                                         }}
                                         value={interest}

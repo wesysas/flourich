@@ -15,6 +15,7 @@ import ValidationComponent from 'react-native-form-validator';
 // import { LoginManager, AccessToken } from "react-native-fbsdk";
 import { local } from '../shared/const/local';
 import Spinner from 'react-native-loading-spinner-overlay';
+import {btnGradientProps} from "../GlobalStyles";
 
 const styles = StyleSheet.create({
     container: {
@@ -59,8 +60,8 @@ export default class LoginPage extends ValidationComponent {
     constructor(props) {
         super(props);
         this.state = {
-            email: '',
-            password: '',
+            email: 'jin@gmail.com',
+            password: '123123',
             spinner:false,
         }
             // const [selectedValue, setSelectedValue] = useState("java");
@@ -260,13 +261,9 @@ export default class LoginPage extends ValidationComponent {
                     <View>
                         <Button
                         buttonStyle={ styles.btn }
-                            ViewComponent={LinearGradient}
                             titleStyle={styles.btnTitle}
-                            linearGradientProps={{
-                                colors: ["#c84e77", "#f13e3a"],
-                                start: { x: 0, y: 0.5 },
-                                end: { x: 1, y: 0.5 },
-                            }}
+                            ViewComponent={LinearGradient}
+                            linearGradientProps={btnGradientProps}
                             title="Continue"
                             onPress={() => {
                                 // navigation.navigate('Verify')

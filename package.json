@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@react-native-community/async-storage": "^1.12.1",
+    "@react-native-community/datetimepicker": "^3.0.9",
     "@react-native-community/geolocation": "^2.0.2",
     "@react-native-community/masked-view": "^0.1.10",
     "@react-native-community/viewpager": "^4.2.2",
@@ -22,6 +23,7 @@
     "accordion-collapse-react-native": "^0.4.0",
     "axios": "^0.21.1",
     "blinkid-react-native": "^5.9.0",
+    "moment": "^2.29.1",
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "react-hook-form": "^6.14.2",
@@ -31,6 +33,7 @@
     "react-native-camera": "^3.42.0",
     "react-native-credit-card-input": "^0.4.1",
     "react-native-date-picker": "^3.2.9",
+    "react-native-datepicker": "^1.7.2",
     "react-native-easy-grid": "^0.2.2",
     "react-native-elements": "^3.1.0",
     "react-native-form-validator": "^0.3.5",
@@ -42,6 +45,7 @@
     "react-native-location": "^2.5.0",
     "react-native-maps": "git+https://github.com/react-native-community/react-native-maps.git",
     "react-native-masked-text": "^1.13.0",
+    "react-native-modal-datetime-picker": "^9.1.0",
     "react-native-paper": "^4.7.0",
     "react-native-raw-bottom-sheet": "^2.2.0",
     "react-native-reanimated": "~1.13.0",
@@ -52,7 +56,9 @@
     "react-native-selectmultiple-button": "^0.1.105",
     "react-native-snap-carousel": "^3.9.1",
     "react-native-splash-screen": "^3.2.0",
-    "react-native-vector-icons": "^7.1.0"
+    "react-native-vector-icons": "^7.1.0",
+    "react-navigation": "^4.4.3",
+    "styled-components": "^5.2.1"
   },
   "devDependencies": {
     "@babel/core": "^7.12.10",
