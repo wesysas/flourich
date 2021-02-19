@@ -1,5 +1,5 @@
 import React, { useEffect, useState, Component } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import {View, Text, StyleSheet, Image, TouchableOpacity, LogBox} from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import {GlobalStyles, btnGradientProps} from '../GlobalStyles';
 import { Button } from 'react-native-elements';
@@ -48,6 +48,8 @@ export default class Index extends Component {
         }
     }
     componentDidMount() {
+        LogBox.ignoreLogs(['Warning: `componentWillReceiveProps`']);
+
         getUserId().then( userid => {
             if(userid != null) {
                 this.setState({'userid': userid});

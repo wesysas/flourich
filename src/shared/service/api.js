@@ -170,3 +170,24 @@ export const verifyCode = async (data) => {
         _handleError(error);
       }
 }
+
+export const getDefaultService = async (data) => {
+    try {
+        var res = await _post('/v1/profile/get_default_service', data);
+        return res;
+    } catch (err) {
+        // Handle Error Here
+        _handleError(err);
+        return null;
+    }
+};
+export const getCategories = async (data) => {
+    try {
+        var res = await _post('/v1/profile/get_categories', data);
+        return res;
+    } catch (err) {
+        // Handle Error Here
+        _handleError(err);
+        return null;
+    }
+};
