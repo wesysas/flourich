@@ -232,29 +232,31 @@ export default class SetupDetail extends ValidationComponent {
                         {this.isFieldInError('services') && this.getErrorsInField('services').map(errorMessage => <Text key="services" style={{ color:'red', marginTop: -15, marginLeft: 25}}>{errorMessage}</Text>) }
                         {this.state.service.map((service, i) => {
                             return (
-                                <View key={i} style={{flexDirection: 'row', justifyContent: 'space-around', margin:10}}>
-                                    <Button
-                                        icon={<Icon name="minus" size={9} color="white" />}
-                                        type="outline"
-                                        containerStyle={{
-                                            width: 24,
-                                            height: 24,
-                                            borderRadius: 12,
-                                            backgroundColor: ios_red_color,
-                                            alignItems: 'center',
-                                        }}
-                                        buttonStyle={{borderWidth:0}}
-                                        onPress={()=>{
-                                            let service = this.state.service.filter((service, key) => key != i);
-                                            this.setState({service})
-                                        }}
-                                    />
-                                    <Text style={{width:'70%'}}>{service.item}</Text>
+                                <View key={i} style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between', margin:10}}>
+                                    <View style={{flexDirection: 'row'}}>
+                                        <Button
+                                            icon={<Icon name="minus" size={9} color="white" />}
+                                            type="outline"
+                                            containerStyle={{
+                                                width: 24,
+                                                height: 24,
+                                                borderRadius: 12,
+                                                backgroundColor: ios_red_color,
+                                                alignItems: 'center',
+                                            }}
+                                            buttonStyle={{borderWidth:0}}
+                                            onPress={()=>{
+                                                let service = this.state.service.filter((service, key) => key != i);
+                                                this.setState({service});
+                                            }}
+                                        />
+                                        <Text style={{marginLeft:10}}>{service.item}</Text>
+                                    </View>
                                     <Text>£{service.price}</Text>
                                 </View>
                             );
                         })}
-                        <View style={{flexDirection: 'row', justifyContent: 'space-around', margin:10}}>
+                        <View style={{flex: 1, flexDirection: 'row', margin:10}}>
                             <Button
                                 icon={<Icon name="plus" size={9} color="white" />}
                                 type="outline"
@@ -270,8 +272,7 @@ export default class SetupDetail extends ValidationComponent {
                                     if(this.state.selected_service_type.length>0) this.serviceSheet.open();
                                 }}
                             />
-                            <Text style={{width:'70%'}}>Add a service</Text>
-                            <Text>£120</Text>
+                            <Text style={{marginLeft:10}}>Add a service</Text>
                         </View>
 
                     </View>
