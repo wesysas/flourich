@@ -191,3 +191,14 @@ export const getCategories = async (data) => {
         return null;
     }
 };
+
+export const getBookings = async (data) => {
+    try {
+        var res = await _post('/v1/booking/get_bookings', data);
+        return res;
+    } catch (err) {
+        // Handle Error Here
+        _handleError(err);
+        return null;
+    }
+};

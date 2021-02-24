@@ -84,7 +84,7 @@ export default class Index extends Component {
                     }
                 }).catch(err => {
 
-                })
+                });
                 if(confirm_approved == 1) {
                     this.props.navigation.navigate("Home");
                 }else if( approved == 1){

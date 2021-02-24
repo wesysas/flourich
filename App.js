@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { StyleSheet, Text, View, Image, Platform } from 'react-native';
 
 import SplashScreen from 'react-native-splash-screen';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -34,10 +34,21 @@ import Profile from './src/pages/profile/Profile';
 import ProfileEdit from './src/pages/profile/ProfileEdit';
 import ProfileAdd from './src/pages/profile/ProfileAdd';
 import AllReview from './src/pages/profile/AllReview';
+
 const RootStack = createStackNavigator();
+const BookingStack = createStackNavigator();
 const Drawer = createDrawerNavigator();
 
 const Tab = createBottomTabNavigator();
+
+const MyTheme = {
+    ...DefaultTheme,
+    colors: {
+        ...DefaultTheme.colors,
+        primary: 'rgb(255, 45, 85)',
+        background:'white'
+    },
+};
 const tabSize = 30;
 const SignUpStacks = () => {
   return (
@@ -49,8 +60,15 @@ const SignUpStacks = () => {
       <RootStack.Screen name="PendingAccount" component={PendingAccount} options={{ headerShown: false }}/>
     </RootStack.Navigator>
   )
-}
-
+};
+const BookingStacks = () => {
+    return (
+        <BookingStack.Navigator>
+            <BookingStack.Screen name="Explore" component={Explore} options={{ headerShown: false }} />
+            <BookingStack.Screen name="Bookings" component={Booking} options={{ headerShown: false }} />
+        </BookingStack.Navigator>
+    )
+};
 const HomeTabs = () => {
   return (
     <Tab.Navigator           
@@ -65,7 +83,7 @@ const HomeTabs = () => {
     >
       
       <Tab.Screen name="Booking"
-        component={Booking}
+        component={BookingStacks}
         options={{
           tabBarBadge: 3,
           tabBarBadgeStyle:{top:-10},
@@ -162,13 +180,13 @@ export default function App() {
     SplashScreen.hide();
   }, [])
   return (
-    <NavigationContainer>
+      <NavigationContainer theme={MyTheme}>
       <RootStack.Navigator>
         {/* <RootStack.Screen name="SignUpStacks" component={SignUpStacks} options={{ headerShown: false }} /> */}
         <RootStack.Screen name="Index" component={Index} options={{ headerShown: false }} />
         <RootStack.Screen name="Login" component={LoginPage} options={{ headerShown: false }} />
         <RootStack.Screen name="Signup" component={SignupPage} options={{ headerShown: false }} />
-        <RootStack.Screen name="Verify" component={Verify} options={{ headerShown: false }} />
+          <RootStack.Screen name="Verify" component={Verify} options={{ headerShown: false }} />
         <RootStack.Screen name="Home" component={HomeTabs} options={{ headerShown: false }} />
         <RootStack.Screen name="SignUpStacks" component={SignUpStacks} options={{ headerShown: false }} />
         <RootStack.Screen name="Profile" component={Profile} options={{ headerShown: false }}  

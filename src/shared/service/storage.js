@@ -2,12 +2,12 @@ import AsyncStorage from '@react-native-community/async-storage';
 import { local } from '../const/local';
   export const saveStorage = async (key, data) => {
     try {
-      await AsyncStorage.setItem(key, data)
+      await AsyncStorage.setItem(key, data);
       return true;
     } catch (e) {
         return false;
     }
-  }
+  };
 
   export const getStorage = async (key) => {
     try {
@@ -16,7 +16,7 @@ import { local } from '../const/local';
     } catch (e) {
         return null;
     }
-  }
+  };
 
   export const getUserId = async () => {
     try{
@@ -27,4 +27,4 @@ import { local } from '../const/local';
     }catch(e) {
       return null;
     }
-  }
+  };

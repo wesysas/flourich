@@ -14,3 +14,7 @@ export const googleConfig = {
     clientSecret: 'zajv66K53Yj7PAqRxEyIydLb',
     callbackURL: 'http://localhost:4000/api/auth/google/callback',
 };
+export const LATITUDE_DELTA = 0.14;
+export const LONGITUDE_DELTA = 0.16;
+export const LATITUDE = 51.51787711384368;
+export const LONGITUDE = -0.12632345145763088;
