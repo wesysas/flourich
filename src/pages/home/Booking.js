@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, ScrollView, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import {View, Text, ScrollView, StyleSheet, Image, TouchableOpacity, FlatList} from 'react-native';
 
 import { Card, ListItem, Button, CheckBox, Overlay } from 'react-native-elements'
 
@@ -8,6 +8,10 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import AsyncStorage from '@react-native-community/async-storage';
 
 import BackButton from '../../components/BackButton';
+import {getBookings} from "../../shared/service/api";
+import {SERVER_URL} from "../../../src/globalconfig";
+import Moment from 'moment';
+import Popover from "react-native-popover-view";
 
 const IconText = ({ iconName, size, txt }) => {
     return (
@@ -50,8 +54,6 @@ const NewTabCard = ({ onPress }) => {
                 </View>
             </Card>
         </TouchableOpacity>
-
-
     );
 }
 
@@ -176,8 +178,16 @@ export default class Booking extends Component {
         this.retrieveData();
     }
 
-    init() {
-        // alert('here');
+
+    async componentDidMount() {
+        this._unsubscribe = this.props.navigation.addListener('focus', async () => {
+            var newBookings = await getBookings({creator_id:global.creator.cid, status:1});
+            this.setState({newBookings});
+        });
+    }
+
+    componentWillUnmount() {
+        this._unsubscribe();
     }
 
     toggleOverlay() {
@@ -203,12 +213,58 @@ export default class Booking extends Component {
         return (
             <View style={{
                 flex: 1,
-                marginTop: 10,
             }}>
                 <BackButton navigation={this.props.navigation} />
                 
-                <Text style={{ fontSize: 25, fontWeight: 'bold', color: 'black', textAlign: 'center', marginTop: 50 }}>Booking</Text>
+                <Text style={{ fontSize: 25, fontWeight: 'bold', color: 'black', textAlign: 'center', marginTop: 30 }}>Bookings</Text>
                 {this._approved()}
+
+
+                <TouchableOpacity ref={ref => {
+                    this.touchable = ref;
+                }}
+                                  onPress={() => this.setState({ showPopover: true })}>
+                    <Text>Press here to open popover!</Text>
+                </TouchableOpacity>
+                <Popover
+                    from={this.touchable}
+                    isVisible={this.state.showPopover}
+                    onRequestClose={() => this.setState({ showPopover: false })}>
+                    <View style={{
+                        alignItems: 'center',
+                    }}>
+                        <View style={{ flexDirection: 'row' }}>
+                            <Image
+                                style={styles.newImage}
+                                resizeMode="cover"
+                                source={require('../../assets/img/test.jpg')}
+                            />
+                            <View style={styles.newSideTxt}>
+                                <Text style={styles.title}>Karapincha</Text>
+                                <IconText iconName="map-marker" size={15} txt="Location goes here" />
+                                <Text style={styles.summaryTxt}>24 Dec | 14:00 - 20:00 | £ 200</Text>
+                            </View>
+                        </View>
+                        <View>
+                            <Text style={styles.title}>Graphics-Videos</Text>
+                            <Text style={{}}>
+                                Details in brief input by user appears here for exmple
+                                follows "Food & Interior photos for social media and print.
+                                Photos should be edited before delivery"
+                            </Text>
+                        </View>
+                        <View style={{ flexDirection: 'column', justifyContent: 'space-around' }}>
+                            <Text style={[styles.title, { textAlign: 'center' }]}>Availability</Text>
+                            <Text style={[styles.title, { textAlign: 'center' }]}>from 12:00 to 24:00</Text>
+                        </View>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
+                            <CheckBox title='Accept' checked={true} />
+                            <CheckBox title='Decline' checked={false} />
+                            <CheckBox title='Postpone' checked={false} />
+                        </View>
+                    </View>
+                </Popover>
+
                 <ScrollableTabView
                     style={styles.container}
                     renderTabBar={() =>
@@ -218,15 +274,38 @@ export default class Booking extends Component {
                         />}
                     tabBarPosition='overlayTop'
                 >
-                    <ScrollView tabLabel='New' style={styles.innerTab}>
-                        <NewTabCard key={0} onPress={() => this.toggleOverlay()} />
-                        <NewTabCard key={1} onPress={() => this.toggleOverlay()} />
-
-                        <Overlay isVisible={this.state.visible} onBackdropPress={() => this.toggleOverlay()}
-                            overlayStyle={{ margin: 30 }}>
-                            <InnerOverLay />
-                        </Overlay>
-                    </ScrollView>
+                    <FlatList tabLabel='New' style={styles.flatList}
+                              data={this.state.newBookings}
+                              keyExtractor={(item,index)=>item.bid.toString()}
+                              renderItem = {({item,index})=>
+                                  <Card key={item.bid.toString()} style={{marginTop:50}}>
+                                      <Icon name='heart' color='gray' size={35} style={styles.sideIcon} />
+                                      <View style={styles.new}>
+                                          <Image
+                                              style={styles.newImage}
+                                              resizeMode="cover"
+                                              source={{uri: SERVER_URL+item.avatar}}
+                                          />
+                                          <View style={styles.newSideTxt}>
+                                              <Text style={styles.title}>{item.first_name} {item.last_name}</Text>
+                                              <IconText iconName="map-marker" size={15} txt={item.customer_location} />
+                                              <Text style={styles.summaryTxt}>{Moment(item.start_at).format(("D MMM"))}  |  {Moment(item.start_at).format(("HH:mm"))}  |  £ {item.price}</Text>
+                                          </View>
+                                      </View>
+                                      <View>
+                                          <Text style={styles.title}>{item.service_type.replace(",", " - ")}</Text>
+                                          <Text style={styles.desc}>
+                                              {item.content}
+                                          </Text>
+                                      </View>
+                                      <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
+                                          <CheckBox title='Accept' checked={true} />
+                                          <CheckBox title='Decline' checked={false} />
+                                          <CheckBox title='Postpone' checked={false} />
+                                      </View>
+                                  </Card>
+                              }
+                    />
                     <ScrollView tabLabel='Saved' style={styles.innerTab}>
                         <SavedTabCard />
                         <SavedTabCard />
@@ -296,7 +375,10 @@ const styles = StyleSheet.create({
     summaryTxt: {
         fontWeight: 'bold',
         fontSize: 14
-    }
+    },
+    flatList: {
+        marginTop: 50
+    },
 
 
 });

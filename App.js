@@ -8,7 +8,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
-import MaterialCommunityIcons  from 'react-native-vector-icons/MaterialCommunityIcons';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome5';
 
 import Index from './src/pages/Index';
@@ -36,6 +36,7 @@ import ProfileAdd from './src/pages/profile/ProfileAdd';
 import AllReview from './src/pages/profile/AllReview';
 
 const RootStack = createStackNavigator();
+const HomeStack = createStackNavigator();
 const BookingStack = createStackNavigator();
 const Drawer = createDrawerNavigator();
 
@@ -50,25 +51,42 @@ const MyTheme = {
     },
 };
 const tabSize = 30;
+const HomeStacks = () => {
+    return (
+        <HomeStack.Navigator>
+            <HomeStack.Screen name="Explore" component={Explore} options={{ headerShown: false }} />
+        </HomeStack.Navigator>
+    )
+};
 const SignUpStacks = () => {
-  return (
-    <RootStack.Navigator>
-      <RootStack.Screen name="SetupDetail" component={SetupDetail} options={{ headerShown: false }}/>
-      <RootStack.Screen name="Identity" component={Identity} options={{ headerShown: false }}/>
-      <RootStack.Screen name="IdCardScan" component={IdCardScan} options={{ headerShown: false }}/>
-      <RootStack.Screen name="FaceScan" component={FaceScan} options={{ headerShown: false }}/>
-      <RootStack.Screen name="PendingAccount" component={PendingAccount} options={{ headerShown: false }}/>
-    </RootStack.Navigator>
-  )
+    return (
+        <RootStack.Navigator>
+            <RootStack.Screen name="SetupDetail" component={SetupDetail} options={{ headerShown: false }}/>
+            <RootStack.Screen name="Identity" component={Identity} options={{ headerShown: false }}/>
+            <RootStack.Screen name="IdCardScan" component={IdCardScan} options={{ headerShown: false }}/>
+            <RootStack.Screen name="FaceScan" component={FaceScan} options={{ headerShown: false }}/>
+            <RootStack.Screen name="PendingAccount" component={PendingAccount} options={{ headerShown: false }}/>
+        </RootStack.Navigator>
+    )
 };
 const BookingStacks = () => {
     return (
         <BookingStack.Navigator>
-            <BookingStack.Screen name="Explore" component={Explore} options={{ headerShown: false }} />
             <BookingStack.Screen name="Bookings" component={Booking} options={{ headerShown: false }} />
         </BookingStack.Navigator>
     )
 };
+
+function getTabBarVisible(route) {
+    const routeName = route.state
+        ?  route.state.routes[route.state.index].name
+        : route.params?.screen || 'Home';
+
+    if (routeName === 'Search') {
+        return false;
+    }
+    return true;
+}
 const HomeTabs = () => {
   return (
     <Tab.Navigator           
@@ -81,96 +99,43 @@ const HomeTabs = () => {
         style:{height:70}
       }}
     >
-      
-      <Tab.Screen name="Booking"
-        component={BookingStacks}
-        options={{
-          tabBarBadge: 3,
-          tabBarBadgeStyle:{top:-10},
-          tabBarLabel: 'Bookings',
-          tabBarIcon: ({focused, color, size}) => (
-            <Image
-              source={
-                focused
-                  ? require('./src/assets/img/get_started_logo.jpg')
-                  : require('./src/assets/img/avatar.png')
-              }
-              style={{
-                width: size,
-                height: size,
-              }}
-            />
-          ),
-        }}
-        />
-        
-      <Tab.Screen name="Inbox" component={Inbox}
-        options={{
-          tabBarIcon: ({focused, color, size}) => (
-            <Image
-              source={
-                focused
-                  ? require('./src/assets/tabicon/chat.png')
-                  : require('./src/assets/tabicon/chat-gray.png')
-              }
-              style={{
-                width: size,
-                height: size,
-              }}
-            />
-          ),
-          tabBarBadgeStyle:{top:-10},
-          tabBarBadge: 3,
+        <Tab.Screen name="Home"
+                    component={HomeStacks}
+                    options={({ route }) => ({
+                        tabBarIcon: () => (
+                            <FontAwesomeIcon name="home" color="#2f2f2f" size={25} />
+                        ),
+                        tabBarVisible: getTabBarVisible(route)
+                    })} />
+        <Tab.Screen name="Booking"
+                    component={BookingStacks}
+                    options={{
+                        tabBarBadge: 1,
+                        tabBarBadgeStyle:{top:-8},
+                        tabBarIcon: () => (
+                            <Icon name="calendar-blank" color="#2f2f2f" size={25} />
+                        ),
+                    }} />
+        <Tab.Screen name="Inbox" component={Inbox}
+                    options={{
+                        tabBarIcon: () => (
+                            <Icon name="comment-outline" color="#2f2f2f" size={25} />
+                        ),
+                    }} />
 
-        }} />
-      <Tab.Screen name="Wallet" component={Wallet}
-        options={{
-          tabBarIcon: ({focused, color, size}) => (
-            <Image
-              source={
-                focused
-                  ? require('./src/assets/tabicon/wallet.png')
-                  : require('./src/assets/tabicon/wallet-gray.png')
-              }
-              style={{
-                width: size,
-                height: size,
-              }}
-            />
-          ),
-        }} />
-      <Tab.Screen name="Studio" component={Studio}
-        options={{
-          tabBarIcon: ({focused, color, size}) => (
-            <Image
-              source={
-                focused
-                  ? require('./src/assets/img/get_started_logo.jpg')
-                  : require('./src/assets/img/avatar.png')
-              }
-              style={{
-                width: size,
-                height: size,
-              }}
-            />
-          ),
-        }} />
+        <Tab.Screen name="Studio" component={Studio}
+                    options={{
+                        tabBarIcon: () => (
+                            <Icon name="camera-outline" color="#2f2f2f" size={25} />
+                        ),
+                    }} />
+
         <Tab.Screen name="Profile" component={Profile}
-        options={{
-          tabBarIcon: ({focused, color, size}) => (
-            <Image
-              source={
-                focused
-                  ? require('./src/assets/img/get_started_logo.jpg')
-                  : require('./src/assets/img/avatar.png')
-              }
-              style={{
-                width: size,
-                height: size,
-              }}
-            />
-          ),
-        }} />
+                    options={{
+                        tabBarIcon: () => (
+                            <FontAwesomeIcon name="user-circle" color="black" size={25} />
+                        ),
+                    }} />
     </Tab.Navigator>
   )
 }

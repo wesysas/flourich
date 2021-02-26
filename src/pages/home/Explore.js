@@ -1,20 +1,23 @@
 import React, { useState, useCallback, Component } from 'react';
 import { View, Text, Picker, StyleSheet, Image, TouchableOpacity, TextInput, Dimensions, PermissionsAndroid } from 'react-native';
 import {ScrollView, FlatList} from 'react-native-gesture-handler'
+import FlashMessage, { showMessage } from "react-native-flash-message";
 
 import {Button, SocialIcon, Input, SearchBar, Divider, ListItem, Card, CheckBox} from 'react-native-elements';
-import { getBookings } from '../../shared/service/api';
+import { getBookings, changeCreatorStatus } from '../../shared/service/api';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import EntypoIcon from 'react-native-vector-icons/Entypo';
 import LinearGradient from 'react-native-linear-gradient';
 import { render } from 'react-dom';
 import Geolocation from '@react-native-community/geolocation';
 import { SelectMultipleButton } from "react-native-selectmultiple-button";
 import _ from "lodash";
 
-import  { SERVER_URL,LATITUDE,LONGITUDE, LATITUDE_DELTA, LONGITUDE_DELTA}  from '../../globalconfig';
-import {bottomSheetStyle, ios_red_color, btnBackgroundColor} from "../../GlobalStyles";
+import  { SERVER_URL,LATITUDE,LONGITUDE, LATITUDE_DELTA, LONGITUDE_DELTA, WIDTH, HEIGHT, GOOGLE_MAPS_APIKEY}  from '../../globalconfig';
+import {bottomSheetStyle, ios_green_color, btnBackgroundColor} from "../../GlobalStyles";
 import Moment from 'moment';
 import axios from 'axios';
+import { Popover, PopoverController } from 'react-native-modal-popover';
 
 import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
 import MapViewDirections from 'react-native-maps-directions';
@@ -33,23 +36,24 @@ import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplet
 
 // const origin = {latitude: 51.68080542967339, longitude: 0.1236155113725498};
 // const destination = {latitude: 51.511040135977304, longitude: 0.2671244205013812};
-const GOOGLE_MAPS_APIKEY = 'AIzaSyAKXQN4GlcQgn3qmtsZDpFCuVHqtkf4whk';
 
 navigator.geolocation = require('@react-native-community/geolocation');
 const styles = StyleSheet.create({
     mapcontainer: {
-        height: Dimensions.get('window').height,
-        width: Dimensions.get('window').width,
+        height: HEIGHT-150,
+        width: WIDTH,
     },
     btnStyle: {
+        backgroundColor:'blue',
         width: 90,
         borderRadius: 50,
         borderColor: 'gray',
         margin: 10
     },
     mozaicImg: {
-        width: Dimensions.get('window').width-20,
-        aspectRatio: 1,
+        marginVertical:10,
+        width: 360,
+        height: 180,
         alignSelf: 'center',
         resizeMode: 'contain'
     },
@@ -96,17 +100,31 @@ const styles = StyleSheet.create({
         borderRadius: 19,
         backgroundColor: "#f5f6f6",
         alignItems: 'center'
-    }
+    },
+
+    content: {
+        //backgroundColor:'white',
+        borderRadius: 8,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.18,
+        shadowRadius: 1.00,
+
+        elevation: 1,
+    },
+    arrow: {
+      //  borderTopColor: 'white',
+
+    },
+    background: {
+        backgroundColor: 'transparent'
+    },
 
 });
-const IconText = ({ iconName, size, txt }) => {
-    return (
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Icon name={iconName} size={size} />
-            <Text style={{ paddingLeft: 5, fontWeight: 'bold' }}>{txt}</Text>
-        </View>
-    );
-};
+
 export default class Explore extends Component {
 
     constructor() {
@@ -116,9 +134,7 @@ export default class Explore extends Component {
             date_title:'Online',
             from_time: new Date(),
             to_time: new Date(),
-            isDatePickerVisible: false,
-            isFromTimePickerVisible: false,
-            isToTimePickerVisible: false,
+            isStatusBtnVisible: false,
             search: '',
             bookings: [],
             mapRegion: {
@@ -127,10 +143,13 @@ export default class Explore extends Component {
                 latitudeDelta: LATITUDE_DELTA,
                 longitudeDelta: LONGITUDE_DELTA,
             },
-            lastLat: 0,
-            lastLong: 0,
+            lastLat: LATITUDE,
+            lastLong: LONGITUDE,
+            showPopover: false
         };
         this.bottomSheet = null;
+        global.creator = {};
+        this.touchable = null;
     }
     watchId = null;
 
@@ -156,6 +175,8 @@ export default class Explore extends Component {
 
     async componentDidMount() {
 
+        global.creator = JSON.parse(await getStorage('creator'));
+        
         this.requestLocationPermission();
         this.watchID = navigator.geolocation.watchPosition((position) => {
             let region = {
@@ -172,14 +193,20 @@ export default class Explore extends Component {
             this.onRegionChange(region, region.latitude, region.longitude);
         });
 
+        showMessage({
+            message: global.creator.status==0?"You are now offline.":"You are now online.",
+            type: "success",
+            backgroundColor: global.creator.status==0?"grey":ios_green_color,
+            //  color: "#606060", // text color
+            titleStyle:{fontSize:20, textAlign:'center'}
+        });
+
+        this.searchSubmit("");
         this._unsubscribe = this.props.navigation.addListener('focus', () => {
             this.searchSubmit("");
         });
     }
 
-    componentWillUnmount() {
-        this._unsubscribe();
-    }
     onRegionChange(region, lastLat, lastLong) {
         this.setState({
             mapRegion: region,
@@ -189,6 +216,7 @@ export default class Explore extends Component {
     }
 
     componentWillUnmount() {
+        this._unsubscribe();
         console.log('UNSAFE_componentWillUnmount');
         navigator.geolocation.clearWatch(this.watchID);
     }
@@ -206,13 +234,13 @@ export default class Explore extends Component {
 
     async searchSubmit (search)
     {
-        const creator = JSON.parse(await getStorage('creator'));
-
-        var bookings = await getBookings({creator_id:creator.cid, status:1});
-
+        this.bottomSheet.snapTo(0);
+        var bookings = await getBookings({creator_id:global.creator.cid, status:1});
+        
         console.log("-------------", bookings);
-        if (bookings){
+        if (bookings.length>0){
             this.setState({bookings});
+            this.bottomSheet.snapTo(1);
             return;
         }
 
@@ -238,9 +266,10 @@ export default class Explore extends Component {
     render() {
         console.log(this.state.mapRegion);
         return (
-            <View style={styles.container}>
+            <View style={{flex:1}}>
+                <FlashMessage position="top" statusBarHeight={20} style={{zIndex:3}} />
                 <GooglePlacesAutocomplete
-                    listViewDisplayed='true'
+                    listViewDisplayed='auto'
                     placeholder='Search Location Here'
                     minLength={1} // minimum length of text to search
                     autoFocus={false}
@@ -267,8 +296,7 @@ export default class Explore extends Component {
                     }}
                     styles={{
                         container: {
-                            position: 'absolute',
-                            zIndex: 9999,
+                            zIndex:2, position: 'absolute',
                             width: Dimensions.get('window').width-140,
                             marginTop:12,
                             marginLeft:45,
@@ -327,15 +355,31 @@ export default class Explore extends Component {
                     }}>
                         <TouchableOpacity
                             onPress={ () => {
-                                this.setState({isDatePickerVisible:true});
+                                this.setState({isStatusBtnVisible:true});
                             }}>
-                            <Icon name="clock-o" size={25} color={'grey'} />
+                            <Icon name="clock-o" size={25} color={(global.creator.status==1)?ios_green_color:'grey'} />
                         </TouchableOpacity>
                         <Divider style={{ backgroundColor: 'grey', width: 2, height: 30 }} />
-                        <TouchableOpacity onPress={ () => {
-                            }}>
-                            <Icon name="sliders" size={25} color={'grey'} />
-                        </TouchableOpacity>
+                        <PopoverController>
+                            {({ openPopover, closePopover, popoverVisible, setPopoverAnchor, popoverAnchorRect }) => (
+                                <React.Fragment>
+                                    <TouchableOpacity ref={setPopoverAnchor} onPress={openPopover}>
+                                        <Icon name="sliders" size={25} color={'grey'} />
+                                    </TouchableOpacity>
+                                    <Popover
+                                        contentStyle={styles.content}
+                                        arrowStyle={styles.arrow}
+                                        backgroundStyle={styles.background}
+                                        visible={popoverVisible}
+                                        onClose={closePopover}
+                                        fromRect={popoverAnchorRect}
+                                        supportedOrientations={['portrait', 'landscape']}
+                                    >
+                                        <Text>Hello from inside popover!</Text>
+                                    </Popover>
+                                </React.Fragment>
+                            )}
+                        </PopoverController>
                     </View>
                 </View>
                 <View style={styles.mapcontainer}>
@@ -347,6 +391,16 @@ export default class Explore extends Component {
                         // onPress={this.onMapPress.bind(this)}
                         showsUserLocation={true}
                     >
+                        <Marker
+                            pinColor={"navy"}
+                            coordinate={
+                                {
+                                    latitude: this.state.lastLat,
+                                    longitude: this.state.lastLong,
+                                }
+                            }
+                            title={'Your location'}
+                        />
                         {
                             this.state.bookings.map((booking) => (
                                 <Marker
@@ -361,28 +415,73 @@ export default class Explore extends Component {
                                 />
                             ))
                         }
-                        <Marker
-                            pinColor={"navy"}
-                            coordinate={
-                                {
-                                    latitude: this.state.lastLat,
-                                    longitude: this.state.lastLong,
-                                }
-                            }
-                            title={'You'}
-                        />
-                        {/*<MapViewDirections*/}
-                        {/*origin={{latitude: 51.50901, longitude: -0.073849 }}*/}
-                        {/*destination={{latitude: 51.519588, longitude: -0.16963 }}*/}
-                        {/*apikey={GOOGLE_MAPS_APIKEY}*/}
-                        {/*/>*/}
                     </MapView>
+                    <FlatList style={styles.flatList}
+                              data={this.state.bookings}
+                              horizontal={true}
+                              keyExtractor={(item,index)=>item.bid.toString()}
+                              renderItem = {({item,index})=>
+                                  <TouchableOpacity style={{flexDirection: 'row', backgroundColor:'white', borderRadius: 10, padding:10, margin:10, height:100}}
+                                                    onPress={ () => {
+                                                        // global.creator = item;
+                                                        // this.props.navigation.navigate('CreatorProfile');
+                                                    }}>
+                                      <View style={styles.newSideTxt}>
+                                          <Text style={styles.title}>{ item.first_name } {item.last_name}</Text>
+                                          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom:10 }}>
+                                              <Icon name="map-marker" size={15} />
+                                              <Text style={{ paddingLeft: 5, fontSize:12}}>{item.customer_location}</Text>
+                                          </View>
+                                          <Text style={{fontSize:15}}>{item.service_type.replace(",", " - ")}</Text>
+                                          <Text style={{}}>{Moment(item.start_at).format(("D MMM"))}  |  {Moment(item.start_at).format(("HH:mm"))}  |  £ {item.price}</Text>
+                                      </View>
+                                      <Image
+                                          style={styles.newImage}
+                                          resizeMode="cover"
+                                          source={{uri: SERVER_URL+item.avatar}}
+                                      />
+                                  </TouchableOpacity>
+                              }
+                    />
                 </View>
+                {this.state.isStatusBtnVisible &&
+                <TouchableOpacity
+                    style={{
+                        position: 'absolute',
+                        bottom:55,
+                        left:WIDTH/2-50,
+                        zIndex: 2,
+                        borderColor:global.creator.status==0?"grey":ios_green_color,
+                        borderWidth:3,
+                        alignItems:'center',
+                        justifyContent:'center',
+                        width:100,
+                        height:100,
+                        backgroundColor:'#fff',
+                        borderRadius:100,
+                    }}
+                    onPress={ async () => {
+                        this.setState({isStatusBtnVisible:false});
+                        global.creator.status = global.creator.status==0?1:0;
+                        var bookings = await changeCreatorStatus({creator_id:global.creator.cid, status:global.creator.status});
+
+                        showMessage({
+                            message: global.creator.status==0?"You are now offline.":"You are now online.",
+                            type: "success",
+                            backgroundColor: global.creator.status==0?"grey":ios_green_color,
+                          //  color: "#606060", // text color
+                            titleStyle:{fontSize:20, textAlign:'center'}
+                        });
+                    }}
+                >
+                    <Text style={{textAlign:'center', fontSize:20, color:global.creator.status==0?"grey":ios_green_color,}}>{(global.creator.status==0)?"Go\nOnline":"Go\nOffline"}</Text>
+                </TouchableOpacity>
+                }
                 <BottomSheet
                     ref={ref => {
                         this.bottomSheet = ref;
                     }}
-                    snapPoints={["32%","100%"]}
+                    snapPoints={[0,"8%","80%"]}
                     borderRadius={10}
                     initialSnap={0}
                     renderContent={() => (
@@ -390,8 +489,8 @@ export default class Explore extends Component {
                             style={{
                                 backgroundColor: 'white',
                                 padding: 16,
-                                height: '93%',
-                                zIndex:100
+                                height: '100%',
+                                zIndex:0
                             }}
                         >
                             <View style={{ flexDirection: 'row', justifyContent: 'space-around'}}>
@@ -401,7 +500,7 @@ export default class Explore extends Component {
                                     icon={( <Icon name="arrow-left" size={20} /> )}
                                     onPress={()=>{}}
                                 />
-                                <Text style={{fontSize:15,padding:10,fontWeight:'bold'}}>{this.state.bookings.length??0} content creators</Text>
+                                <Text style={{fontSize:15,padding:10,fontWeight:'bold'}}>{this.state.bookings.length??0} bookings available</Text>
                                 <Button
                                     type="clear"
                                     containerStyle={styles.arrowBtnStyle}
@@ -414,7 +513,8 @@ export default class Explore extends Component {
                                 keyExtractor={(item,index)=>item.bid.toString()}
                                 renderItem = {({item,index})=>
                                     <View
-                                        style={{borderRadius:10, margin:10,
+                                        style={{borderRadius:10,padding:20,margin:10,
+                                            justifyContent:'flex-start',
                                             shadowColor: "#000",
                                             shadowOffset: {
                                                 width: 0,
@@ -422,46 +522,88 @@ export default class Explore extends Component {
                                             },
                                             shadowOpacity: 0.20,
                                             shadowRadius: 1.41,
-                                            elevation: 1,}}>
-                                        <View style={{ flexDirection: 'row', padding:10, }}>
+
+                                            elevation: 2,
+                                        }}>
+                                        <View style={{ flexDirection: 'row', justifyContent:'space-between'}}>
                                             <View style={styles.newSideTxt}>
                                                 <Text style={{fontWeight: 'bold',fontSize: 20,}}>{ item.first_name } {item.last_name}</Text>
-                                                <IconText iconName="map-marker" size={15} txt={item.fulladdress+', '+item.street} />
-                                                {/*<Text style={styles.summaryTxt}>Price Range: £ {item.min_price}~{item.max_price}</Text>*/}
-                                            </View>
-                                            <Text style={{backgroundColor:'black', color: 'white', fontSize:20,position: 'absolute',
-                                                top: 20,padding:10,
-                                                right: 20}}>12 mins</Text>
-                                        </View>
-
-                                        {item.portfolios && (
-                                            <FlatList data={Array.from(new Set(item.portfolios.split(',')))}
-                                                      style={{height:200}}
-                                                      horizontal={true}
-                                                      keyExtractor={(item,index)=>index.toString()}
-                                                      renderItem={({ item }) => <Image style={styles.mozaicImg} source={{uri: SERVER_URL+item }} />}
-                                            />
-                                        )}
-
-                                        <TouchableOpacity style={{ flexDirection: 'row', padding:10 }}
-                                                          onPress={() => {
-                                                              global.creator = item;
-                                                              this.props.navigation.navigate('CreatorProfile');
-                                                          }}>
-                                            <View>
-                                                <View style={{flexDirection: 'row'}}
-                                                >
-                                                    <Icon name="star" color="green" size={15} />
-                                                    <Text>{item.rating_point}({item.rating_count})</Text>
+                                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                    <Icon name="map-marker" size={15} />
+                                                    <Text style={{ paddingLeft: 5 }}>{item.customer_location}</Text>
                                                 </View>
-                                                <Text style={styles.title}>{item.services}</Text>
-                                                <Text style={styles.desc}>Food Fashion Event</Text>
                                             </View>
-                                            <Icon name='heart' color='red' size={25}
-                                                  style={{position: 'absolute',
-                                                      top: 20,
-                                                      right: 20}} />
-                                        </TouchableOpacity>
+                                            <TouchableOpacity
+                                                              onPress={() => {
+                                                                  var favorite = item.favorite?false:true;
+                                                                  var bookings = this.state.bookings;
+                                                                  bookings[index].favorite = favorite;
+                                                                  this.setState({bookings});
+                                                              }}>
+                                                <Icon name='heart' color={item.favorite?'red':'grey'} size={30} />
+                                            </TouchableOpacity>
+                                        </View>
+                                        <Text style={{color:'red', textAlign:'right'}}>Offer Expires in {Moment(item.start_at).diff(Moment(new Date()), 'hours')} hrs</Text>
+
+                                        {/*{item.portfolios && (*/}
+                                            {/*<FlatList data={Array.from(new Set(item.portfolios.split(',')))}*/}
+                                                      {/*style={{height:200}}*/}
+                                                      {/*horizontal={true}*/}
+                                                      {/*keyExtractor={(item,index)=>index.toString()}*/}
+                                                      {/*renderItem={({ item }) => <Image style={styles.mozaicImg} source={{uri: SERVER_URL+item }} />}*/}
+                                            {/*/>*/}
+                                        {/*)}*/}
+                                        <Image style={styles.mozaicImg} source={{uri: SERVER_URL+item.avatar }} />
+
+                                        <View style={{ flexDirection: 'row', alignItems:'flex-end', justifyContent:'space-between'}}>
+                                            <View>
+                                                <Text style={styles.title}>{item.service_type.replace(",", " - ")}</Text>
+                                                <Text style={{}}>{Moment(item.start_at).format(("D MMM"))}  |  {Moment(item.start_at).format(("HH:mm"))}  |  £ {item.price}</Text>
+                                            </View>
+                                            <PopoverController>
+                                                {({ openPopover, closePopover, popoverVisible, setPopoverAnchor, popoverAnchorRect }) => (
+                                                    <React.Fragment>
+                                                        <TouchableOpacity ref={setPopoverAnchor} onPress={openPopover}>
+                                                            <EntypoIcon name="dots-three-vertical" size={20}/>
+                                                        </TouchableOpacity>
+                                                        <Popover
+                                                            contentStyle={styles.content}
+                                                            arrowStyle={styles.arrow}
+                                                            backgroundStyle={styles.background}
+                                                            visible={popoverVisible}
+                                                            onClose={closePopover}
+                                                            fromRect={popoverAnchorRect}
+                                                            supportedOrientations={['portrait', 'landscape']}
+                                                        >
+                                                            <Button
+                                                                type="clear"
+                                                                title="Accept"
+                                                                titleStyle={{color:'black', textAlign:'left'}}
+                                                                onPress={()=>{
+                                                                    console.log("accept");
+                                                                }}
+                                                            />
+                                                            <Button
+                                                                type="clear"
+                                                                title="Decline"
+                                                                titleStyle={{color:'black', textAlign:'left'}}
+                                                                onPress={()=>{
+                                                                    console.log("Decline");
+                                                                }}
+                                                            />
+                                                            <Button
+                                                                type="clear"
+                                                                title="Postpone"
+                                                                titleStyle={{color:'black', textAlign:'left'}}
+                                                                onPress={()=>{
+                                                                    console.log("Postpone");
+                                                                }}
+                                                            />
+                                                        </Popover>
+                                                    </React.Fragment>
+                                                )}
+                                            </PopoverController>
+                                        </View>
                                     </View>
                                 }
                             />
