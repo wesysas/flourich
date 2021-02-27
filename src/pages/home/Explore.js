@@ -4,7 +4,7 @@ import {ScrollView, FlatList} from 'react-native-gesture-handler'
 import FlashMessage, { showMessage } from "react-native-flash-message";
 
 import {Button, SocialIcon, Input, SearchBar, Divider, ListItem, Card, CheckBox} from 'react-native-elements';
-import { getBookings, changeCreatorStatus } from '../../shared/service/api';
+import {getBookings, changeCreatorStatus, updateBooking, getServiceData} from '../../shared/service/api';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import EntypoIcon from 'react-native-vector-icons/Entypo';
 import LinearGradient from 'react-native-linear-gradient';
@@ -12,6 +12,7 @@ import { render } from 'react-dom';
 import Geolocation from '@react-native-community/geolocation';
 import { SelectMultipleButton } from "react-native-selectmultiple-button";
 import _ from "lodash";
+import BookingModal from "../../components/BookingModal";
 
 import  { SERVER_URL,LATITUDE,LONGITUDE, LATITUDE_DELTA, LONGITUDE_DELTA, WIDTH, HEIGHT, GOOGLE_MAPS_APIKEY}  from '../../globalconfig';
 import {bottomSheetStyle, ios_green_color, btnBackgroundColor} from "../../GlobalStyles";
@@ -25,8 +26,6 @@ import BottomSheet from 'reanimated-bottom-sheet';
 import Animated from 'react-native-reanimated';
 import PopoverTooltip from 'react-native-popover-tooltip';
 
-
-import { getServiceData } from '../../shared/service/api';
 import { googleConfig } from '../../globalconfig';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import PhoneInput from "react-native-phone-number-input";
@@ -79,14 +78,6 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 15,
     },
-    locTxt: {
-        fontWeight: 'bold',
-        fontSize: 14
-    },
-    summaryTxt: {
-        fontWeight: 'bold',
-        fontSize: 14
-    },
     flatList: {
         marginTop: 350,
         height: 120,
@@ -103,8 +94,8 @@ const styles = StyleSheet.create({
     },
 
     content: {
-        //backgroundColor:'white',
-        borderRadius: 8,
+        backgroundColor:'white',
+        borderRadius: 5,
         shadowColor: "#000",
         shadowOffset: {
             width: 0,
@@ -116,7 +107,7 @@ const styles = StyleSheet.create({
         elevation: 1,
     },
     arrow: {
-      //  borderTopColor: 'white',
+        borderTopColor: 'white',
 
     },
     background: {
@@ -130,13 +121,7 @@ export default class Explore extends Component {
     constructor() {
         super();
         this.state = {
-            date: new Date(),
-            date_title:'Online',
-            from_time: new Date(),
-            to_time: new Date(),
             isStatusBtnVisible: false,
-            search: '',
-            bookings: [],
             mapRegion: {
                 latitude: LATITUDE,
                 longitude:  LONGITUDE,
@@ -145,11 +130,20 @@ export default class Explore extends Component {
             },
             lastLat: LATITUDE,
             lastLong: LONGITUDE,
-            showPopover: false
+            date_filter:0,
+
+            booking:{},
+            bookings:[],
+            pastBookings:[],
+            check_type:'accept',
+            isDatePickerVisible: false,
+            isFromTimePickerVisible:false,
+            fromTime:new Date(),
+            isToTimePickerVisible:false,
+            toTime:new Date(),
         };
         this.bottomSheet = null;
         global.creator = {};
-        this.touchable = null;
     }
     watchId = null;
 
@@ -375,7 +369,33 @@ export default class Explore extends Component {
                                         fromRect={popoverAnchorRect}
                                         supportedOrientations={['portrait', 'landscape']}
                                     >
-                                        <Text>Hello from inside popover!</Text>
+                                        <Text style={{ padding: 5, paddingBottom: 10, fontSize:20, borderBottomColor:'lightgrey',borderBottomWidth:1, width:200}}>Sort and Filter</Text>
+
+                                        <TouchableOpacity style={{ flexDirection: 'row',margin:5, alignItems: 'center' }} onPress={ () => {
+                                            this.setState({date_filter:0});
+                                            closePopover();
+                                        }}>
+                                            <Icon name={this.state.date_filter==0?"dot-circle-o":"circle-thin"} size={25} color={this.state.date_filter==0?'black':'grey'}/>
+                                            <View>
+                                                <Text style={{color:this.state.date_filter==0?'black':'grey', paddingLeft: 10, fontSize:16}}>New Bookings</Text>
+                                                <Text style={{color:'grey', paddingLeft: 10, fontSize:12}}>past 24 hours</Text>
+                                            </View>
+                                            <Text style={{color:'red', paddingLeft: 20, fontWeight:'bold'}}>6</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity style={{ flexDirection: 'row',margin:5, alignItems: 'center' }} onPress={ () => {
+                                            this.setState({date_filter:1});
+                                            closePopover();
+                                        }}>
+                                            <Icon name={this.state.date_filter==1?"dot-circle-o":"circle-thin"} size={25} color={this.state.date_filter==1?'black':'grey'}/>
+                                            <Text style={{color:this.state.date_filter==1?'black':'grey', paddingLeft: 10, fontSize:16}}>Past 48 hours</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity style={{ flexDirection: 'row',margin:5, alignItems: 'center' }} onPress={ () => {
+                                            this.setState({date_filter:2});
+                                            closePopover();
+                                        }}>
+                                            <Icon name={this.state.date_filter==2?"dot-circle-o":"circle-thin"} size={25} color={this.state.date_filter==2?'black':'grey'}/>
+                                            <Text style={{color:this.state.date_filter==2?'black':'grey', paddingLeft: 10, fontSize:16}}>Any time</Text>
+                                        </TouchableOpacity>
                                     </Popover>
                                 </React.Fragment>
                             )}
@@ -440,6 +460,16 @@ export default class Explore extends Component {
                                           resizeMode="cover"
                                           source={{uri: SERVER_URL+item.avatar}}
                                       />
+                                      <TouchableOpacity style={{position:'absolute', right:15, top:15}}
+                                          onPress={async () => {
+                                              var favorite = item.favorite?false:true;
+                                              var bookings = this.state.bookings;
+                                              bookings[index].favorite = favorite;
+                                              this.setState({bookings});
+                                              var bookings = await updateBooking({booking:bookings[index]});
+                                          }}>
+                                          <Icon name='heart' color={item.favorite?'red':'white'} size={20} />
+                                      </TouchableOpacity>
                                   </TouchableOpacity>
                               }
                     />
@@ -477,6 +507,7 @@ export default class Explore extends Component {
                     <Text style={{textAlign:'center', fontSize:20, color:global.creator.status==0?"grey":ios_green_color,}}>{(global.creator.status==0)?"Go\nOnline":"Go\nOffline"}</Text>
                 </TouchableOpacity>
                 }
+                <BookingModal parent={this} />
                 <BottomSheet
                     ref={ref => {
                         this.bottomSheet = ref;
@@ -534,12 +565,13 @@ export default class Explore extends Component {
                                                 </View>
                                             </View>
                                             <TouchableOpacity
-                                                              onPress={() => {
-                                                                  var favorite = item.favorite?false:true;
-                                                                  var bookings = this.state.bookings;
-                                                                  bookings[index].favorite = favorite;
-                                                                  this.setState({bookings});
-                                                              }}>
+                                                  onPress={async () => {
+                                                      var favorite = item.favorite?false:true;
+                                                      var bookings = this.state.bookings;
+                                                      bookings[index].favorite = favorite;
+                                                      this.setState({bookings});
+                                                      var bookings = await updateBooking({booking:bookings[index]});
+                                                  }}>
                                                 <Icon name='heart' color={item.favorite?'red':'grey'} size={30} />
                                             </TouchableOpacity>
                                         </View>
@@ -575,30 +607,37 @@ export default class Explore extends Component {
                                                             fromRect={popoverAnchorRect}
                                                             supportedOrientations={['portrait', 'landscape']}
                                                         >
-                                                            <Button
-                                                                type="clear"
-                                                                title="Accept"
-                                                                titleStyle={{color:'black', textAlign:'left'}}
-                                                                onPress={()=>{
-                                                                    console.log("accept");
-                                                                }}
-                                                            />
-                                                            <Button
-                                                                type="clear"
-                                                                title="Decline"
-                                                                titleStyle={{color:'black', textAlign:'left'}}
-                                                                onPress={()=>{
-                                                                    console.log("Decline");
-                                                                }}
-                                                            />
-                                                            <Button
-                                                                type="clear"
-                                                                title="Postpone"
-                                                                titleStyle={{color:'black', textAlign:'left'}}
-                                                                onPress={()=>{
-                                                                    console.log("Postpone");
-                                                                }}
-                                                            />
+
+                                                            <TouchableOpacity onPress={ () => {
+                                                                this.setState({booking:item});
+                                                                this.setState({check_type:'accept'});
+                                                                this.setState({ showPopover: true });
+                                                                closePopover();
+                                                            }}>
+                                                                <Text style={{margin:5}}>Accept</Text>
+                                                            </TouchableOpacity>
+                                                            <TouchableOpacity onPress={ async () => {
+                                                                var bookings = this.state.bookings;
+
+                                                                var index = bookings.findIndex(function(c) {
+                                                                    return c.bid == item.bid;
+                                                                });
+
+                                                                bookings[index].status_id = 10;
+                                                                this.setState({bookings});
+                                                                var newBooking = await updateBooking({booking:bookings[index]});
+                                                                closePopover();
+                                                            }}>
+                                                                <Text style={{margin:5}}>Decline</Text>
+                                                            </TouchableOpacity>
+                                                            <TouchableOpacity onPress={ () => {
+                                                                this.setState({booking:item});
+                                                                this.setState({check_type:'postpone'});
+                                                                this.setState({ showPopover: true });
+                                                                closePopover();
+                                                            }}>
+                                                                <Text style={{margin:5}}>Postpone</Text>
+                                                            </TouchableOpacity>
                                                         </Popover>
                                                     </React.Fragment>
                                                 )}

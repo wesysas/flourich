@@ -1,384 +1,1 @@
-import React, { Component } from 'react';
-import {View, Text, ScrollView, StyleSheet, Image, TouchableOpacity, FlatList} from 'react-native';
-
-import { Card, ListItem, Button, CheckBox, Overlay } from 'react-native-elements'
-
-import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import AsyncStorage from '@react-native-community/async-storage';
-
-import BackButton from '../../components/BackButton';
-import {getBookings} from "../../shared/service/api";
-import {SERVER_URL} from "../../../src/globalconfig";
-import Moment from 'moment';
-import Popover from "react-native-popover-view";
-
-const IconText = ({ iconName, size, txt }) => {
-    return (
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Icon name={iconName} size={size} />
-            <Text style={{ paddingLeft: 5, fontWeight: 'bold' }}>{txt}</Text>
-        </View>
-    );
-}
-
-const NewTabCard = ({ onPress }) => {
-    return (
-        <TouchableOpacity onPress={onPress}>
-            <Card>
-                <Icon name='heart' color='gray' size={25} style={styles.sideIcon} />
-                <View style={styles.new}>
-                    <Image
-                        style={styles.newImage}
-                        resizeMode="cover"
-                        source={require('../../assets/img/test.jpg')}
-                    />
-                    <View style={styles.newSideTxt}>
-                        <Text style={styles.title}>Karapincha</Text>
-                        <IconText iconName="map-marker" size={15} txt="Location goes here" />
-                        <Text style={styles.summaryTxt}>24 Dec | 14:00 - 20:00 | £ 200</Text>
-                    </View>
-                </View>
-                <View>
-                    <Text style={styles.title}>Graphics-Videos</Text>
-                    <Text style={styles.desc}>
-                        Details in brief input by user appears here for exmple
-                        follows "Food & Interior photos for social media and print.
-                        Photos should be edited before delivery"
-                </Text>
-                </View>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
-                    <CheckBox title='Accept' checked={true} />
-                    <CheckBox title='Decline' checked={false} />
-                    <CheckBox title='Postpone' checked={false} />
-                </View>
-            </Card>
-        </TouchableOpacity>
-    );
-}
-
-const InnerOverLay = () => {
-    return (
-        <View style={{
-            alignItems: 'center',
-        }}>
-            <View style={{ flexDirection: 'row' }}>
-                <Image
-                    style={styles.newImage}
-                    resizeMode="cover"
-                    source={require('../../assets/img/test.jpg')}
-                />
-                <View style={styles.newSideTxt}>
-                    <Text style={styles.title}>Karapincha</Text>
-                    <IconText iconName="map-marker" size={15} txt="Location goes here" />
-                    <Text style={styles.summaryTxt}>24 Dec | 14:00 - 20:00 | £ 200</Text>
-                </View>
-            </View>
-            <View>
-                <Text style={styles.title}>Graphics-Videos</Text>
-                <Text style={{}}>
-                    Details in brief input by user appears here for exmple
-                    follows "Food & Interior photos for social media and print.
-                    Photos should be edited before delivery"
-                </Text>
-            </View>
-            <View style={{ flexDirection: 'column', justifyContent: 'space-around' }}>
-                <Text style={[styles.title, { textAlign: 'center' }]}>Availability</Text>
-                <Text style={[styles.title, { textAlign: 'center' }]}>from 12:00 to 24:00</Text>
-            </View>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
-                <CheckBox title='Accept' checked={true} />
-                <CheckBox title='Decline' checked={false} />
-                <CheckBox title='Postpone' checked={false} />
-            </View>
-        </View>
-    )
-}
-
-const SavedTabCard = () => {
-    return (
-        <Card>
-            <Icon name='heart' color='red' size={25} style={styles.sideIcon} />
-            <View style={styles.new}>
-                <Image
-                    style={styles.newImage}
-                    resizeMode="cover"
-                    source={require('../../assets/img/test.jpg')}
-                />
-                <View style={styles.newSideTxt}>
-                    <Text style={styles.title}>Karapincha</Text>
-                    <IconText iconName="map-marker" size={15} txt="Location goes here" />
-                    <Text style={styles.summaryTxt}>24 Dec | 14:00 - 20:00 | £ 200</Text>
-                </View>
-            </View>
-            <View>
-                <Text style={styles.title}>Graphics-Videos</Text>
-                <Text style={styles.desc}>
-                    Details in brief input by user appears here for exmple
-                    follows "Food & Interior photos for social media and print.
-                    Photos should be edited before delivery"
-                </Text>
-            </View>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
-                <CheckBox title='Accept' checked={true} />
-                <CheckBox title='Decline' checked={false} />
-                <CheckBox title='Postpone' checked={false} />
-            </View>
-        </Card>
-    );
-}
-
-const PastTabCard = () => {
-    return (
-        <Card>
-            <View style={[styles.new, { justifyContent: 'space-between' }]}>
-
-                <View style={{ flexDirection: 'column' }}>
-                    <Text style={{ position: 'absolute', right: 3, top: 10 }}>completed</Text>
-                    <Text style={styles.title}>Karapincha</Text>
-                    <IconText iconName="map-marker" size={15} txt="Location goes here" />
-                    <Text style={styles.summaryTxt}>24 Dec | 14:00 - 20:00 | £ 200</Text>
-                </View>
-                <Image
-                    style={{ width: 80, height: 80, borderRadius: 5 }}
-                    resizeMode="cover"
-                    source={require('../../assets/img/test.jpg')}
-                />
-            </View>
-        </Card>
-    );
-}
-export default class Booking extends Component {
-
-    constructor(props) {
-        super(props);
-        // this.init();
-        this.state = {
-            visible: false,
-            approved: false
-        }
-    }
-
-
-    async retrieveData() {
-        try {
-            const user = await AsyncStorage.getItem('@user')
-            if (user) {
-                this.setState({ approved: JSON.parse(user).approved })
-
-            }
-        } catch (e) {
-            console.log(e);
-            alert('Failed to load value.')
-        }
-    }
-
-    UNSAFE_componentWillMount() {
-
-        this.retrieveData();
-    }
-
-
-    async componentDidMount() {
-        this._unsubscribe = this.props.navigation.addListener('focus', async () => {
-            var newBookings = await getBookings({creator_id:global.creator.cid, status:1});
-            this.setState({newBookings});
-        });
-    }
-
-    componentWillUnmount() {
-        this._unsubscribe();
-    }
-
-    toggleOverlay() {
-        // alert('ee');
-        this.setState({ visible: !this.state.visible });
-        console.log(this.state.visible);
-    }
-
-    _approved() {
-        if (this.state.approved) {
-            return (
-                <Text>Approved</Text>
-            )
-        } else {
-            return (
-                <Text style={styles.alertMsg}>Un Approved</Text>
-            )
-        }
-
-    }
-
-    render() {
-        return (
-            <View style={{
-                flex: 1,
-            }}>
-                <BackButton navigation={this.props.navigation} />
-                
-                <Text style={{ fontSize: 25, fontWeight: 'bold', color: 'black', textAlign: 'center', marginTop: 30 }}>Bookings</Text>
-                {this._approved()}
-
-
-                <TouchableOpacity ref={ref => {
-                    this.touchable = ref;
-                }}
-                                  onPress={() => this.setState({ showPopover: true })}>
-                    <Text>Press here to open popover!</Text>
-                </TouchableOpacity>
-                <Popover
-                    from={this.touchable}
-                    isVisible={this.state.showPopover}
-                    onRequestClose={() => this.setState({ showPopover: false })}>
-                    <View style={{
-                        alignItems: 'center',
-                    }}>
-                        <View style={{ flexDirection: 'row' }}>
-                            <Image
-                                style={styles.newImage}
-                                resizeMode="cover"
-                                source={require('../../assets/img/test.jpg')}
-                            />
-                            <View style={styles.newSideTxt}>
-                                <Text style={styles.title}>Karapincha</Text>
-                                <IconText iconName="map-marker" size={15} txt="Location goes here" />
-                                <Text style={styles.summaryTxt}>24 Dec | 14:00 - 20:00 | £ 200</Text>
-                            </View>
-                        </View>
-                        <View>
-                            <Text style={styles.title}>Graphics-Videos</Text>
-                            <Text style={{}}>
-                                Details in brief input by user appears here for exmple
-                                follows "Food & Interior photos for social media and print.
-                                Photos should be edited before delivery"
-                            </Text>
-                        </View>
-                        <View style={{ flexDirection: 'column', justifyContent: 'space-around' }}>
-                            <Text style={[styles.title, { textAlign: 'center' }]}>Availability</Text>
-                            <Text style={[styles.title, { textAlign: 'center' }]}>from 12:00 to 24:00</Text>
-                        </View>
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
-                            <CheckBox title='Accept' checked={true} />
-                            <CheckBox title='Decline' checked={false} />
-                            <CheckBox title='Postpone' checked={false} />
-                        </View>
-                    </View>
-                </Popover>
-
-                <ScrollableTabView
-                    style={styles.container}
-                    renderTabBar={() =>
-                        <DefaultTabBar
-                            backgroundColor='rgba(255, 255, 255, 0.7)'
-                        // tabStyle={{ width: 100 }}
-                        />}
-                    tabBarPosition='overlayTop'
-                >
-                    <FlatList tabLabel='New' style={styles.flatList}
-                              data={this.state.newBookings}
-                              keyExtractor={(item,index)=>item.bid.toString()}
-                              renderItem = {({item,index})=>
-                                  <Card key={item.bid.toString()} style={{marginTop:50}}>
-                                      <Icon name='heart' color='gray' size={35} style={styles.sideIcon} />
-                                      <View style={styles.new}>
-                                          <Image
-                                              style={styles.newImage}
-                                              resizeMode="cover"
-                                              source={{uri: SERVER_URL+item.avatar}}
-                                          />
-                                          <View style={styles.newSideTxt}>
-                                              <Text style={styles.title}>{item.first_name} {item.last_name}</Text>
-                                              <IconText iconName="map-marker" size={15} txt={item.customer_location} />
-                                              <Text style={styles.summaryTxt}>{Moment(item.start_at).format(("D MMM"))}  |  {Moment(item.start_at).format(("HH:mm"))}  |  £ {item.price}</Text>
-                                          </View>
-                                      </View>
-                                      <View>
-                                          <Text style={styles.title}>{item.service_type.replace(",", " - ")}</Text>
-                                          <Text style={styles.desc}>
-                                              {item.content}
-                                          </Text>
-                                      </View>
-                                      <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
-                                          <CheckBox title='Accept' checked={true} />
-                                          <CheckBox title='Decline' checked={false} />
-                                          <CheckBox title='Postpone' checked={false} />
-                                      </View>
-                                  </Card>
-                              }
-                    />
-                    <ScrollView tabLabel='Saved' style={styles.innerTab}>
-                        <SavedTabCard />
-                        <SavedTabCard />
-                        <SavedTabCard />
-                    </ScrollView>
-                    <ScrollView tabLabel='Past' style={styles.innerTab}>
-                        <PastTabCard />
-                        <PastTabCard />
-                        <PastTabCard />
-                        <PastTabCard />
-                        <PastTabCard />
-                        <PastTabCard />
-                    </ScrollView>
-                </ScrollableTabView>
-            </View>
-        );
-    }
-}
-
-const styles = StyleSheet.create({
-    container: {
-        marginTop: 10,
-        zIndex: 1
-    },
-    alertMsg:{
-        fontSize: 20, 
-        padding:10,
-        marginHorizontal:20,
-        fontWeight: 'bold', 
-        color: 'black', 
-        textAlign: 'center', 
-        backgroundColor:'#ff5b90',
-        borderRadius:5
-    },
-    innerTab: {
-        marginTop:50,
-        marginHorizontal: 20
-    },
-    new: {
-        flex: 1,
-        flexDirection: 'row'
-    },
-    newImage: {
-        width: 100,
-        height: 100,
-        borderRadius: 5
-    },
-    newSideTxt: {
-        flexDirection: 'column',
-        paddingLeft: 20
-    },
-    sideIcon: {
-        position: 'absolute',
-        right: 0
-
-    },
-    title: {
-        color: 'black',
-        fontWeight: 'bold',
-        fontSize: 15,
-        marginVertical: 10
-    },
-    locTxt: {
-        fontWeight: 'bold',
-        fontSize: 14
-    },
-    summaryTxt: {
-        fontWeight: 'bold',
-        fontSize: 14
-    },
-    flatList: {
-        marginTop: 50
-    },
-
-
-});
+import React, { Component } from 'react';import {View, Text, ScrollView, StyleSheet, Image, TouchableOpacity, FlatList} from 'react-native';import { Card, ListItem, Button, CheckBox, Overlay } from 'react-native-elements'import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view';import Icon from 'react-native-vector-icons/MaterialCommunityIcons';import AsyncStorage from '@react-native-community/async-storage';import BackButton from '../../components/BackButton';import BookingModal from "../../components/BookingModal";import {getBookings, updateBooking} from "../../shared/service/api";import {SERVER_URL} from "../../../src/globalconfig";import Moment from 'moment';import {ios_green_color} from "../../GlobalStyles";const IconText = ({ iconName, size, txt }) => {    return (        <View style={{ flexDirection: 'row', alignItems: 'center' }}>            <Icon name={iconName} size={size} />            <Text style={{ paddingLeft: 5}}>{txt}</Text>        </View>    );};const CustomCheckBox = ({ title, checked, onPress }) => {    return (        <CheckBox            containerStyle ={{backgroundColor: 'transparent', borderWidth:0}}            textStyle={{fontWeight:'normal', color:checked?ios_green_color:'grey'}}            checkedColor={ios_green_color}            uncheckedColor={'grey'}            checkedIcon='check-square'            uncheckedIcon='square-o'            title={title} checked={checked}            onPress={onPress}        />    );};const CustomCard = ({item, parent}) => {    return (        <Card key={item.bid.toString()} style={{marginTop:50}}>            <TouchableOpacity style={styles.sideIcon}                              onPress={async () => {                                  var favorite = item.favorite?false:true;                                  var bookings = parent.state.bookings;                                  var index = bookings.findIndex(function(c) {                                      return c.bid == item.bid;                                  });                                  bookings[index].favorite = favorite;                                  parent.setState({bookings});                                  var newBooking = await updateBooking({booking:bookings[index]});                              }}>                <Icon name='heart' color={item.favorite?'red':'grey'} size={35}/>            </TouchableOpacity>            <View style={styles.new}>                <Image                    style={styles.newImage}                    resizeMode="cover"                    source={{uri: SERVER_URL+item.avatar}}                />                <View style={styles.newSideTxt}>                    <Text style={styles.name}>{item.first_name} {item.last_name}</Text>                    <IconText iconName="map-marker" size={15} txt={item.customer_location} />                    <Text style={styles.summaryTxt}>{Moment(item.start_at).format(("D MMM"))}  |  {Moment(item.start_at).format(("HH:mm"))}  |  £ {item.price}</Text>                </View>            </View>            <View>                <Text style={styles.title}>{item.service_type.replace(",", " - ")}</Text>                <Text style={styles.desc}>                    {item.content}                </Text>            </View>            <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>                <CustomCheckBox title='Accept' checked={item.status_id==3?true:false}                                onPress={() => {                                    parent.setState({booking:item});                                    parent.setState({check_type:'accept'});                                    parent.setState({ showPopover: true });                                }}                />                <CustomCheckBox title='Decline' checked={item.status_id==10?true:false}                                onPress={async () => {                                    var bookings = parent.state.bookings;                                    var index = bookings.findIndex(function(c) {                                        return c.bid == item.bid;                                    });                                    bookings[index].status_id = 10;                                    parent.setState({bookings});                                    var newBooking = await updateBooking({booking:bookings[index]});                                }}                />                <CustomCheckBox title='Postpone' checked={item.status_id==2?true:false}                                onPress={() => {                                    parent.setState({booking:item});                                    parent.setState({check_type:'postpone'});                                    parent.setState({ showPopover: true });                                }}                />            </View>        </Card>    );};export default class Booking extends Component {    constructor(props) {        super(props);        this.state = {            booking:{},            bookings:[],            pastBookings:[],            check_type:'accept',            isDatePickerVisible: false,            isFromTimePickerVisible:false,            fromTime:new Date(),            isToTimePickerVisible:false,            toTime:new Date(),        }    }    async componentDidMount() {        this._unsubscribe = this.props.navigation.addListener('focus', async () => {            var bookings = await getBookings({creator_id:global.creator.cid, status:[1,2,3,4,5,6,7,8,10]});            var pastBookings = await getBookings({creator_id:global.creator.cid, status:[9]});            this.setState({bookings});            this.setState({pastBookings});        });    }    componentWillUnmount() {        this._unsubscribe();    }    render() {        return (            <View style={{                flex: 1,            }}>                <BackButton navigation={this.props.navigation} />                                <Text style={{ fontSize: 25, fontWeight: 'bold', color: 'black', textAlign: 'center', marginTop: 30 }}>Bookings</Text>                <BookingModal parent={this} />                <ScrollableTabView                    style={styles.container}                    renderTabBar={() =>                        <DefaultTabBar                            backgroundColor='rgba(255, 255, 255, 0.7)'                        // tabStyle={{ width: 100 }}                        />}                    tabBarPosition='overlayTop'                >                    <FlatList tabLabel='New' style={styles.flatList}                              data={this.state.bookings}                              keyExtractor={(item,index)=>item.bid.toString()}                              renderItem = {({item,index})=>                                  <CustomCard item={item} parent={this}/>                              }                    />                    <FlatList tabLabel='Saved' style={styles.flatList}                              data={this.state.bookings.filter((booking) => booking.favorite===1)}                              keyExtractor={(item,index)=>item.bid.toString()}                              renderItem = {({item,index})=>                                  <CustomCard item={item} parent={this}/>                              }                    />                    <FlatList tabLabel='Past' style={styles.flatList}                              data={this.state.pastBookings}                              keyExtractor={(item,index)=>item.bid.toString()}                              renderItem = {({item,index})=>                                  <Card key={item.bid.toString()} style={{marginTop:50}}>                                      <View style={[styles.new, { justifyContent: 'space-between' }]}>                                          <Text style={{ position: 'absolute', right: 110, top: 0, color:'grey' }}>completed</Text>                                          <View>                                              <Text style={{fontSize: 18}}>{item.first_name} {item.last_name}</Text>                                              <IconText iconName="map-marker" size={15} txt={item.customer_location} />                                              <Text style={[styles.summaryTxt, {marginTop:10}]}>{item.service_type.replace(",", " - ")}</Text>                                              <Text style={styles.summaryTxt}>{Moment(item.start_at).format(("D MMM"))}  |  {Moment(item.start_at).format(("HH:mm"))}  |  £ {item.price}</Text>                                          </View>                                          <Image                                              style={styles.newImage}                                              resizeMode="cover"                                              source={{uri: SERVER_URL+item.avatar}}                                          />                                      </View>                                  </Card>                              }                    />                </ScrollableTabView>            </View>        );    }}const styles = StyleSheet.create({    container: {        marginTop: 10,        zIndex: 1    },    alertMsg:{        fontSize: 20,         padding:10,        marginHorizontal:20,        fontWeight: 'bold',         color: 'black',         textAlign: 'center',         backgroundColor:'#ff5b90',        borderRadius:5    },    innerTab: {        marginTop:50,        marginHorizontal: 20    },    new: {        flex: 1,        flexDirection: 'row'    },    newImage: {        width: 100,        height: 100,        borderRadius: 5    },    newSideTxt: {        flexDirection: 'column',        paddingLeft: 20    },    sideIcon: {        position: 'absolute',        right: 0    },    name: {        fontSize: 18,        marginVertical: 10    },    title: {        fontSize: 15,        marginVertical: 10    },    locTxt: {        fontSize: 14    },    summaryTxt: {        fontSize: 13    },    desc: {        fontSize: 12,        color:'grey'    },    flatList: {        marginTop: 50    },});

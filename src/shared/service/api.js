@@ -203,6 +203,17 @@ export const getBookings = async (data) => {
     }
 };
 
+export const updateBooking = async (data) => {
+    try {
+        var res = await _post('/v1/booking/update', data);
+        return res;
+    } catch (err) {
+        // Handle Error Here
+        _handleError(err);
+        return null;
+    }
+};
+
 export const changeCreatorStatus = async (data) => {
     try {
         var res = await _post('/v1/profile/change_status', data);
