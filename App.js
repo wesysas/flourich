@@ -1,6 +1,7 @@
 import 'react-native-gesture-handler';
 import React, { useEffect } from 'react';
 import { StyleSheet, Text, View, Image, Platform } from 'react-native';
+import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 
 import SplashScreen from 'react-native-splash-screen';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
@@ -78,13 +79,9 @@ const BookingStacks = () => {
 };
 
 function getTabBarVisible(route) {
-    const routeName = route.state
-        ?  route.state.routes[route.state.index].name
-        : route.params?.screen || 'Home';
-
-    if (routeName === 'Search') {
-        return false;
-    }
+    const routeName = getFocusedRouteNameFromRoute(route);
+    const hideOnScreens = ['Home'];
+    if(hideOnScreens.indexOf(routeName) > -1) return false;
     return true;
 }
 const HomeTabs = () => {
@@ -138,7 +135,7 @@ const HomeTabs = () => {
                     }} />
     </Tab.Navigator>
   )
-}
+};
 
 export default function App() {
   useEffect(() => {
@@ -154,14 +151,7 @@ export default function App() {
           <RootStack.Screen name="Verify" component={Verify} options={{ headerShown: false }} />
         <RootStack.Screen name="Home" component={HomeTabs} options={{ headerShown: false }} />
         <RootStack.Screen name="SignUpStacks" component={SignUpStacks} options={{ headerShown: false }} />
-        <RootStack.Screen name="Profile" component={Profile} options={{ headerShown: false }}  
-    // options={{ 
-    //                                                             headerBackTitleVisible:false,
-    //                                                             headerTransparent:true,
-    //                                                             headerTitle:'',
-    //                                                             headerLeftContainerStyle:styles.backButton           
-    //                                                             }}
-                                                                    />
+        <RootStack.Screen name="Profile" component={Profile} options={{ headerShown: false }} />
         <RootStack.Screen name="ProfileEdit" component={ProfileEdit} options={{ headerShown: false }} />
         <RootStack.Screen name="ProfileAdd" component={ProfileAdd} options={{ headerShown: false }} />
         <RootStack.Screen name="AllReview" component={AllReview} options={{ headerShown: false }}/>

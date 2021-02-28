@@ -13,7 +13,7 @@ const IconText = ({ iconName, size, txt }) => {
             <Text style={{ paddingLeft: 5, fontWeight: 'bold' }}>{txt}</Text>
         </View>
     );
-}
+};
 
 const MessageItem = () => {
     return (
@@ -38,7 +38,7 @@ const MessageItem = () => {
             </View>
         </ListItem>
     );
-}
+};
 
 const NotifiItem = () => {
     return (
@@ -62,23 +62,12 @@ const NotifiItem = () => {
             </TouchableOpacity>
         </ListItem>
     );
-}
+};
 
 export default class Inbox extends Component {
 
-    constructor() {
-        super();
-        this.init();
-    }
-    UNSAFE_componentWillMount() {
-        // if (Platform.OS === 'ios') {
-        //   CardIOUtilities.preload();
-        // }
-        // alert('kokok')
-    }
-
-    init() {
-        // alert('here');
+    constructor(props) {
+        super(props);
     }
 
     render() {

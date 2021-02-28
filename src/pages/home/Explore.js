@@ -29,9 +29,10 @@ import PopoverTooltip from 'react-native-popover-tooltip';
 import { googleConfig } from '../../globalconfig';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import PhoneInput from "react-native-phone-number-input";
-import {getStorage} from "../../../../creator-interface/src/shared/service/storage";
+import {getStorage} from "../../shared/service/storage";
 //navigator.geolocation.getCurrentPosition = Geolocation.getCurrentPosition;
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 // const origin = {latitude: 51.68080542967339, longitude: 0.1236155113725498};
 // const destination = {latitude: 51.511040135977304, longitude: 0.2671244205013812};
@@ -118,9 +119,10 @@ const styles = StyleSheet.create({
 
 export default class Explore extends Component {
 
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {
+            spinner: false,
             isStatusBtnVisible: false,
             mapRegion: {
                 latitude: LATITUDE,
@@ -130,7 +132,6 @@ export default class Explore extends Component {
             },
             lastLat: LATITUDE,
             lastLong: LONGITUDE,
-            date_filter:0,
 
             booking:{},
             bookings:[],
@@ -142,6 +143,7 @@ export default class Explore extends Component {
             isToTimePickerVisible:false,
             toTime:new Date(),
         };
+        this.date_filter = 1;
         this.bottomSheet = null;
         global.creator = {};
     }
@@ -169,20 +171,20 @@ export default class Explore extends Component {
 
     async componentDidMount() {
 
+       // this.setState({spinner: true});
         global.creator = JSON.parse(await getStorage('creator'));
-        
+      //  this.setState({spinner: false});
+
         this.requestLocationPermission();
         this.watchID = navigator.geolocation.watchPosition((position) => {
             let region = {
                 // latitude: position.coords.latitude,
                 // longitude: position.coords.longitude,
-                latitude: LATITUDE,
-                longitude:  LONGITUDE,
+                latitude: global.creator.latitude,
+                longitude:  global.creator.longitude,
                 latitudeDelta: LATITUDE_DELTA,
                 longitudeDelta: LONGITUDE_DELTA
             };
-            global.latitude = region.latitude;
-            global.longitude = region.longitude;
             console.log(region);
             this.onRegionChange(region, region.latitude, region.longitude);
         });
@@ -215,52 +217,32 @@ export default class Explore extends Component {
         navigator.geolocation.clearWatch(this.watchID);
     }
 
-    onMapPress(e) {
-        console.log(e.nativeEvent.coordinate.longitude);
-        let region = {
-            latitude: e.nativeEvent.coordinate.latitude,
-            longitude: e.nativeEvent.coordinate.longitude,
-            latitudeDelta: LATITUDE_DELTA,
-            longitudeDelta: LONGITUDE_DELTA
-        };
-        this.onRegionChange(region, region.latitude, region.longitude);
-    }
-
     async searchSubmit (search)
     {
         this.bottomSheet.snapTo(0);
-        var bookings = await getBookings({creator_id:global.creator.cid, status:1});
-        
-        console.log("-------------", bookings);
-        if (bookings.length>0){
+
+        this.setState({spinner: true});
+        var bookings = await getBookings({creator_id:global.creator.cid, status:1, date_filter:this.date_filter});
+        this.setState({spinner: false});
+
+        if (bookings != null && bookings.length>0)  {
             this.setState({bookings});
             this.bottomSheet.snapTo(1);
-            return;
+        }
+        else{
+            this.setState({bookings:[]});
+            this.bottomSheet.snapTo(0);
         }
 
-        this.setState({bookings: []})
     }
     async updateSearch (search)
     {
         this.setState({ search});
     }
-    pressMark(e) {
-        alert(e);
-        console.log(e);
-        // axios.get('/user')
-        //   .then(function (response) {
-        //       alert('res');
-        //     console.log(response);
-        //   })
-        //   .catch(function (error) {
-        //     console.log(error);
-        //     alert('err');
-        //   });
-    }
     render() {
-        console.log(this.state.mapRegion);
         return (
             <View style={{flex:1}}>
+                <Spinner visible={this.state.spinner} />
                 <FlashMessage position="top" statusBarHeight={20} style={{zIndex:3}} />
                 <GooglePlacesAutocomplete
                     listViewDisplayed='auto'
@@ -372,29 +354,34 @@ export default class Explore extends Component {
                                         <Text style={{ padding: 5, paddingBottom: 10, fontSize:20, borderBottomColor:'lightgrey',borderBottomWidth:1, width:200}}>Sort and Filter</Text>
 
                                         <TouchableOpacity style={{ flexDirection: 'row',margin:5, alignItems: 'center' }} onPress={ () => {
-                                            this.setState({date_filter:0});
+                                            this.date_filter=1;
+                                            this.searchSubmit("");
                                             closePopover();
                                         }}>
-                                            <Icon name={this.state.date_filter==0?"dot-circle-o":"circle-thin"} size={25} color={this.state.date_filter==0?'black':'grey'}/>
+                                            <Icon name={this.date_filter==1?"dot-circle-o":"circle-thin"} size={25} color={this.date_filter==1?'black':'grey'}/>
                                             <View>
-                                                <Text style={{color:this.state.date_filter==0?'black':'grey', paddingLeft: 10, fontSize:16}}>New Bookings</Text>
+                                                <Text style={{color:this.date_filter==1?'black':'grey', paddingLeft: 10, fontSize:16}}>New Bookings</Text>
                                                 <Text style={{color:'grey', paddingLeft: 10, fontSize:12}}>past 24 hours</Text>
                                             </View>
-                                            <Text style={{color:'red', paddingLeft: 20, fontWeight:'bold'}}>6</Text>
+                                            <Text style={{color:'red', paddingLeft: 20, fontWeight:'bold'}}>{this.date_filter==1?this.state.bookings.length:''}</Text>
                                         </TouchableOpacity>
                                         <TouchableOpacity style={{ flexDirection: 'row',margin:5, alignItems: 'center' }} onPress={ () => {
-                                            this.setState({date_filter:1});
+                                            this.date_filter=2;
+                                            this.searchSubmit("");
                                             closePopover();
                                         }}>
-                                            <Icon name={this.state.date_filter==1?"dot-circle-o":"circle-thin"} size={25} color={this.state.date_filter==1?'black':'grey'}/>
-                                            <Text style={{color:this.state.date_filter==1?'black':'grey', paddingLeft: 10, fontSize:16}}>Past 48 hours</Text>
+                                            <Icon name={this.date_filter==2?"dot-circle-o":"circle-thin"} size={25} color={this.date_filter==2?'black':'grey'}/>
+                                            <Text style={{color:this.date_filter==2?'black':'grey', paddingLeft: 10, fontSize:16}}>Past 48 hours</Text>
+                                            <Text style={{color:'red', paddingLeft: 20, fontWeight:'bold'}}>{this.date_filter==2?this.state.bookings.length:''}</Text>
                                         </TouchableOpacity>
                                         <TouchableOpacity style={{ flexDirection: 'row',margin:5, alignItems: 'center' }} onPress={ () => {
-                                            this.setState({date_filter:2});
+                                            this.date_filter=365;
+                                            this.searchSubmit("");
                                             closePopover();
                                         }}>
-                                            <Icon name={this.state.date_filter==2?"dot-circle-o":"circle-thin"} size={25} color={this.state.date_filter==2?'black':'grey'}/>
-                                            <Text style={{color:this.state.date_filter==2?'black':'grey', paddingLeft: 10, fontSize:16}}>Any time</Text>
+                                            <Icon name={this.date_filter==365?"dot-circle-o":"circle-thin"} size={25} color={this.date_filter==365?'black':'grey'}/>
+                                            <Text style={{color:this.date_filter==365?'black':'grey', paddingLeft: 10, fontSize:16}}>Any time</Text>
+                                            <Text style={{color:'red', paddingLeft: 20, fontWeight:'bold'}}>{this.date_filter==365?this.state.bookings.length:''}</Text>
                                         </TouchableOpacity>
                                     </Popover>
                                 </React.Fragment>
@@ -466,7 +453,9 @@ export default class Explore extends Component {
                                               var bookings = this.state.bookings;
                                               bookings[index].favorite = favorite;
                                               this.setState({bookings});
+                                             // this.setState({spinner: true});
                                               var bookings = await updateBooking({booking:bookings[index]});
+                                            //  this.setState({spinner: false});
                                           }}>
                                           <Icon name='heart' color={item.favorite?'red':'white'} size={20} />
                                       </TouchableOpacity>
@@ -493,8 +482,10 @@ export default class Explore extends Component {
                     onPress={ async () => {
                         this.setState({isStatusBtnVisible:false});
                         global.creator.status = global.creator.status==0?1:0;
-                        var bookings = await changeCreatorStatus({creator_id:global.creator.cid, status:global.creator.status});
 
+                    //    this.setState({spinner: true});
+                        var bookings = await changeCreatorStatus({creator_id:global.creator.cid, status:global.creator.status});
+                     //   this.setState({spinner: false});
                         showMessage({
                             message: global.creator.status==0?"You are now offline.":"You are now online.",
                             type: "success",
@@ -570,7 +561,9 @@ export default class Explore extends Component {
                                                       var bookings = this.state.bookings;
                                                       bookings[index].favorite = favorite;
                                                       this.setState({bookings});
+                                                  //    this.setState({spinner: true});
                                                       var bookings = await updateBooking({booking:bookings[index]});
+                                                   //   this.setState({spinner: false});
                                                   }}>
                                                 <Icon name='heart' color={item.favorite?'red':'grey'} size={30} />
                                             </TouchableOpacity>
@@ -625,7 +618,9 @@ export default class Explore extends Component {
 
                                                                 bookings[index].status_id = 10;
                                                                 this.setState({bookings});
-                                                                var newBooking = await updateBooking({booking:bookings[index]});
+                                                            //    this.setState({spinner: true});
+                                                                var bookings = await updateBooking({booking:bookings[index]});
+                                                             //   this.setState({spinner: false});
                                                                 closePopover();
                                                             }}>
                                                                 <Text style={{margin:5}}>Decline</Text>
