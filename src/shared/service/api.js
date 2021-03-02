@@ -224,3 +224,40 @@ export const changeCreatorStatus = async (data) => {
         return null;
     }
 };
+/**
+ * upload assets
+ */
+export const uploadAsset = async (data) => {
+    try {
+        const token = await getStorage('@token');
+
+        const  options =
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: data,
+            };
+
+        let response = await fetch(
+            API_URL + '/v1/booking/upload_asset',options
+        );
+        return response;
+    } catch (error) {
+        console.error(error);
+        _handleError(error);
+    }
+};
+
+export const getAssets = async (data) => {
+    try {
+        var res = await _post('/v1/booking/get_assets', data);
+        return res;
+    } catch (err) {
+        // Handle Error Here
+        _handleError(err);
+        return null;
+    }
+};

@@ -169,7 +169,6 @@ export default class LoginPage extends ValidationComponent {
                 await saveStorage(local.user, JSON.stringify(res.user));
 
                 await saveStorage('creator', JSON.stringify(res.user));
-
                 global.user = res.user;
                 global.creator = res.user;
                 var userid = res.user.cid;

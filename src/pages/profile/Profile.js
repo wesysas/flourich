@@ -205,8 +205,6 @@ export default class Profile extends Component {
         this.RBSheetR.close();
 
         ImagePicker.openCamera({
-            width: 300,
-            height: 400,
             cropping: true,
             // includeBase64:true,
             showCropGuidelines:false,

@@ -176,18 +176,22 @@ export default class Explore extends Component {
       //  this.setState({spinner: false});
 
         this.requestLocationPermission();
-        this.watchID = navigator.geolocation.watchPosition((position) => {
-            let region = {
-                // latitude: position.coords.latitude,
-                // longitude: position.coords.longitude,
-                latitude: global.creator.latitude,
-                longitude:  global.creator.longitude,
-                latitudeDelta: LATITUDE_DELTA,
-                longitudeDelta: LONGITUDE_DELTA
-            };
-            console.log(region);
-            this.onRegionChange(region, region.latitude, region.longitude);
-        });
+        this.watchId = navigator.geolocation.watchPosition(
+            (position) => {
+                let region = {
+                    // latitude: position.coords.latitude,
+                    // longitude: position.coords.longitude,
+                    latitude: global.creator.latitude,
+                    longitude:  global.creator.longitude,
+                    latitudeDelta: LATITUDE_DELTA,
+                    longitudeDelta: LONGITUDE_DELTA
+                };
+                console.log(region);
+                this.onRegionChange(region, region.latitude, region.longitude);
+            },
+            error => console.log(error),
+            { enableHighAccuracy: true, timeout: 2000, maximumAge: 1000 }
+        );
 
         showMessage({
             message: global.creator.status==0?"You are now offline.":"You are now online.",
@@ -214,7 +218,7 @@ export default class Explore extends Component {
     componentWillUnmount() {
         this._unsubscribe();
         console.log('UNSAFE_componentWillUnmount');
-        navigator.geolocation.clearWatch(this.watchID);
+        navigator.geolocation.clearWatch(this.watchId);
     }
 
     async searchSubmit (search)
@@ -233,7 +237,7 @@ export default class Explore extends Component {
             this.setState({bookings:[]});
             this.bottomSheet.snapTo(0);
         }
-
+        console.log("------------------------");
     }
     async updateSearch (search)
     {

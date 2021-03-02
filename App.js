@@ -35,6 +35,10 @@ import Profile from './src/pages/profile/Profile';
 import ProfileEdit from './src/pages/profile/ProfileEdit';
 import ProfileAdd from './src/pages/profile/ProfileAdd';
 import AllReview from './src/pages/profile/AllReview';
+//session
+import Start from "./src/pages/Session/Start";
+import Complete from "./src/pages/Session/Complete";
+import Progress from "./src/pages/Session/Progress";
 
 const RootStack = createStackNavigator();
 const HomeStack = createStackNavigator();
@@ -156,6 +160,10 @@ export default function App() {
         <RootStack.Screen name="ProfileAdd" component={ProfileAdd} options={{ headerShown: false }} />
         <RootStack.Screen name="AllReview" component={AllReview} options={{ headerShown: false }}/>
         <RootStack.Screen name="CustomCamera" component={CustomCamera} options={{ headerShown: false }}/>
+
+          <RootStack.Screen name="Start" component={Start} options={{ headerShown: false }}/>
+          <RootStack.Screen name="Complete" component={Complete} options={{ headerShown: false }}/>
+          <RootStack.Screen name="Progress" component={Progress} options={{ headerShown: false }}/>
       </RootStack.Navigator>
     </NavigationContainer>
   );

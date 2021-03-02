@@ -23,7 +23,7 @@ var renderIf = function(condition, content) {
         return content;
     } 
     return null;
-}
+};
 
 function buildResult(result, key) {
     if (result && result != -1) {

@@ -2,35 +2,46 @@ import React, { Component } from 'react';
 import { View, Text, ScrollView, StyleSheet, Image, TouchableOpacity, Dimensions } from 'react-native';
 
 import { Card, ListItem, Button, CheckBox, Avatar } from 'react-native-elements'
+import DocumentPicker from 'react-native-document-picker';
 
 import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import EntypoIcon from 'react-native-vector-icons/Entypo';
 
 import BackButton from '../../components/BackButton';
+import RBSheet from "react-native-raw-bottom-sheet";
+import ImagePicker from "react-native-image-crop-picker";
+import {getUserId} from "../../shared/service/storage";
+import {getAssets, uploadAsset} from "../../shared/service/api";
+import Spinner from "react-native-loading-spinner-overlay";
+import Moment from "moment";
+import {API_URL, SERVER_URL} from "../../globalconfig";
 
-const AssetFolder = ({ iconSize }) => {
+const AssetFolder = ({ iconSize, fileName }) => {
     return (
         <View>
             <TouchableOpacity >
                 <Icon name="folder" size={iconSize} color="#011f6f"/>
                 <Icon name="check-circle" size={25} color="green" style={{ position: 'absolute', top: 17, left: 8 }} />
-                <Text style={{ alignSelf: 'center', bottom: 0, position: 'absolute' }}>Asset Name</Text>
+                <Text style={{ alignSelf: 'center', bottom: 0, position: 'absolute' }}>{fileName}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={{ alignSelf: 'center', borderRadius: 15, padding: 2, width: 30, height: 30, alignItems: 'center', borderWidth: 1, borderColor: 'gray' }}>
                 <EntypoIcon name="dots-three-vertical" size={24} />
             </TouchableOpacity>
         </View>
     )
-}
+};
 
 export default class Studio extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            iconSize: null
-        }
+            iconSize: null,
+            image_files:[],
+            video_files:[]
+        };
+        this.RBSheetR = null;
     }
     UNSAFE_componentWillMount() {
         var _height = Dimensions.get('window').height;
@@ -42,17 +53,74 @@ export default class Studio extends Component {
         }
     }
 
-    init() {
+    async uploadAsset() {
 
+        // Pick a single file
+        try {
+            const res = await DocumentPicker.pick({
+                type: [DocumentPicker.types.allFiles],
+            });
+            console.log(
+                res.uri,
+                res.type, // mime type
+                res.name,
+                res.size
+            );
+
+            const data = new FormData();
+            data.append("media", {
+                name: res.name,
+                type: res.type,
+                uri: res.uri
+            });
+
+            data.append("booking_id", global.booking.bid);
+            data.append("media_type", res.type);
+
+            this.setState({spinner: true});
+            var response = await uploadAsset(data);
+
+        } catch (err) {
+            if (DocumentPicker.isCancel(err)) {
+                // User cancelled the picker, exit any dialogs or menus and move on
+            } else {
+                throw err;
+            }
+        }
+        this.setState({spinner: false});
+        global.upload_asset = false;
+        this.loadFiles();
+    }
+
+    componentDidMount() {
+        this._unsubscribe = this.props.navigation.addListener('focus', async () => {
+            if (global.upload_asset) {this.RBSheetR.open();}
+            this.loadFiles();
+        });
+    }
+    async loadFiles(){
+        var files = await getAssets({creator_id:global.creator.cid});
+
+        if (files){
+            var image_files = files.filter((file) => file.media_type == 0);
+            var video_files = files.filter((file) => file.media_type == 1);
+
+            this.setState({image_files});
+            this.setState({video_files});
+        }
+    }
+    componentWillUnmount() {
+        this._unsubscribe();
     }
 
     render() {
-        // var iconsize = this.state.width;
-        // console.log(iconsize);
         return (
             <View  style={{
                 flex: 1,
             }}>
+                <Spinner
+                    visible={this.state.spinner}
+                />
                 <BackButton navigation={this.props.navigation} />
                 <View style={{ flex: 1, marginTop: 40 }}>
                     <Text style={{ fontSize: 25, fontWeight: 'bold', color: 'black', textAlign: 'center' }}>Studio</Text>
@@ -67,28 +135,68 @@ export default class Studio extends Component {
                     >
                         <ScrollView tabLabel='Image files' style={styles.innerTab}>
                             <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignContent: 'stretch' }}>
-
-                                <AssetFolder iconSize={this.state.iconSize} />
-                                <AssetFolder iconSize={this.state.iconSize} />
-                                <AssetFolder iconSize={this.state.iconSize} />
-                                <AssetFolder iconSize={this.state.iconSize} />
-                                <AssetFolder iconSize={this.state.iconSize} />
-                                <AssetFolder iconSize={this.state.iconSize} />
-                                <AssetFolder iconSize={this.state.iconSize} />
+                                {this.state.image_files.map((file, i) => {
+                                    return (
+                                        <AssetFolder key={i} iconSize={this.state.iconSize} fileName={file.media_url.replace(/^.*[\\\/]/, '').replace(/^.*[_]/, '')} />
+                                    );
+                                })}
                             </View>
                         </ScrollView>
                         <ScrollView tabLabel='Video files' style={styles.innerTab}>
                             <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignContent: 'stretch' }}>
-
-                                <AssetFolder iconSize={this.state.iconSize} />
-                                <AssetFolder iconSize={this.state.iconSize} />
-                                <AssetFolder iconSize={this.state.iconSize} />
-                                <AssetFolder iconSize={this.state.iconSize} />
+                                {this.state.video_files.map((file, i) => {
+                                    return (
+                                        <AssetFolder key={i} iconSize={this.state.iconSize}  fileName={file.media_url.replace(/^.*[\\\/]/, '').replace(/^.*[_]/, '')} />
+                                    );
+                                })}
                             </View>
                         </ScrollView>
                     </ScrollableTabView>
                 </View>
 
+                <RBSheet
+                    ref={ref => {
+                        this.RBSheetR = ref;
+                    }}
+                    height={100}
+                    closeOnDragDown={true}
+                    closeOnPressMask={false}
+                    customStyles={{
+                        container: {
+                            borderTopRightRadius: 20,
+                            borderTopLeftRadius: 20
+                        },
+                        draggableIcon: {
+                            backgroundColor: "lightgrey",
+                            width:100
+                        }
+                    }}
+                >
+                    <TouchableOpacity style={{marginTop:10}}
+                                      onPress={async () => {
+                                          this.RBSheetR.close();
+                                          this.uploadAsset();
+                                      }}
+                    >
+                        <Text style={{ alignItems: 'center',
+                            backgroundColor:'#f7f9fc',
+                            paddingVertical:10,
+                            marginHorizontal:20,
+                            borderRadius:5,
+                            fontSize:16,
+
+                            shadowColor: "#000",
+                            shadowOffset: {
+                                width: 0,
+                                height: 1,
+                            },
+                            shadowOpacity: 0.18,
+                            shadowRadius: 1.00,
+
+                            elevation: 1,
+                            textAlign:'center'}}>Upload assets</Text>
+                    </TouchableOpacity>
+                </RBSheet>
             </View>
         );
     }
