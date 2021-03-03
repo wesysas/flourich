@@ -16,7 +16,9 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     image: {
-        width: 'auto'
+        height:'70%',
+        alignSelf: 'center',
+        resizeMode: 'stretch',
     },
     text: {
         fontSize: 25,

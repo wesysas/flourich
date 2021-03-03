@@ -28,6 +28,7 @@ import Verify from './src/pages/Verify';
 import Explore from './src/pages/home/Explore';
 import Booking from './src/pages/home/Booking';
 import Inbox from './src/pages/home/Inbox';
+import ChatBox from './src/pages/home/ChatBox';
 import Wallet from './src/pages/home/Wallet';
 import Studio from './src/pages/home/Studio';
 
@@ -159,7 +160,8 @@ export default function App() {
         <RootStack.Screen name="ProfileEdit" component={ProfileEdit} options={{ headerShown: false }} />
         <RootStack.Screen name="ProfileAdd" component={ProfileAdd} options={{ headerShown: false }} />
         <RootStack.Screen name="AllReview" component={AllReview} options={{ headerShown: false }}/>
-        <RootStack.Screen name="CustomCamera" component={CustomCamera} options={{ headerShown: false }}/>
+          <RootStack.Screen name="CustomCamera" component={CustomCamera} options={{ headerShown: false }}/>
+          <RootStack.Screen name="ChatBox" component={ChatBox} options={{ headerShown: false }}/>
 
           <RootStack.Screen name="Start" component={Start} options={{ headerShown: false }}/>
           <RootStack.Screen name="Complete" component={Complete} options={{ headerShown: false }}/>

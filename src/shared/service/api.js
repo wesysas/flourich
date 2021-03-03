@@ -261,3 +261,14 @@ export const getAssets = async (data) => {
         return null;
     }
 };
+
+export const getMessage = async (data) => {
+    try {
+        var res = await _post('/v1/booking/get_message', data);
+        return res;
+    } catch (err) {
+        // Handle Error Here
+        _handleError(err);
+        return null;
+    }
+};
