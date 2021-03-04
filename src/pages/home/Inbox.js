@@ -22,7 +22,7 @@ export default class Inbox extends Component {
 
     async componentDidMount() {
         this._unsubscribe = this.props.navigation.addListener('focus', async () => {
-            var bookings = await getMessage({creator_id:global.creator.cid, status:[2,3,4,5,6,7,8,9]});
+            var bookings = await getMessage({creator_id:global.user.cid, status:[2,3,4,5,6,7,8,9]});
             this.setState({bookings});
         });
     }

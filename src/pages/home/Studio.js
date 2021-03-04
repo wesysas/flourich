@@ -1,21 +1,14 @@
 import React, { Component } from 'react';
-import { View, Text, ScrollView, StyleSheet, Image, TouchableOpacity, Dimensions } from 'react-native';
-
-import { Card, ListItem, Button, CheckBox, Avatar } from 'react-native-elements'
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
-
 import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import EntypoIcon from 'react-native-vector-icons/Entypo';
-
-import BackButton from '../../components/BackButton';
-import RBSheet from "react-native-raw-bottom-sheet";
-import ImagePicker from "react-native-image-crop-picker";
-import {getUserId} from "../../shared/service/storage";
-import {getAssets, uploadAsset} from "../../shared/service/api";
 import Spinner from "react-native-loading-spinner-overlay";
-import Moment from "moment";
-import {API_URL, SERVER_URL} from "../../globalconfig";
+import RBSheet from "react-native-raw-bottom-sheet";
+
+import {getAssets, uploadAsset} from "../../shared/service/api";
+import BackButton from '../../components/BackButton';
 
 const AssetFolder = ({ iconSize, fileName }) => {
     return (
@@ -99,7 +92,7 @@ export default class Studio extends Component {
         });
     }
     async loadFiles(){
-        var files = await getAssets({creator_id:global.creator.cid});
+        var files = await getAssets({creator_id:global.user.cid});
 
         if (files){
             var image_files = files.filter((file) => file.media_type == 0);
@@ -178,23 +171,7 @@ export default class Studio extends Component {
                                           this.uploadAsset();
                                       }}
                     >
-                        <Text style={{ alignItems: 'center',
-                            backgroundColor:'#f7f9fc',
-                            paddingVertical:10,
-                            marginHorizontal:20,
-                            borderRadius:5,
-                            fontSize:16,
-
-                            shadowColor: "#000",
-                            shadowOffset: {
-                                width: 0,
-                                height: 1,
-                            },
-                            shadowOpacity: 0.18,
-                            shadowRadius: 1.00,
-
-                            elevation: 1,
-                            textAlign:'center'}}>Upload assets</Text>
+                        <Text style={styles.btnStyle}>Upload assets</Text>
                     </TouchableOpacity>
                 </RBSheet>
             </View>
@@ -211,38 +188,23 @@ const styles = StyleSheet.create({
         marginTop:50,
         marginHorizontal: 20
     },
-    new: {
-        flex: 1,
-        flexDirection: 'row'
-    },
-    newImage: {
-        width: 100,
-        height: 100,
-        borderRadius: 5
-    },
-    newSideTxt: {
-        flexDirection: 'column',
-        paddingLeft: 20
-    },
-    sideIcon: {
-        position: 'absolute',
-        right: 0
+    btnStyle:{
+        alignItems: 'center',
+        backgroundColor:'#f7f9fc',
+        paddingVertical:10,
+        marginHorizontal:20,
+        borderRadius:5,
+        fontSize:16,
 
-    },
-    title: {
-        color: 'black',
-        fontWeight: 'bold',
-        fontSize: 15,
-        marginVertical: 10
-    },
-    locTxt: {
-        fontWeight: 'bold',
-        fontSize: 14
-    },
-    summaryTxt: {
-        fontWeight: 'bold',
-        fontSize: 14
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.18,
+        shadowRadius: 1.00,
+
+        elevation: 1,
+        textAlign:'center'
     }
-
-
 });

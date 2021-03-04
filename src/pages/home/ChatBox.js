@@ -18,9 +18,9 @@ export default class ChatBox extends Component {
 
         this.state={
             messages:[],
-            userId:global.creator.cid,
-            username:global.creator.first_name + ' ' + global.creator.last_name,
-            avatar: SERVER_URL + global.creator.avatar,
+            userId:global.user.cid,
+            username:global.user.first_name + ' ' + global.user.last_name,
+            avatar: SERVER_URL + global.user.avatar,
             isReady:false,
         };
 
@@ -36,7 +36,7 @@ export default class ChatBox extends Component {
 
     onReceivedMessage(mes){
         const arrMes = [{...mes.messages}];
-        let filterMsg = arrMes.filter((msg, key) => msg.from == global.creator.cid || msg.to == global.creator.cid);
+        let filterMsg = arrMes.filter((msg, key) => msg.from == global.user.cid || msg.to == global.user.cid);
 
         this.setState((previousState) => ({
             messages: GiftedChat.append(previousState.messages, filterMsg),
@@ -48,7 +48,7 @@ export default class ChatBox extends Component {
         const { username, avatar } = this.state;
         mes['username'] = username;
         mes['avatar'] = avatar;
-        mes['from'] = global.creator.cid;
+        mes['from'] = global.user.cid;
         mes['to'] = global.booking.customer_id;
         mes['booking_id'] = global.booking.id;
         this.socket.emit('messages',mes)

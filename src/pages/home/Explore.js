@@ -33,6 +33,7 @@ import {getStorage} from "../../shared/service/storage";
 //navigator.geolocation.getCurrentPosition = Geolocation.getCurrentPosition;
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import Spinner from 'react-native-loading-spinner-overlay';
+import {local} from "../../shared/const/local";
 
 // const origin = {latitude: 51.68080542967339, longitude: 0.1236155113725498};
 // const destination = {latitude: 51.511040135977304, longitude: 0.2671244205013812};
@@ -145,7 +146,7 @@ export default class Explore extends Component {
         };
         this.date_filter = 1;
         this.bottomSheet = null;
-        global.creator = {};
+        global.user = {};
     }
     watchId = null;
 
@@ -154,8 +155,8 @@ export default class Explore extends Component {
             const granted = await PermissionsAndroid.request(
                 PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
                 {
-                    'title': 'Example App',
-                    'message': 'Example App access to your location '
+                    'title': 'Flourich App',
+                    'message': 'Flourich App access to your location'
                 }
             );
             if (granted === PermissionsAndroid.RESULTS.GRANTED) {
@@ -170,23 +171,17 @@ export default class Explore extends Component {
     }
 
     async componentDidMount() {
-
-       // this.setState({spinner: true});
-        global.creator = JSON.parse(await getStorage('creator'));
-      //  this.setState({spinner: false});
-
-        this.requestLocationPermission();
+        global.user = JSON.parse(await getStorage(local.user));
         this.watchId = navigator.geolocation.watchPosition(
             (position) => {
                 let region = {
                     // latitude: position.coords.latitude,
                     // longitude: position.coords.longitude,
-                    latitude: global.creator.latitude,
-                    longitude:  global.creator.longitude,
+                    latitude: global.user.latitude,
+                    longitude:  global.user.longitude,
                     latitudeDelta: LATITUDE_DELTA,
                     longitudeDelta: LONGITUDE_DELTA
                 };
-                console.log(region);
                 this.onRegionChange(region, region.latitude, region.longitude);
             },
             error => console.log(error),
@@ -194,9 +189,9 @@ export default class Explore extends Component {
         );
 
         showMessage({
-            message: global.creator.status==0?"You are now offline.":"You are now online.",
+            message: global.user.status==0?"You are now offline.":"You are now online.",
             type: "success",
-            backgroundColor: global.creator.status==0?"grey":ios_green_color,
+            backgroundColor: global.user.status==0?"grey":ios_green_color,
             //  color: "#606060", // text color
             titleStyle:{fontSize:20, textAlign:'center'}
         });
@@ -226,7 +221,7 @@ export default class Explore extends Component {
         this.bottomSheet.snapTo(0);
 
         this.setState({spinner: true});
-        var bookings = await getBookings({creator_id:global.creator.cid, status:1, date_filter:this.date_filter});
+        var bookings = await getBookings({creator_id:global.user.cid, status:1, date_filter:this.date_filter});
         this.setState({spinner: false});
 
         if (bookings != null && bookings.length>0)  {
@@ -237,7 +232,6 @@ export default class Explore extends Component {
             this.setState({bookings:[]});
             this.bottomSheet.snapTo(0);
         }
-        console.log("------------------------");
     }
     async updateSearch (search)
     {
@@ -246,7 +240,6 @@ export default class Explore extends Component {
     render() {
         return (
             <View style={{flex:1}}>
-                <Spinner visible={this.state.spinner} />
                 <FlashMessage position="top" statusBarHeight={20} style={{zIndex:3}} />
                 <GooglePlacesAutocomplete
                     listViewDisplayed='auto'
@@ -337,7 +330,7 @@ export default class Explore extends Component {
                             onPress={ () => {
                                 this.setState({isStatusBtnVisible:true});
                             }}>
-                            <Icon name="clock-o" size={25} color={(global.creator.status==1)?ios_green_color:'grey'} />
+                            <Icon name="clock-o" size={25} color={(global.user.status==1)?ios_green_color:'grey'} />
                         </TouchableOpacity>
                         <Divider style={{ backgroundColor: 'grey', width: 2, height: 30 }} />
                         <PopoverController>
@@ -434,7 +427,7 @@ export default class Explore extends Component {
                               renderItem = {({item,index})=>
                                   <TouchableOpacity style={{flexDirection: 'row', backgroundColor:'white', borderRadius: 10, padding:10, margin:10, height:100}}
                                                     onPress={ () => {
-                                                        // global.creator = item;
+                                                        // global.user = item;
                                                         // this.props.navigation.navigate('CreatorProfile');
                                                     }}>
                                       <View style={styles.newSideTxt}>
@@ -474,7 +467,7 @@ export default class Explore extends Component {
                         bottom:55,
                         left:WIDTH/2-50,
                         zIndex: 2,
-                        borderColor:global.creator.status==0?"grey":ios_green_color,
+                        borderColor:global.user.status==0?"grey":ios_green_color,
                         borderWidth:3,
                         alignItems:'center',
                         justifyContent:'center',
@@ -485,21 +478,21 @@ export default class Explore extends Component {
                     }}
                     onPress={ async () => {
                         this.setState({isStatusBtnVisible:false});
-                        global.creator.status = global.creator.status==0?1:0;
+                        global.user.status = global.user.status==0?1:0;
 
                     //    this.setState({spinner: true});
-                        var bookings = await changeCreatorStatus({creator_id:global.creator.cid, status:global.creator.status});
+                        var bookings = await changeCreatorStatus({creator_id:global.user.cid, status:global.user.status});
                      //   this.setState({spinner: false});
                         showMessage({
-                            message: global.creator.status==0?"You are now offline.":"You are now online.",
+                            message: global.user.status==0?"You are now offline.":"You are now online.",
                             type: "success",
-                            backgroundColor: global.creator.status==0?"grey":ios_green_color,
+                            backgroundColor: global.user.status==0?"grey":ios_green_color,
                           //  color: "#606060", // text color
                             titleStyle:{fontSize:20, textAlign:'center'}
                         });
                     }}
                 >
-                    <Text style={{textAlign:'center', fontSize:20, color:global.creator.status==0?"grey":ios_green_color,}}>{(global.creator.status==0)?"Go\nOnline":"Go\nOffline"}</Text>
+                    <Text style={{textAlign:'center', fontSize:20, color:global.user.status==0?"grey":ios_green_color,}}>{(global.user.status==0)?"Go\nOnline":"Go\nOffline"}</Text>
                 </TouchableOpacity>
                 }
                 <BookingModal parent={this} />
