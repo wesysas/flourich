@@ -177,8 +177,8 @@ export default class Explore extends Component {
                 let region = {
                     // latitude: position.coords.latitude,
                     // longitude: position.coords.longitude,
-                    latitude: global.user.latitude,
-                    longitude:  global.user.longitude,
+                    latitude: LATITUDE,
+                    longitude:  LONGITUDE,
                     latitudeDelta: LATITUDE_DELTA,
                     longitudeDelta: LONGITUDE_DELTA
                 };

@@ -156,6 +156,7 @@ export default class SignupPage extends ValidationComponent {
                 await saveStorage(local.isLogin, 'true');
                 await saveStorage(local.token, res.token);
                 await saveStorage(local.user, JSON.stringify(res.user));
+                global.user = res.user;
                 var profile_id = res.user.creator_id;
                 if(profile_id === null) {
                     this.props.navigation.navigate('SignUpStacks');
@@ -168,12 +169,12 @@ export default class SignupPage extends ValidationComponent {
     render() {
         // const { user } = this.state;
         return (
-            <View style={styles.container}>
+            <ScrollView style={styles.container}>
                 <Spinner
                     visible={this.state.spinner}
                 />
                 <Image style={styles.image} source={require('../assets/img/get_started_logo.jpg')} />
-                <ScrollView contentContainerStyle={styles.btnContainer}>
+                <View style={styles.btnContainer}>
                     <View style={{
                             flexDirection: 'row',
                             alignItems: 'center',
@@ -345,8 +346,8 @@ export default class SignupPage extends ValidationComponent {
                             keyboardType={'numeric'}
                         />
                     </View> */}
-                </ScrollView>
-            </View>
+                </View>
+            </ScrollView>
         )
     }
 

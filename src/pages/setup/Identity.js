@@ -157,7 +157,8 @@ export default class Identity extends Component {
         var res = await uploadAvatar(this.state);
         this.setState({spinner: false});
         if(res != null) {
-            this.props.navigation.navigate("PendingAccount");
+           // this.props.navigation.navigate("PendingAccount");
+            this.props.navigation.navigate("Home");
         }
     }
     render() {

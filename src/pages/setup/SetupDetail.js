@@ -141,8 +141,11 @@ export default class SetupDetail extends ValidationComponent {
             this.setState({'userid': userid});
             var res = await createProfile(this.state);
             this.setState({spinner:false});
+            console.log("----------",res);
             if(res != null) {
                 this.props.navigation.navigate('Identity');
+            }else{
+                this.props.navigation.navigate('Home');
             }
         }
     };
