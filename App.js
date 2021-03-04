@@ -44,6 +44,7 @@ import Progress from "./src/pages/Session/Progress";
 const RootStack = createStackNavigator();
 const HomeStack = createStackNavigator();
 const BookingStack = createStackNavigator();
+const InboxStack = createStackNavigator();
 const Drawer = createDrawerNavigator();
 
 const Tab = createBottomTabNavigator();
@@ -82,6 +83,14 @@ const BookingStacks = () => {
         </BookingStack.Navigator>
     )
 };
+const InboxStacks = () => {
+    return (
+        <InboxStack.Navigator>
+            <InboxStack.Screen name="Inbox" component={Inbox} options={{ headerShown: false }} />
+            <InboxStack.Screen name="ChatBox" component={ChatBox} options={{ headerShown: false }} />
+        </InboxStack.Navigator>
+    )
+};
 
 function getTabBarVisible(route) {
     const routeName = getFocusedRouteNameFromRoute(route);
@@ -118,7 +127,7 @@ const HomeTabs = () => {
                             <Icon name="calendar-blank" color="#2f2f2f" size={25} />
                         ),
                     }} />
-        <Tab.Screen name="Inbox" component={Inbox}
+        <Tab.Screen name="Inbox" component={InboxStacks}
                     options={{
                         tabBarIcon: () => (
                             <Icon name="comment-outline" color="#2f2f2f" size={25} />

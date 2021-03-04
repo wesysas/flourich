@@ -1,6 +1,7 @@
 import {Dimensions} from "react-native";
 export const API_URL = 'http://10.0.2.2:4000/api';
 export const SERVER_URL = 'http://10.0.2.2:4000/';
+export const CHAT_URL = 'http://10.0.2.2:3000/';
 
 // export const API_URL = 'http://leti.flourich.co.uk/api';
 // export const SERVER_URL = 'http://leti.flourich.co.uk';

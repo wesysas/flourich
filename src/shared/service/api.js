@@ -1,4 +1,3 @@
-
 import axios from 'axios';
 import {API_URL} from '../../globalconfig';
 import { saveStorage, getStorage } from './storage';
@@ -23,16 +22,16 @@ const _post = async (url, data)=> {
 const _handleError = (err) => {
 
     if( err.response == null) {
-        alert(err);
+        console.log(err);
     }else{
         const message = err.response.data.message;
         const status = err.response.status;
         if(status == 401) {
             saveStorage(local.user, null);
             saveStorage(local.token, null);
-            alert("Token expired, Please login again.");
+            console.log("Token expired, Please login again.");
         }else{
-            alert(message);
+            console.log(message);
         }
     }
 }
@@ -126,7 +125,7 @@ export const verifyCode = async (data) => {
     } catch (err) {
         // Handle Error Here
         _handleError(err);
-        return null;
+        return [];
     }
  }
 
@@ -178,7 +177,7 @@ export const getDefaultService = async (data) => {
     } catch (err) {
         // Handle Error Here
         _handleError(err);
-        return null;
+        return [];
     }
 };
 export const getCategories = async (data) => {
@@ -188,7 +187,7 @@ export const getCategories = async (data) => {
     } catch (err) {
         // Handle Error Here
         _handleError(err);
-        return null;
+        return [];
     }
 };
 
@@ -199,7 +198,7 @@ export const getBookings = async (data) => {
     } catch (err) {
         // Handle Error Here
         _handleError(err);
-        return null;
+        return [];
     }
 };
 
@@ -258,7 +257,7 @@ export const getAssets = async (data) => {
     } catch (err) {
         // Handle Error Here
         _handleError(err);
-        return null;
+        return [];
     }
 };
 
@@ -269,6 +268,6 @@ export const getMessage = async (data) => {
     } catch (err) {
         // Handle Error Here
         _handleError(err);
-        return null;
+        return [];
     }
 };

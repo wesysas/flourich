@@ -1,16 +1,11 @@
 import React, { Component } from 'react';
-import {
-    Platform,
-    StyleSheet,
-    Text,
-    View,
-    TextInput,
-    TouchableOpacity,
-} from 'react-native';
-
+import { StyleSheet,Text,View } from 'react-native';
 import { GiftedChat } from 'react-native-gifted-chat';
 import SocketIOClient from 'socket.io-client';
-import {SERVER_URL} from "../../globalconfig";
+import Icon from "react-native-vector-icons/FontAwesome";
+import {Avatar} from "react-native-elements";
+import {SERVER_URL, CHAT_URL} from "../../globalconfig";
+import BackButton from "../../components/BackButton";
 
 export default class ChatBox extends Component {
 
@@ -29,14 +24,13 @@ export default class ChatBox extends Component {
             isReady:false,
         };
 
-        this.socket = SocketIOClient('http://10.0.2.2:3000'); //This should be your ip or local
+        this.socket = SocketIOClient(CHAT_URL); //This should be your ip or local
         this.socket.on('messages', this.onReceivedMessage);
         this.socket.on('userId', this.getUserId);
     }
 
     getUserId(data){
         const { userId } = data;
-
         this.setState({userId});
     }
 
@@ -55,58 +49,46 @@ export default class ChatBox extends Component {
         mes['username'] = username;
         mes['avatar'] = avatar;
         mes['from'] = global.creator.cid;
-        mes['to'] = global.booking.from;
+        mes['to'] = global.booking.customer_id;
         mes['booking_id'] = global.booking.id;
         this.socket.emit('messages',mes)
     }
 
     render() {
-        const { userId, isReady } = this.state;
         return (
-            <GiftedChat
-                messages={this.state.messages}
-                onSend={this.onSend}
-                onPressAvatar={ (user)=> alert(user.name)}
-                user={{
-                    _id: userId,
-                }}
-            />
+            <View style={{height:'100%'}}>
+                <BackButton navigation={this.props.navigation} />
+                <View style={styles.topbarStyle}>
+                    <View style={{flexDirection:'row'}}>
+                        <Avatar
+                            rounded
+                            size="medium"
+                            source={{uri: SERVER_URL+global.booking.avatar}}
+                        />
+                        <View style={{justifyContent:'center', marginLeft:10}}>
+                            <Text style={{fontWeight:'bold', fontSize:18}}>{global.booking.first_name} {global.booking.last_name}</Text>
+                            <Text>Online Now</Text>
+                        </View>
+                    </View>
+                    <Icon name="phone" size={40} />
+                </View>
+                <GiftedChat
+                    messages={this.state.messages}
+                    onSend={this.onSend}
+                    onPressAvatar={ (user)=> alert(user.name)}
+                    user={{
+                        _id: this.state.userId,
+                    }}
+                />
+            </View>
         );
     }
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#F5FCFF',
+    topbarStyle:{
+        flexDirection: 'row', justifyContent: 'space-between',
+        paddingLeft:100, paddingVertical:20,paddingRight:30, borderBottomWidth: 1,
+        paddingBottom: 10, borderBottomColor: 'lightgray', alignItems: 'center'
     },
-    textInput:{
-        height:50,
-        alignSelf:'stretch',
-        textAlign:'center',
-    },
-    textInputContainer:{
-        borderBottomWidth:StyleSheet.hairlineWidth,
-        borderBottomColor:'rgba(0,0,0,0.2)',
-        alignSelf:'stretch',
-        marginHorizontal:40,
-    },
-    button:{
-        alignSelf:'stretch',
-        height:50,
-        marginTop:40,
-        marginBottom:40,
-        marginHorizontal:50,
-        backgroundColor:'#778DA9',
-        borderRadius:20,
-        justifyContent:'center',
-        alignItems:'center',
-    },
-    buttonText:{
-        color:'white',
-        fontWeight:'400',
-        fontSize:18,
-    }
 });
