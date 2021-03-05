@@ -26,7 +26,7 @@ export const CustomInput = ({ _filedName, _control, _errors, _defaultValue, _pla
             <Controller
                 control={_control}
                 render={({ onChange, onBlur, value }) => (
-                    <Input
+                    <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }}
                         onBlur={onBlur}
                         onChangeText={value => onChange(value)}
                         value={value}

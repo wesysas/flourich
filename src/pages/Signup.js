@@ -165,7 +165,7 @@ export default class SignupPage extends ValidationComponent {
                 }
             }
         }
-    }
+    };
     render() {
         // const { user } = this.state;
         return (

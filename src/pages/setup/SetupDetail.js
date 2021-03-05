@@ -95,7 +95,7 @@ export default class SetupDetail extends ValidationComponent {
             return (
                 <View>
                     <Text>Business Name</Text>
-                    <Input 
+                    <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }}
                         placeholder='Flourich Marketing Ltd'
                         onChangeText={value => {
                             this.setState({"businessname":value})
@@ -176,7 +176,7 @@ export default class SetupDetail extends ValidationComponent {
                     <View style={styles.separate}>
                         <Text style={styles.subTitle}>Add you name*</Text>
                         <Text>First Name</Text>
-                        <Input 
+                        <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }}
                             placeholder='Leteechia'
                             value={this.state.firstname}
                             onChangeText={value => {
@@ -186,7 +186,7 @@ export default class SetupDetail extends ValidationComponent {
                         {this.isFieldInError('firstname') && this.getErrorsInField('firstname').map(errorMessage => <Text key="firstname" style={{ color:'red',marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
 
                         <Text>Last Name</Text>
-                        <Input 
+                        <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }}
                             placeholder='Rungasamy' 
                             onChangeText={value => {
                                 this.setState({"lastname":value})
@@ -282,7 +282,7 @@ export default class SetupDetail extends ValidationComponent {
                     <View style={styles.separate}>
                         <Text style={styles.subTitle}>Add your Address*</Text>
                         <Text>Full Address</Text>
-                        <Input placeholder='Full address displays here' 
+                        <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='Full address displays here'
                             value={this.state.fulladdress}
                             onChangeText={ value => {
                                 this.setState({"fulladdress":value})
@@ -290,7 +290,7 @@ export default class SetupDetail extends ValidationComponent {
                         />
                         {this.isFieldInError('fulladdress') && this.getErrorsInField('fulladdress').map(errorMessage => <Text key="fulladdress" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
                         <Text>Business or Building Name</Text>
-                        <Input placeholder='Business or building name goes here' 
+                        <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='Business or building name goes here'
                             value={this.state.building}
                             onChangeText={ value => {
                                 this.setState({"building":value})
@@ -299,7 +299,7 @@ export default class SetupDetail extends ValidationComponent {
                         {this.isFieldInError('building') && this.getErrorsInField('building').map(errorMessage => <Text key="building" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
 
                         <Text>Street Address</Text>
-                        <Input placeholder='street address goes here'
+                        <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='street address goes here'
                             value={this.state.street}
                             onChangeText={ value => {
                                 this.setState({"street":value})
@@ -307,7 +307,7 @@ export default class SetupDetail extends ValidationComponent {
                         />
                         {this.isFieldInError('street') && this.getErrorsInField('street').map(errorMessage => <Text key="street" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
                         <Text>Post Code</Text>
-                        <Input placeholder='123456789UK' 
+                        <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='123456789UK'
                             value={this.state.postalcode}
                             onChangeText={ value => {
                                 this.setState({"postalcode":value})
@@ -319,7 +319,7 @@ export default class SetupDetail extends ValidationComponent {
 
                     <View style={styles.separate}>
                         <Text>Website</Text>
-                        <Input placeholder='www.flourich.co.uk' 
+                        <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='www.flourich.co.uk'
                             value={this.state.weburl}
                             onChangeText={ value => {
                                 this.setState({"weburl":value})
@@ -328,7 +328,7 @@ export default class SetupDetail extends ValidationComponent {
                         {this.isFieldInError('weburl') && this.getErrorsInField('weburl').map(errorMessage => <Text key="weburl" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
 
                         <Text>Instagram URL</Text>
-                        <Input placeholder='Instagram Link goes here' 
+                        <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='Instagram Link goes here'
                             value={this.state.instagramurl}
                             onChangeText={ value => {
                                 this.setState({"instagramurl":value})
@@ -337,7 +337,7 @@ export default class SetupDetail extends ValidationComponent {
                         {this.isFieldInError('instagramurl') && this.getErrorsInField('instagramurl').map(errorMessage => <Text key="instagramurl" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
 
                         <Text>Linked in (optional)</Text>
-                        <Input placeholder='Link to linked in profile goes here' 
+                        <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='Link to linked in profile goes here'
                             value={this.state.linkedin}
                             onChangeText={ value => {
                                 this.setState({"linkedin":value})
@@ -345,7 +345,7 @@ export default class SetupDetail extends ValidationComponent {
                         />
 
                         <Text>Behance (optional)</Text>
-                        <Input placeholder='Link to behance profile goes here' 
+                        <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='Link to behance profile goes here'
                             value={this.state.behance}
                             onChangeText={ value => {
                                 this.setState({"behance":value})

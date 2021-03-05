@@ -98,7 +98,7 @@ export default class SetupDetail extends ValidationComponent {
             return (
                 <View>
                     <Text>Business Name</Text>
-                    <Input 
+                    <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }}
                         placeholder='Flourich Marketing Ltd'
                         value={this.state.user.businessname}
                         onChangeText={value => {
@@ -150,7 +150,7 @@ export default class SetupDetail extends ValidationComponent {
                         </CollapseHeader>
                         <CollapseBody style={{ margin: 10 }}>
                             <Text>First Name</Text>
-                            <Input 
+                            <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }}
                                 placeholder='Leteechia'
                                 value={this.state.user.first_name}
                                 onChangeText={value => {
@@ -161,7 +161,7 @@ export default class SetupDetail extends ValidationComponent {
                             {this.isFieldInError('first_name') && this.getErrorsInField('first_name').map(errorMessage => <Text key="first_name" style={{ color:'red',marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
 
                             <Text>Last Name</Text>
-                            <Input 
+                            <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }}
                                 placeholder='Rungasamy' 
                                 value={this.state.user.last_name}
                                 onChangeText={value => {
@@ -215,7 +215,7 @@ export default class SetupDetail extends ValidationComponent {
                                     titleStyle={{ textDecorationLine: 'underline' }}
                                 />
                             </View>
-                            <Input placeholder="(99) 99999-9999"
+                            <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder="(99) 99999-9999"
                                 value={this.state.user.phone}
                                 onChangeText={value => {
                                     this.state.user.phone = value;
@@ -325,7 +325,7 @@ export default class SetupDetail extends ValidationComponent {
                             {this.isFieldInError('maxprice') && this.getErrorsInField('maxprice').map(errorMessage => <Text key="maxprice" style={{ color:'red', marginLeft: 10}}>{errorMessage}</Text>) }
                        
                             <Text>Website</Text>
-                            <Input placeholder='www.flourich.co.uk' 
+                            <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='www.flourich.co.uk'
                                 value={this.state.user.weburl}
                                 onChangeText={value => {
                                     this.state.user.weburl = value;
@@ -335,7 +335,7 @@ export default class SetupDetail extends ValidationComponent {
                             {this.isFieldInError('weburl') && this.getErrorsInField('weburl').map(errorMessage => <Text key="weburl" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
 
                             <Text>Instagram URL</Text>
-                            <Input placeholder='Instagram Link goes here' 
+                            <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='Instagram Link goes here'
                                 value={this.state.user.instagramurl}
                                 onChangeText={value => {
                                     this.state.user.instagramurl = value;
@@ -345,7 +345,7 @@ export default class SetupDetail extends ValidationComponent {
                             {this.isFieldInError('instagramurl') && this.getErrorsInField('instagramurl').map(errorMessage => <Text key="instagramurl" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
 
                             <Text>Linked in (optional)</Text>
-                            <Input placeholder='Link to linked in profile goes here' 
+                            <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='Link to linked in profile goes here'
                                 value={this.state.user.linkedin}
                                 onChangeText={value => {
                                     this.state.user.linkedin = value;
@@ -354,7 +354,7 @@ export default class SetupDetail extends ValidationComponent {
                             />
 
                             <Text>Behance (optional)</Text>
-                            <Input placeholder='Link to behance profile goes here' 
+                            <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='Link to behance profile goes here'
                                 value={this.state.user.behance}
                                 onChangeText={value => {
                                     this.state.user.behance = value;
@@ -376,7 +376,7 @@ export default class SetupDetail extends ValidationComponent {
                         </CollapseHeader>
                         <CollapseBody style={{ margin: 10 }}>
                             <Text>Full Address</Text>
-                            <Input placeholder='Full address displays here' 
+                            <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='Full address displays here'
                                 value={this.state.user.fulladdress}
                                 onChangeText={value => {
                                     this.state.user.fulladdress = value;
@@ -385,7 +385,7 @@ export default class SetupDetail extends ValidationComponent {
                             />
                             {this.isFieldInError('fulladdress') && this.getErrorsInField('fulladdress').map(errorMessage => <Text key="fulladdress" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
                             <Text>Business or Building Name</Text>
-                            <Input placeholder='Business or building name goes here' 
+                            <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='Business or building name goes here'
                                 value={this.state.user.building}
                                 onChangeText={value => {
                                     this.state.user.building = value;
@@ -395,7 +395,7 @@ export default class SetupDetail extends ValidationComponent {
                             {this.isFieldInError('building') && this.getErrorsInField('building').map(errorMessage => <Text key="building" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
 
                             <Text>Street Address</Text>
-                            <Input placeholder='street address goes here'
+                            <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='street address goes here'
                                 value={this.state.user.street}
                                 onChangeText={value => {
                                     this.state.user.street = value;
@@ -404,7 +404,7 @@ export default class SetupDetail extends ValidationComponent {
                             />
                             {this.isFieldInError('street') && this.getErrorsInField('street').map(errorMessage => <Text key="street" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
                             <Text>Post Code</Text>
-                            <Input placeholder='123456789UK' 
+                            <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='123456789UK'
                                 value={this.state.user.postalcode}
                                 onChangeText={value => {
                                     this.state.user.postalcode = value;
