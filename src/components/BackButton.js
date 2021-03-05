@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Platform, StatusBar } from 'react-native';
 import { Button } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 
@@ -11,9 +11,9 @@ const styles = StyleSheet.create({
         zIndex: 1,
         borderRadius: 25,
         backgroundColor: "white",
-        alignItems: 'center',
-        left: 25,
-        top: 25,
+        alignItems: 'center',            
+        top: Platform.OS === 'ios' ? 45: 25,
+        left: 25
     },
     btnStyleB: {
         position: 'absolute',
@@ -23,8 +23,8 @@ const styles = StyleSheet.create({
         borderRadius: 25,
         backgroundColor: "gray",
         alignItems: 'center',
-        left: 25,
-        top: 25,
+        top: Platform.OS === 'ios' ? 45: 25,
+        left: 25
     }
 
 });

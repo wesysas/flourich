@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Dimensions, SafeAreaView } from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
 import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -108,44 +108,42 @@ export default class Studio extends Component {
 
     render() {
         return (
-            <View  style={{
+            <SafeAreaView  style={{
                 flex: 1,
             }}>
                 <Spinner
                     visible={this.state.spinner}
                 />
-                <BackButton navigation={this.props.navigation} />
-                <View style={{ flex: 1, marginTop: 40 }}>
-                    <Text style={{ fontSize: 25, fontWeight: 'bold', color: 'black', textAlign: 'center' }}>Studio</Text>
-                    <ScrollableTabView
-                        style={styles.container}
-                        renderTabBar={() =>
-                            <DefaultTabBar
-                                backgroundColor='rgba(255, 255, 255, 0.7)'
-                            // tabStyle={{ width: 100 }}
-                            />}
-                        tabBarPosition='overlayTop'
-                    >
-                        <ScrollView tabLabel='Image files' style={styles.innerTab}>
-                            <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignContent: 'stretch' }}>
-                                {this.state.image_files.map((file, i) => {
-                                    return (
-                                        <AssetFolder key={i} iconSize={this.state.iconSize} fileName={file.media_url.replace(/^.*[\\\/]/, '').replace(/^.*[_]/, '')} />
-                                    );
-                                })}
-                            </View>
-                        </ScrollView>
-                        <ScrollView tabLabel='Video files' style={styles.innerTab}>
-                            <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignContent: 'stretch' }}>
-                                {this.state.video_files.map((file, i) => {
-                                    return (
-                                        <AssetFolder key={i} iconSize={this.state.iconSize}  fileName={file.media_url.replace(/^.*[\\\/]/, '').replace(/^.*[_]/, '')} />
-                                    );
-                                })}
-                            </View>
-                        </ScrollView>
-                    </ScrollableTabView>
-                </View>
+                {/* <BackButton navigation={this.props.navigation} /> */}
+                <Text style={{ fontSize: 25, fontWeight: 'bold', color: 'black', textAlign: 'center', marginTop:20}}>Studio</Text>
+                <ScrollableTabView
+                    style={styles.container}
+                    renderTabBar={() =>
+                        <DefaultTabBar
+                            backgroundColor='rgba(255, 255, 255, 0.7)'
+                        // tabStyle={{ width: 100 }}
+                        />}
+                    tabBarPosition='overlayTop'
+                >
+                    <ScrollView tabLabel='Image files' style={styles.innerTab}>
+                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignContent: 'stretch' }}>
+                            {this.state.image_files.map((file, i) => {
+                                return (
+                                    <AssetFolder key={i} iconSize={this.state.iconSize} fileName={file.media_url.replace(/^.*[\\\/]/, '').replace(/^.*[_]/, '')} />
+                                );
+                            })}
+                        </View>
+                    </ScrollView>
+                    <ScrollView tabLabel='Video files' style={styles.innerTab}>
+                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignContent: 'stretch' }}>
+                            {this.state.video_files.map((file, i) => {
+                                return (
+                                    <AssetFolder key={i} iconSize={this.state.iconSize}  fileName={file.media_url.replace(/^.*[\\\/]/, '').replace(/^.*[_]/, '')} />
+                                );
+                            })}
+                        </View>
+                    </ScrollView>
+                </ScrollableTabView>
 
                 <RBSheet
                     ref={ref => {
@@ -174,7 +172,7 @@ export default class Studio extends Component {
                         <Text style={styles.btnStyle}>Upload assets</Text>
                     </TouchableOpacity>
                 </RBSheet>
-            </View>
+            </SafeAreaView>
         );
     }
 }

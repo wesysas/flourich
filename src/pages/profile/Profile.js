@@ -293,7 +293,7 @@ export default class Profile extends Component {
                 <View style={{
                     alignItems: 'stretch'
                 }}>
-                    <BackButton navigation={this.props.navigation} />
+                    {/* <BackButton navigation={this.props.navigation} /> */}
                     <Image style={styles.image} source={require('../../assets/img/profile_logo.jpg')} />
                     <ProfileAvatar />
                 </View>
@@ -303,7 +303,6 @@ export default class Profile extends Component {
                 }}>
                     <Text style={styles.headerTitle}>{this.state.user.first_name} {this.state.user.last_name}</Text>
                     <Text >{this.state.user.fulladdress}, {this.state.user.street}</Text>
-                    <Text >£ {this.state.user.min_price}-{this.state.user.max_price}</Text>
                     <Text >{this.state.user.services}</Text>
                     <Text >{this.state.user.weburl}</Text>
     

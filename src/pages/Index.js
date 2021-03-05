@@ -59,7 +59,7 @@ export default class Index extends Component {
                 if(userid != null) {
                     getStorage(local.token).then(token => {
                         if(token != null) {
-                            this._getMe();
+                            //this._getMe();
                         }
                     }).catch(err => {
     
@@ -126,7 +126,7 @@ export default class Index extends Component {
                         ViewComponent={LinearGradient}
                         linearGradientProps={btnGradientProps}
                         title="Sign Up"
-                        onPress={() => this.props.navigation.navigate('Signup')}
+                        onPress={() => this.props.navigation.navigate('SignUpStacks')}
                     />
                 </View>
             </View>

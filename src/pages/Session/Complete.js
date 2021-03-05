@@ -4,6 +4,7 @@ import ValidationComponent from 'react-native-form-validator';
 import { Rating} from 'react-native-ratings';
 import {ios_red_color} from "../../GlobalStyles";
 import {getBookingStatus, getStatusData} from "../../shared/service/api";
+import BackButton from '../../components/BackButton';
 
 const styles = StyleSheet.create({
     container: {
@@ -20,6 +21,8 @@ export default class SetupDetail extends ValidationComponent {
     render() {
         return (
             <View contentContainerStyle={styles.container}>
+                <BackButton navigation={this.props.navigation} />
+
                 <Image style={{
                     width:'80%',
                     height:350,

@@ -6,6 +6,7 @@ import {btnGradientProps, ios_green_color, ios_red_color} from "../../GlobalStyl
 import {getBookingStatus, getStatusData} from "../../shared/service/api";
 import {Button, CheckBox} from "react-native-elements";
 import LinearGradient from "react-native-linear-gradient/index.android";
+import BackButton from '../../components/BackButton';
 
 const styles = StyleSheet.create({
     container: {
@@ -34,6 +35,7 @@ export default class SetupDetail extends ValidationComponent {
     render() {
         return (
             <View contentContainerStyle={styles.container}>
+                <BackButton navigation={this.props.navigation} />
                 <Image style={{
                     width:'80%',
                     height:330,

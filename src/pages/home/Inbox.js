@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import {View, Text, ScrollView, StyleSheet, TouchableOpacity, FlatList} from 'react-native';
+import {View, Text, SafeAreaView, StyleSheet, TouchableOpacity, FlatList} from 'react-native';
 import { ListItem, Avatar } from 'react-native-elements'
 import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view';
 import EntypoIcon from 'react-native-vector-icons/Entypo';
 import Moment from "moment";
-import {SERVER_URL} from "../../globalconfig";
+import {SERVER_URL, ios_red_color} from "../../globalconfig";
 import BackButton from "../../components/BackButton";
 import {getMessage} from "../../shared/service/api";
 
@@ -33,11 +33,11 @@ export default class Inbox extends Component {
 
     render() {
         return (
-            <View style={{
+            <SafeAreaView style={{
                 flex: 1,
             }}>
-                <BackButton navigation={this.props.navigation} />
-                <Text style={{ fontSize: 25, fontWeight: 'bold', color: 'black', textAlign: 'center', marginTop: 30 }}>Inbox</Text>
+                {/* <BackButton navigation={this.props.navigation} /> */}
+                <Text style={{ fontSize: 25, fontWeight: 'bold', color: 'black', textAlign: 'center', marginTop: 20 }}>Inbox</Text>
                 <ScrollableTabView
                     style={styles.container}
                     renderTabBar={() =>
@@ -68,7 +68,9 @@ export default class Inbox extends Component {
                                       {item.last_msg_time &&
                                       <View style={{ position: 'absolute', right: 3, alignItems: 'center' }}>
                                           <Text>{Moment(item.last_msg_time).format("D/M/YY")}</Text>
-                                          <Text style={{ width: 20, height: 20, backgroundColor: '#242729', color: 'white', borderRadius: 10, textAlign: 'center', marginTop:10  }}>6</Text>
+                                          <View style={{ width: 20, height: 20, backgroundColor: 'red', borderRadius: 10, justifyContent:'center'}}>
+                                              <Text style={{color:'white', textAlign:'center'}}>1</Text>
+                                            </View>
                                       </View>}
                                   </TouchableOpacity>
                               }
@@ -104,7 +106,7 @@ export default class Inbox extends Component {
                     />
 
                 </ScrollableTabView>
-            </View>
+            </SafeAreaView>
         );
     }
 }

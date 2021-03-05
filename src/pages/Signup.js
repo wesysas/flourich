@@ -46,7 +46,15 @@ const styles = StyleSheet.create({
     },
     error: {
         color:'red'
-    }
+    },
+    txtInputStyle: {
+        borderWidth:1, 
+        borderRadius:10, 
+        borderColor:'gray', 
+        padding:10, 
+        fontSize: 18, 
+        marginVertical:10
+    },
 });
 
 export default class SignupPage extends ValidationComponent {
@@ -64,10 +72,10 @@ export default class SignupPage extends ValidationComponent {
         // const [value, onChangeText] = useState('');
     }
     componentDidMount() {
-        GoogleSignin.configure({
-            webClientId: googleConfig.clientID,
-            offlineAccess: false,
-        });
+        // GoogleSignin.configure({
+        //     webClientId: googleConfig.clientID,
+        //     offlineAccess: false,
+        // });
     };
     
     componentWillUnmount() {
@@ -194,7 +202,7 @@ export default class SignupPage extends ValidationComponent {
                     </View>
 
                     <TextInput
-                        style={{ borderWidth:1, borderRadius:4, borderColor:'gray', paddingHorizontal:10, fontSize: 18, marginVertical:10}}
+                        style={styles.txtInputStyle}
                         placeholder="email@address.com"
                         value={this.state.email}
                         onChangeText={value => {
@@ -208,7 +216,7 @@ export default class SignupPage extends ValidationComponent {
                     {this.isFieldInError('email') && this.getErrorsInField('email').map(errorMessage => <Text style={styles.error}>{errorMessage}</Text>) }
 
                     <TextInput
-                        style={{ borderWidth:1, borderRadius:4, borderColor:'gray', paddingHorizontal:10, fontSize: 18, marginVertical:10}}
+                        style={styles.txtInputStyle}
                         placeholder="password"
                         value={this.state.password}
                         onChangeText={value => {
@@ -223,7 +231,7 @@ export default class SignupPage extends ValidationComponent {
                     {this.isFieldInError('password') && this.getErrorsInField('password').map(errorMessage => <Text style={styles.error}>{errorMessage}</Text>) }
 
                     <TextInput
-                        style={{ borderWidth:1, borderRadius:4, borderColor:'gray', paddingHorizontal:10, fontSize: 18, marginVertical:10}}
+                        style={styles.txtInputStyle}
                         placeholder="Confirmation password"
                         value={this.state.confirmPassword}
                         onChangeText={value => {

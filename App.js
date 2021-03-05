@@ -103,11 +103,11 @@ const HomeTabs = () => {
     <Tab.Navigator           
       tabBarOptions={{
         keyboardHidesTabBar:true,
-        labelStyle: { fontSize: 12, marginTop:10 },
+        labelStyle: { fontSize: 12, color:'black' },
         tabStyle:{marginVertical:15},
         activeTintColor:'black',
         inactiveTintColor:'gray',
-        style:{height:70}
+        style:{height:100}
       }}
     >
         <Tab.Screen name="Home"

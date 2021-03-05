@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet,Text,View } from 'react-native';
+import { StyleSheet,Text,View, SafeAreaView } from 'react-native';
 import { GiftedChat } from 'react-native-gifted-chat';
 import SocketIOClient from 'socket.io-client';
 import Icon from "react-native-vector-icons/FontAwesome";
@@ -56,7 +56,7 @@ export default class ChatBox extends Component {
 
     render() {
         return (
-            <View style={{height:'100%'}}>
+            <SafeAreaView style={{height:'100%'}}>
                 <BackButton navigation={this.props.navigation} />
                 <View style={styles.topbarStyle}>
                     <View style={{flexDirection:'row'}}>
@@ -80,7 +80,7 @@ export default class ChatBox extends Component {
                         _id: this.state.userId,
                     }}
                 />
-            </View>
+            </SafeAreaView>
         );
     }
 }

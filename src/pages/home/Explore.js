@@ -1,5 +1,5 @@
 import React, { useState, useCallback, Component } from 'react';
-import { View, Text, Picker, StyleSheet, Image, TouchableOpacity, TextInput, Dimensions, PermissionsAndroid } from 'react-native';
+import { View, Text, Picker, StyleSheet, Image, TouchableOpacity, SafeAreaView, Dimensions, PermissionsAndroid } from 'react-native';
 import {ScrollView, FlatList} from 'react-native-gesture-handler'
 import FlashMessage, { showMessage } from "react-native-flash-message";
 
@@ -25,7 +25,7 @@ import MapViewDirections from 'react-native-maps-directions';
 import BottomSheet from 'reanimated-bottom-sheet';
 import Animated from 'react-native-reanimated';
 import PopoverTooltip from 'react-native-popover-tooltip';
-
+import {check, PERMISSIONS, RESULTS} from 'react-native-permissions';
 import { googleConfig } from '../../globalconfig';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import PhoneInput from "react-native-phone-number-input";
@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
         fontSize: 15,
     },
     flatList: {
-        marginTop: 350,
+        marginTop: HEIGHT-390,
         height: 120,
         backgroundColor: 'rgba(52, 52, 52, 0)',
         flexGrow: 0
@@ -152,18 +152,44 @@ export default class Explore extends Component {
 
     async requestLocationPermission() {
         try {
-            const granted = await PermissionsAndroid.request(
-                PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-                {
-                    'title': 'Flourich App',
-                    'message': 'Flourich App access to your location'
+            if (Platform.OS === 'ios') {
+                check(PERMISSIONS.IOS.LOCATION_ALWAYS)
+                .then((result) => {
+                    switch (result) {
+                    case RESULTS.UNAVAILABLE:
+                        console.log('This feature is not available (on this device / in this context)');
+                        break;
+                    case RESULTS.DENIED:
+                        console.log('The permission has not been requested / is denied but requestable');
+                        break;
+                    case RESULTS.LIMITED:
+                        console.log('The permission is limited: some actions are possible');
+                        break;
+                    case RESULTS.GRANTED:
+                        console.log('The permission is granted');
+                        break;
+                    case RESULTS.BLOCKED:
+                        console.log('The permission is denied and not requestable anymore');
+                        break;
+                    }
+                })
+                .catch((error) => {
+                    // …
+                });
+            }else{
+                const granted = await PermissionsAndroid.request(
+                    PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+                    {
+                        'title': 'Flourich App',
+                        'message': 'Flourich App access to your location '
+                    }
+                );
+                if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+                    console.log("You can use the location")
+    
+                } else {
+                    console.log("location permission denied")
                 }
-            );
-            if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-                console.log("You can use the location")
-
-            } else {
-                console.log("location permission denied")
             }
         } catch (err) {
             console.warn(err)
@@ -239,7 +265,7 @@ export default class Explore extends Component {
     }
     render() {
         return (
-            <View style={{flex:1}}>
+            <SafeAreaView>
                 <FlashMessage position="top" statusBarHeight={20} style={{zIndex:3}} />
                 <GooglePlacesAutocomplete
                     listViewDisplayed='auto'
@@ -271,7 +297,7 @@ export default class Explore extends Component {
                         container: {
                             zIndex:2, position: 'absolute',
                             width: Dimensions.get('window').width-140,
-                            marginTop:12,
+                            marginTop:62,
                             marginLeft:45,
                         },
                         description: {
@@ -348,7 +374,8 @@ export default class Explore extends Component {
                                         fromRect={popoverAnchorRect}
                                         supportedOrientations={['portrait', 'landscape']}
                                     >
-                                        <Text style={{ padding: 5, paddingBottom: 10, fontSize:20, borderBottomColor:'lightgrey',borderBottomWidth:1, width:200}}>Sort and Filter</Text>
+                                        <Text style={{ padding: 5, paddingBottom: 10, fontSize:20, borderBottomColor:'lightgrey',borderBottomWidth:1, width:200,
+                                    marginTop:20}}>Sort and Filter</Text>
 
                                         <TouchableOpacity style={{ flexDirection: 'row',margin:5, alignItems: 'center' }} onPress={ () => {
                                             this.date_filter=1;
@@ -464,7 +491,7 @@ export default class Explore extends Component {
                 <TouchableOpacity
                     style={{
                         position: 'absolute',
-                        bottom:55,
+                        bottom:130,
                         left:WIDTH/2-50,
                         zIndex: 2,
                         borderColor:global.user.status==0?"grey":ios_green_color,
@@ -500,7 +527,7 @@ export default class Explore extends Component {
                     ref={ref => {
                         this.bottomSheet = ref;
                     }}
-                    snapPoints={[0,"8%","80%"]}
+                    snapPoints={[0,"9%","77%"]}
                     borderRadius={10}
                     initialSnap={0}
                     renderContent={() => (
@@ -534,6 +561,8 @@ export default class Explore extends Component {
                                     <View
                                         style={{borderRadius:10,padding:20,margin:10,
                                             justifyContent:'flex-start',
+                                            borderColor:'lightgrey',
+                                            borderWidth:1,
                                             shadowColor: "#000",
                                             shadowOffset: {
                                                 width: 0,
@@ -641,7 +670,7 @@ export default class Explore extends Component {
                         </View>
                     )}
                 />
-            </View>
+            </SafeAreaView>
         )
     }
 }

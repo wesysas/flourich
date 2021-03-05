@@ -23,6 +23,7 @@ const ios_blue = "#007AFF";
 const styles = StyleSheet.create({
     container: {
         flexGrow: 1,
+        marginTop:30,
         paddingHorizontal: 30,
     },
     headerTitle: {
@@ -272,7 +273,7 @@ export default class SetupDetail extends ValidationComponent {
                                 }}
                                 buttonStyle={{borderWidth:0}}
                                 onPress={()=>{
-                                    if(this.state.selected_service_type.length>0) this.serviceSheet.open();
+                                    if(this.state.selected_service_type.length>0) this.serviceSheet.snapTo(1);
                                 }}
                             />
                             <Text style={{marginLeft:10}}>Add a service</Text>
@@ -371,8 +372,159 @@ export default class SetupDetail extends ValidationComponent {
                     />
 
                 </View>
+                <BottomSheet
+                    ref={ref => {
+                        this.serviceSheet = ref;
+                    }}
+                    snapPoints={[0,90]}
+                    borderRadius={10}
+                    initialSnap={0}
+                    isBackDrop={true}
+                    isBackDropDismissByPress={true}
+                    renderContent={() => (
+                    <ScrollView>
+                        <Text style={{fontSize: 20,marginTop: 20, textAlign:'center', fontWeight: 'bold'}}>Add a service</Text>
+                        {this.state.selected_service_type.map((selected_service_type, i) => {
+                            return (
+                                <View key={i} style={{marginHorizontal:20}}>
+                                    <Text style={{fontSize:17, marginVertical:10}}>{selected_service_type}</Text>
+                                    <View>
+                                        {this.state.default_service.filter((service) => {return service.title===selected_service_type? service:'';}).map((selected_service, i) => {
+                                            return (
+                                                <TouchableOpacity style={{flexDirection: 'row', justifyContent: 'space-around', padding:8, margin:2, backgroundColor:'#f7f9fc'}} key={selected_service.service_id}
+                                                                  onPress={() => {
+                                                                      this.setState({selected_service});
+                                                                      this.serviceSheet.snapTo(0);
+                                                                      this.serviceAddSheet.snapTo(1);
+                                                                  }}>
+                                                    <Text style={{width:'70%'}}>{selected_service.item}</Text>
+                                                    <Text>£{selected_service.price}</Text>
+                                                    <Icon name="chevron-right" size={15} />
+                                                </TouchableOpacity>
+                                            );
+                                        })}
+                                    </View>
+                                </View>
+                            );
+                        })}
+                    </ScrollView>
+                    )}
+                />
+                <BottomSheet
+                    ref={ref => {
+                        this.serviceAddSheet = ref;
+                    }}
+                    snapPoints={[0,400]}
+                    borderRadius={10}
+                    initialSnap={0}
+                    isBackDrop={true}
+                    isBackDropDismissByPress={true}
+                    renderContent={() => (
+                    <ScrollView>
+                        <View style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent:'space-between',
+                        marginVertical:20,
+                    }}>
+                        <Text style={{fontSize:22, fontWeight:'bold'}}>{this.state.selected_service.item}</Text>
+                        <Button
+                            buttonStyle={ styles.btn }
+                            titleStyle={{fontSize:20, marginHorizontal:10, marginVertical:0}}
+                            ViewComponent={LinearGradient}
+                            linearGradientProps={btnGradientProps}
+                            title="ADD"
+                            onPress={() => {
+                                this.serviceAddSheet.close();
+                                this.state.selected_service.categories = this.state.selected_categories;
+                                this.state.service.push(this.state.selected_service);
+                                this.setState({selected_categories:[]});
+                                this.setState({service: [...new Set(this.state.service)]});
+                            }}
+                        />
+                    </View>
+                    <Text style={styles.subTitle}>Description</Text>
+                    <TextInput
+                        value={this.state.selected_service.description}
+                        multiline={true}
+                        onChangeText={value => {
+                            this.state.selected_service.description = value;
+                            this.setState({selected_service:this.state.selected_service});
+                        }}
+                    />
+                    <View style={{
+                        flex: 1,
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                    }}>
+                        <Text style={{fontSize:18, marginRight:30}}>Price</Text>
+                        <View>
+                            <Text style={{
+                                position: 'absolute',
+                                left:3,
+                                fontSize:18,
+                                fontWeight:'bold',
+                                zIndex:1,
+                                top:7
+                            }}>£</Text>
+                            <TextInput
+                                style={{ height: 40,
+                                    borderColor: 'gray',
+                                    borderWidth: 1,
+                                    borderRadius: 5,
+                                    paddingLeft:20,
+                                }}
+                                value={this.state.selected_service.price}
+                                onChangeText={value => {
+                                    this.state.selected_service.price = value.replace(/[^0-9]/g, '');
+                                    this.setState({selected_service:this.state.selected_service});
+                                }}
+                                keyboardType={'numeric'}
+                            />
+                        </View>
+                    </View>
 
-                <RBSheet
+                    <View style={[multiBtnGroupStyle, {marginHorizontal:-20}]}>
+                        {this.state.categories.map(interest => (
+                            <SelectMultipleButton
+                                key={interest.id}
+                                buttonViewStyle={{
+                                    width: 120,
+                                    borderRadius: 50,
+                                    borderColor: 'gray',
+                                    margin: 5}}
+                                textStyle={{
+                                    fontSize: 16
+                                }}
+                                highLightStyle={{
+                                    borderColor: "gray",
+                                    backgroundColor: "transparent",
+                                    textColor: "gray",
+                                    borderTintColor: ios_red_color,
+                                    backgroundTintColor: ios_red_color,
+                                    textTintColor: "white"
+                                }}
+                                value={interest.title}
+                                selected={this.state.selected_categories.includes(interest.id)}
+                                singleTap={valueTap =>{
+                                    var selected_categories = this.state.selected_categories;
+                                    if (selected_categories.includes(interest.id)) {
+                                        _.remove(selected_categories, ele => {
+                                            return ele === interest.id;
+                                        });
+                                    } else {
+                                        selected_categories.push(interest.id);
+                                    }
+                                    this.setState({selected_categories});
+                                }
+                                }
+                            />
+                        ))}
+                    </View>
+                    </ScrollView>
+                    )}
+                />
+                {/* <RBSheet
                     ref={ref => {
                         this.serviceSheet = ref;
                     }}
@@ -381,7 +533,7 @@ export default class SetupDetail extends ValidationComponent {
                         container: {
                             borderTopRightRadius: 20,
                             borderTopLeftRadius: 20,
-                            height:'100%'
+                            height:'90%'
                         }
                     }}
                 >
@@ -412,8 +564,8 @@ export default class SetupDetail extends ValidationComponent {
                         })}
                     </ScrollView>
                 </RBSheet>
-                <RBSheet
-                    ref={ref => {
+                <RBSheet */}
+                    {/* ref={ref => {
                         this.serviceAddSheet = ref;
                     }}
                     openDuration={250}
@@ -526,7 +678,7 @@ export default class SetupDetail extends ValidationComponent {
                             />
                         ))}
                     </View>
-                </RBSheet>
+                </RBSheet> */}
         </ScrollView>
         )
     }
