@@ -5,19 +5,14 @@ import Spinner from 'react-native-loading-spinner-overlay';
 
 import {Button, Input, CheckBox, ListItem} from 'react-native-elements';
 import LinearGradient from 'react-native-linear-gradient/index';
-import {Picker} from '@react-native-picker/picker';
 import { SelectMultipleButton, SelectMultipleGroupButton } from "react-native-selectmultiple-button";
 import _ from "lodash";
 import ValidationComponent from 'react-native-form-validator';
-import { max } from 'react-native-reanimated';
 import {multiBtnGroupStyle, ios_red_color, ios_green_color, btnGradientProps} from "../../GlobalStyles";
 import {createProfile, getDefaultService, getCategories} from '../../shared/service/api';
-import { getStorage, getUserId } from '../../shared/service/storage';
+import { getUserId } from '../../shared/service/storage';
 import DropDownPicker from 'react-native-dropdown-picker';
-import BottomSheet from 'react-native-bottomsheet-reanimated';
-import MapView from "react-native-maps";
 import RBSheet from "react-native-raw-bottom-sheet";
-import {CollapseBody} from "accordion-collapse-react-native";
 
 const ios_blue = "#007AFF";
 
@@ -144,7 +139,6 @@ export default class SetupDetail extends ValidationComponent {
             this.setState({'userid': userid});
             var res = await createProfile(this.state);
             this.setState({spinner:false});
-            console.log("----------",res);
             if(res != null) {
                 this.props.navigation.navigate('Identity');
             }else{

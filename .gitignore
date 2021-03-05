@@ -67,3 +67,6 @@ android/app/release
 android/app/src/main/assets
 /android/app/src/main/res/raw
 yarn.lock
+ios/Podfile.lock
+ios/FlourichCreator.xcworkspace/contents.xcworkspacedata
+ios/FlourichCreator.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist

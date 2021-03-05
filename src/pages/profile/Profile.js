@@ -15,7 +15,7 @@ import { local } from '../../shared/const/local';
 import { LogBox, FlatList } from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
 import Spinner from 'react-native-loading-spinner-overlay';
-import { getCreatorMediaData, uploadPortfolio, uploadStory } from '../../shared/service/api';
+import { getCreatorMediaData, getMe, uploadPortfolio, uploadStory } from '../../shared/service/api';
 import { SERVER_URL } from '../../globalconfig';
 
 const styles = StyleSheet.create({
@@ -147,8 +147,10 @@ export default class Profile extends Component {
     }
 
    async refreshScreen() {
+       var user = await getMe({ userid: global.user.cid });
         var result = await getCreatorMediaData({ userid: global.user.cid });
-        this.setState({user: global.user});
+        global.user = user;
+        this.setState({user});
         this.setState({story: result.story});
         this.setState({portfolio: result.portfolio});
     }

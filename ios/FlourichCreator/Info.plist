@@ -80,17 +80,16 @@
 		<string>YOUR TEXT</string>
 		<key>NSLocationAlwaysUsageDescription</key>
 		<string>YOUR TEXT</string>
-		<key>NSLocationTemporaryUsageDescriptionDictionary</key>
-		<dict>
-			<key>YOUR-PURPOSE-KEY</key>
-			<string>YOUR TEXT</string>
-		</dict>
 		<key>NSLocationWhenInUseUsageDescription</key>
 		<string>YOUR TEXT</string>
 		<key>NSPhotoLibraryUsageDescription</key>
 		<string>YOUR TEXT</string>
 		<key>NSPhotoLibraryAddUsageDescription</key>
 		<string>YOUR TEXT</string>
-
+		<key>NSLocationTemporaryUsageDescriptionDictionary</key>
+		<dict>
+			<key>YOUR-PURPOSE-KEY</key>
+			<string>YOUR TEXT</string>
+		</dict>
 </dict>
 </plist>

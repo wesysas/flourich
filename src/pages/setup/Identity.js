@@ -1,5 +1,5 @@
 import React, { useState, Component  } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, SafeAreaView } from 'react-native';
 import { Button, Input, CheckBox } from 'react-native-elements';
 import LinearGradient from 'react-native-linear-gradient/index';
 import { CardView } from 'react-native-credit-card-input';
@@ -11,6 +11,7 @@ import { uploadCard, uploadAvatar } from '../../shared/service/api';
 import { getStorage, getUserId } from '../../shared/service/storage';
 import Spinner from 'react-native-loading-spinner-overlay';
 import { btnGradientProps } from '../../GlobalStyles';
+import DropDownPicker from 'react-native-dropdown-picker';
 
 const options = [
     'Cancel', 
@@ -52,7 +53,9 @@ export default class Identity extends Component {
             image: '',
             availAvatar: false,
             spinner: false,
+            option: 2,
         }
+        this.imagePicker = ImagePicker;
     }
 
     componentDidMount() {
@@ -62,9 +65,9 @@ export default class Identity extends Component {
         this.ActionSheet.show()
     }
 
-    openPicker = () => {
+    openPicker(){
         if(this.state.availAvatar) {
-            ImagePicker.openPicker({
+            this.imagePicker.openPicker({
                 width: 300,
                 height: 300,
                 cropping: true,
@@ -73,11 +76,12 @@ export default class Identity extends Component {
                 showCropGuidelines:false,
               }).then(image => {
                 this.uploadAvatarImage(image);
+                console.log('----avatar----');
               }).catch(err => {
                 console.log(err);
             });
         }else{
-            ImagePicker.openPicker({
+            this.imagePicker.openPicker({
                 width: 400,
                 height: 300,
                 cropping: true,
@@ -94,7 +98,7 @@ export default class Identity extends Component {
 
     openCamera = () => {
         if(this.state.availAvatar) {
-            ImagePicker.openCamera({
+            this.imagePicker.openCamera({
                 width: 300,
                 height: 300,
                 cropping: true,
@@ -107,7 +111,7 @@ export default class Identity extends Component {
               });
     
         }else{
-            ImagePicker.openCamera({
+            this.imagePicker.openCamera({
                 width: 400,
                 height: 300,
                 cropping: true,
@@ -164,25 +168,29 @@ export default class Identity extends Component {
     }
     render() {
         return (
-            <ScrollView contentContainerStyle={styles.container}>
-                <Spinner
-                    visible={this.state.spinner}
-                />
-                <View style={{
-                    marginVertical: 30
-                }}>
+            <SafeAreaView>
+                <View style={styles.container}>
+                    <Spinner
+                        visible={this.state.spinner}
+                    />
                     <Text style={styles.headerTitle}>Continue Set Up</Text>
-                    <View style={styles.separate}>
+                    <View style={{marginVertical: 20, minHeight:80, zIndex:1}}>
                         <Text style={styles.subTitle}>Select the type of ID to proceed</Text>
                         <Text>Country</Text>
-                        <Picker
-                            selectedValue={this.state.country}
-                            style={{ textAlign: 'right' }}
-                            onValueChange={(itemValue, itemIndex) => this.setState({"country": itemValue})}
-                        >
-                            <Picker.Item label="United Kingdom" value="uk" />
-                            <Picker.Item label="France" value="fr" />
-                        </Picker>
+                        <DropDownPicker
+                            items={  [
+                            {label: 'United Kingdom', value: 'uk'},
+                            {label: 'France', value: 'fr'}]}
+                            //defaultValue={this.state.operate_type}
+                            style={{borderWidth:0, borderBottomWidth:1, paddingHorizontal:0}}
+                            placeholder="Select a country"
+                            itemStyle={{
+                                justifyContent: 'flex-start'
+                            }}
+                            onChangeItem={item => this.setState({
+                                country: item.value
+                            })}
+                        />
                     </View>
 
                     <View style={styles.separate}>
@@ -194,7 +202,15 @@ export default class Identity extends Component {
                             title="Identity Card"
                             onPress={()=> {
                                 this.setState({'cardtype': 'Identity Card'});
-                                this.showActionSheet();
+                                
+                                //this.showActionSheet();
+
+                                if(this.state.option === 1) {
+                                    this.openCamera();
+                                }
+                                if(this.state.option === 2) {
+                                    this.openPicker();
+                                }
                             }}
                         />
                         <Button
@@ -204,7 +220,13 @@ export default class Identity extends Component {
                             type="outline"
                             onPress={()=> {
                                 this.setState({'cardtype': 'Passport'});
-                                this.showActionSheet();
+
+                                if(this.state.option === 1) {
+                                    this.openCamera();
+                                }
+                                if(this.state.option === 2) {
+                                    this.openPicker();
+                                }
                             }}
                         />
                         <Button
@@ -214,14 +236,20 @@ export default class Identity extends Component {
                             type="outline"
                             onPress={()=> {
                                 this.setState({'cardtype': 'Drivers License'});
-                                this.showActionSheet();
+
+                                if(this.state.option === 1) {
+                                    this.openCamera();
+                                }
+                                if(this.state.option === 2) {
+                                    this.openPicker();
+                                }
                             }}
                         />
                     </View>
 
                     <View style={{ marginVertical: 20, alignItems: 'center' }}>
                         <Text>For security reasons, you will be required</Text>
-                        <Text>to complete the verification process within 10 minutes</Text>
+                        <Text>to complete the verification process within 10 minutes.</Text>
                     </View>
                     <Button
                         buttonStyle={styles.btnStyle}
@@ -231,28 +259,27 @@ export default class Identity extends Component {
                         title="Next"
                         disabled={!this.state.availAvatar}
                         onPress={()=> {
-                            this.showActionSheet();
+
+                            if(this.state.option === 1) {
+                                this.openCamera();
+                            }
+                            if(this.state.option === 2) {
+                                this.openPicker();
+                            }
                         }}
                     />
-                </View>
-                <View>
                     <ActionSheet
-                    ref={o => this.ActionSheet = o}
-                    title={<Text style={{color: '#000', fontSize: 18}}>Select Option</Text>}
-                    options={options}
-                    cancelButtonIndex={0}
-                    // destructiveButtonIndex={2}
-                    onPress={(index) => { 
-                        if(index == 1) {
-                            this.openCamera();
-                        }
-                        if(index == 2) {
-                            this.openPicker();
-                        }
-                        }}
+                        ref={o => this.ActionSheet = o}
+                        title={<Text style={{color: '#000', fontSize: 18}}>Select an Option</Text>}
+                        options={options}
+                        cancelButtonIndex={0}
+                        // destructiveButtonIndex={2}
+                        onPress={(option) => { 
+                            this.setState({option});
+                            }}
                     />
                 </View>
-            </ScrollView>
+            </SafeAreaView>
         )
     }
 }

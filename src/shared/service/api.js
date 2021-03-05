@@ -180,6 +180,17 @@ export const getDefaultService = async (data) => {
         return [];
     }
 };
+export const getCreatorService = async (data) => {
+    try {
+        var res = await _post('/v1/profile/get_service', data);
+        return res;
+    } catch (err) {
+        // Handle Error Here
+        _handleError(err);
+        return null;
+    }
+};
+
 export const getCategories = async (data) => {
     try {
         var res = await _post('/v1/profile/get_categories', data);
