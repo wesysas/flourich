@@ -2,7 +2,8 @@ import React, { useState, useCallback, Component } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, TextInput } from 'react-native';
 import { Button, SocialIcon, Input } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import GlobalStyles from '../GlobalStyles';
+import GlobalStyles, {btnGradientProps} from '../GlobalStyles';
+
 import { RectButton } from 'react-native-gesture-handler';
 import LinearGradient from 'react-native-linear-gradient';
 import { render } from 'react-dom';
@@ -114,11 +115,7 @@ export default class Verify extends Component {
                             buttonStyle={styles.btn}
                             ViewComponent={LinearGradient}
                             titleStyle={styles.btnTitle}
-                            linearGradientProps={{
-                                colors: ["#c84e77", "#f13e3a"],
-                                start: { x: 0, y: 0.5 },
-                                end: { x: 1, y: 0.5 },
-                            }}
+                            linearGradientProps={btnGradientProps}
                             title="Continue"
                             onPress={() => {
                                 this.verifyCode();

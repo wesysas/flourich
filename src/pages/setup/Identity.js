@@ -10,6 +10,7 @@ import ImagePicker from 'react-native-image-crop-picker';
 import { uploadCard, uploadAvatar } from '../../shared/service/api';
 import { getStorage, getUserId } from '../../shared/service/storage';
 import Spinner from 'react-native-loading-spinner-overlay';
+import { btnGradientProps } from '../../GlobalStyles';
 
 const options = [
     'Cancel', 
@@ -189,11 +190,7 @@ export default class Identity extends Component {
                             buttonStyle={styles.btnStyle}
                             ViewComponent={LinearGradient}
                             titleStyle={styles.btnTitle}
-                            linearGradientProps={{
-                                colors: ["#c84e77", "#f13e3a"],
-                                start: { x: 0, y: 0.5 },
-                                end: { x: 1, y: 0.5 },
-                            }}
+                            linearGradientProps={btnGradientProps}
                             title="Identity Card"
                             onPress={()=> {
                                 this.setState({'cardtype': 'Identity Card'});
@@ -230,11 +227,7 @@ export default class Identity extends Component {
                         buttonStyle={styles.btnStyle}
                         ViewComponent={LinearGradient}
                         titleStyle={styles.btnTitle}
-                        linearGradientProps={{
-                            colors: ["#c84e77", "#f13e3a"],
-                            start: { x: 0, y: 0.5 },
-                            end: { x: 1, y: 0.5 },
-                        }}
+                        linearGradientProps={btnGradientProps}
                         title="Next"
                         disabled={!this.state.availAvatar}
                         onPress={()=> {

@@ -126,7 +126,7 @@ export default class Index extends Component {
                         ViewComponent={LinearGradient}
                         linearGradientProps={btnGradientProps}
                         title="Sign Up"
-                        onPress={() => this.props.navigation.navigate('SignUpStacks')}
+                        onPress={() => this.props.navigation.navigate('Signup')}
                     />
                 </View>
             </View>

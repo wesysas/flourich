@@ -5,7 +5,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import LinearGradient from 'react-native-linear-gradient/index';
 
 import {API_URL, googleConfig} from '../globalconfig';
-
+import {btnGradientProps} from '../GlobalStyles';
 import { GoogleSignin, statusCodes } from 'react-native-google-signin';
 import { loginWithGoogle, registerWithEmail} from '../shared/service/auth';
 import { saveStorage, getStorage } from '../shared/service/storage';
@@ -250,11 +250,7 @@ export default class SignupPage extends ValidationComponent {
                         buttonStyle={ styles.btn }
                             ViewComponent={LinearGradient}
                             titleStyle={styles.btnTitle}
-                            linearGradientProps={{
-                                colors: ["#c84e77", "#f13e3a"],
-                                start: { x: 0, y: 0.5 },
-                                end: { x: 1, y: 0.5 },
-                            }}
+                            linearGradientProps={btnGradientProps}
                             title="Continue"
                             onPress={() => {
                                 // navigation.navigate('Verify')

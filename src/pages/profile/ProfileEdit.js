@@ -17,7 +17,7 @@ import Moment from 'moment';
 import { Collapse, CollapseHeader, CollapseBody } from 'accordion-collapse-react-native';
 import { local } from '../../shared/const/local';
 
-import {ios_red_color} from "../../GlobalStyles";
+import {btnGradientProps, ios_red_color} from "../../GlobalStyles";
 
 const styles = StyleSheet.create({
     container: {
@@ -449,11 +449,7 @@ export default class SetupDetail extends ValidationComponent {
                         buttonStyle={{ marginVertical: 20, borderRadius: 8 }}
                         ViewComponent={LinearGradient}
                         titleStyle={styles.btnTitle}
-                        linearGradientProps={{
-                            colors: ["#c84e77", "#f13e3a"],
-                            start: { x: 0, y: 0.5 },
-                            end: { x: 1, y: 0.5 },
-                        }}
+                        linearGradientProps={btnGradientProps}
                         title="Save"
                         onPress={() => {
                             // navigation.navigate('Identity')
