@@ -4,7 +4,7 @@ import {ScrollView, FlatList} from 'react-native-gesture-handler'
 import FlashMessage, { showMessage } from "react-native-flash-message";
 
 import {Button, SocialIcon, Input, SearchBar, Divider, ListItem, Card, CheckBox} from 'react-native-elements';
-import {getBookings, changeCreatorStatus, updateBooking, getServiceData} from '../../shared/service/api';
+import {getBookings, changeCreatorStatus, updateBooking, updateLocation} from '../../shared/service/api';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import EntypoIcon from 'react-native-vector-icons/Entypo';
 import LinearGradient from 'react-native-linear-gradient';
@@ -201,10 +201,10 @@ export default class Explore extends Component {
         this.watchId = navigator.geolocation.watchPosition(
             (position) => {
                 let region = {
-                    // latitude: position.coords.latitude,
-                    // longitude: position.coords.longitude,
-                    latitude: LATITUDE,
-                    longitude:  LONGITUDE,
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude,
+                    // latitude: LATITUDE,
+                    // longitude:  LONGITUDE,
                     latitudeDelta: LATITUDE_DELTA,
                     longitudeDelta: LONGITUDE_DELTA
                 };
@@ -234,6 +234,7 @@ export default class Explore extends Component {
             lastLat: lastLat || this.state.lastLat,
             lastLong: lastLong || this.state.lastLong
         });
+        var update = updateLocation({cid:global.user.cid, lat:region.latitude, long:region.longitude});
     }
 
     componentWillUnmount() {

@@ -68,8 +68,8 @@ export default class LoginPage extends ValidationComponent {
     constructor(props) {
         super(props);
         this.state = {
-            email: 'jin@gmail.com',
-            password: '123123',
+            email: '',
+            password: '',
             spinner:false,
         }
             // const [selectedValue, setSelectedValue] = useState("java");
@@ -196,15 +196,17 @@ export default class LoginPage extends ValidationComponent {
                 var confirm_approved = data.confirm_approved;
                 var approved = data.approved;
                 var finish_setup = data.finish_setup;
-                if(confirm_approved == 1) {
-                    this.props.navigation.navigate("Home");
-                }else if( approved == 1){
-                    // get verify code
-                    this.props.navigation.navigate("Verify");
-                }else if(finish_setup == 1){
-                    // else get finish, go to pending
-                    this.props.navigation.navigate("SignUpStacks", {screen: "PendingAccount"});
-                }
+
+                this.props.navigation.navigate("Home");
+                // if(confirm_approved == 1) {
+                //     this.props.navigation.navigate("Home");
+                // }else if( approved == 1){
+                //     // get verify code
+                //     this.props.navigation.navigate("Verify");
+                // }else if(finish_setup == 1){
+                //     // else get finish, go to pending
+                //     this.props.navigation.navigate("SignUpStacks", {screen: "PendingAccount"});
+                // }
             }
         })
     }

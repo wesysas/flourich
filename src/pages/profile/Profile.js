@@ -195,7 +195,6 @@ export default class Profile extends Component {
         var res = await uploadPortfolio(params);
         this.setState({spinner: false});
         if(res != null) {
-            alert('success');
             this.refreshScreen();
         }
     }
@@ -314,7 +313,10 @@ export default class Profile extends Component {
                         <TouchableOpacity onPress={() => { this.props.navigation.navigate('ProfileEdit') }}>
                             <Text style={{ fontSize: 20 }} >Edit Profile</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={() => this.RBSheetR.open()}>
+                        <TouchableOpacity onPress={() => {
+                            this.openPortfolioPicker();
+                            //this.RBSheetR.open();
+                        }}>
                             <Text style={{ fontSize: 20 }}>Create New</Text>
                         </TouchableOpacity>
                     </View>
