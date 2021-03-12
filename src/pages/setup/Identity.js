@@ -53,7 +53,7 @@ export default class Identity extends Component {
             image: '',
             availAvatar: false,
             spinner: false,
-            option: 2,
+            option: 1,
         }
         this.imagePicker = ImagePicker;
     }
