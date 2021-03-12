@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
         width: 90,
         borderRadius: 50,
         borderColor: 'gray',
-        margin: 10
+        margin: 5
     }
 });
 
@@ -53,6 +53,7 @@ export default class SetupDetail extends ValidationComponent {
             firstname: "", 
             lastname: "", 
             businessname: "",
+            city:'',
             building:"",
             fulladdress:'',
             street: "",
@@ -113,9 +114,7 @@ export default class SetupDetail extends ValidationComponent {
                 firstname: { required: true },
                 lastname: { required: true },
                 businessname: { required: true },
-                building: { required: true },
                 fulladdress: { required: true },
-                street: { required: true },
                 postalcode: { required: true },
                 weburl: { required: true },
                 instagramurl: { required: true },
@@ -124,9 +123,7 @@ export default class SetupDetail extends ValidationComponent {
             var validate = this.validate({
                 firstname: { required: true },
                 lastname: { required: true },
-                building: { required: true },
                 fulladdress: { required: true },
-                street: { required: true },
                 postalcode: { required: true },
                 weburl: { required: true },
                 instagramurl: { required: true },
@@ -156,24 +153,22 @@ export default class SetupDetail extends ValidationComponent {
 
                 <View style={{marginVertical: 30}}>
                     <Text style={styles.headerTitle}>Continue Set Up</Text>
-                    <View style={{marginVertical: 20, minHeight:80}}>
-                        <Text>You operate as</Text>
-                        <DropDownPicker
-                            items={  [
-                            {label: 'Private Company', value: 'private_company', icon: () => <Icon name="users" size={18} color={ios_red_color} />},
-                            {label: 'Sole Trader', value: 'sole_trader', icon: () => <Icon name="user" size={18} color={ios_red_color} />}]}
-                            //defaultValue={this.state.operate_type}
-                            style={{borderWidth:0, borderBottomWidth:1, paddingHorizontal:0}}
-                            placeholder="Select an operate"
-                            itemStyle={{
-                                justifyContent: 'flex-start'
-                            }}
-                            onChangeItem={item => this.setState({
-                                operate_type: item.value
-                            })}
-                        />
+                    <Text>You operate as</Text>
+                    <DropDownPicker
+                        items={  [
+                        {label: '  Private Limited Company', value: 'private_company', icon: () => <Icon name="users" size={18} color={ios_red_color} style={{alignSelf:'center'}} />},
+                        {label: '    Sole Trader', value: 'sole_trader', icon: () => <Icon name="user" size={18} color={ios_red_color} style={{alignSelf:'center'}}/>}]}
+                        //defaultValue={this.state.operate_type}
+                        style={{borderWidth:0, borderBottomWidth:1, paddingHorizontal:0}}                          
+                        placeholder="Select an operate"
+                        itemStyle={{
+                            justifyContent: 'flex-start'
+                        }}
+                        onChangeItem={item => this.setState({
+                            operate_type: item.value
+                        })}
+                    />
 
-                    </View>
                     <View style={styles.separate}>
                         <Text style={styles.subTitle}>Add you name*</Text>
                         <Text>First Name</Text>
@@ -236,8 +231,8 @@ export default class SetupDetail extends ValidationComponent {
                         {this.isFieldInError('services') && this.getErrorsInField('services').map(errorMessage => <Text key="services" style={{ color:'red', marginTop: -15, marginLeft: 25}}>{errorMessage}</Text>) }
                         {this.state.service.map((service, i) => {
                             return (
-                                <View key={i} style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between', margin:10}}>
-                                    <View style={{flexDirection: 'row'}}>
+                                <View key={i} style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between', margin:10, alignItems:'center'}}>
+                                    <View style={{flexDirection: 'row', alignItems:'center'}}>
                                         <Button
                                             icon={<Icon name="minus" size={9} color="white" />}
                                             type="outline"
@@ -260,7 +255,7 @@ export default class SetupDetail extends ValidationComponent {
                                 </View>
                             );
                         })}
-                        <View style={{flex: 1, flexDirection: 'row', margin:10}}>
+                        <View style={{flex: 1, flexDirection: 'row', margin:10, alignItems:'center'}}>
                             <Button
                                 icon={<Icon name="plus" size={9} color="white" />}
                                 type="outline"
@@ -308,6 +303,15 @@ export default class SetupDetail extends ValidationComponent {
                                 this.setState({"street":value})
                             }}
                         />
+
+                        <Text>City Address</Text>
+                        <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='city address goes here'
+                            value={this.state.city}
+                            onChangeText={ value => {
+                                this.setState({"city":value})
+                            }}
+                        />
+
                         {this.isFieldInError('street') && this.getErrorsInField('street').map(errorMessage => <Text key="street" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
                         <Text>Post Code</Text>
                         <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='123456789UK'
@@ -420,14 +424,15 @@ export default class SetupDetail extends ValidationComponent {
                             );
                         })}
                     </ScrollView>}
-                    {this.state.serviceAddSheetVisible&& <View style={{flex:1, padding:20}}>
+                    {this.state.serviceAddSheetVisible&& <View style={{flex:1, padding:20}}> 
+                        <Text style={{fontSize:22, fontWeight:'bold'}}>{this.state.selected_service.item}</Text>
                         <View style={{
                             flexDirection: 'row',
                             alignItems: 'center',
                             justifyContent:'space-between',
-                            marginVertical:20,
+                            marginTop:20,
                         }}>
-                            <Text style={{fontSize:22, fontWeight:'bold'}}>{this.state.selected_service.item}</Text>
+                            <Text style={styles.subTitle}>Description</Text>                           
                             <Button
                                 buttonStyle={ styles.btn }
                                 titleStyle={{fontSize:20, marginHorizontal:10, marginVertical:0}}
@@ -444,8 +449,13 @@ export default class SetupDetail extends ValidationComponent {
                                 }}
                             />
                         </View>
-                        <Text style={styles.subTitle}>Description</Text>
-                        <TextInput
+                        <TextInput style={{ height: 60,
+                                        borderColor: 'gray',
+                                        borderWidth: 1,
+                                        borderRadius: 5,
+                                        paddingLeft:5,
+                                        marginTop:5
+                                    }}
                             value={this.state.selected_service.description}
                             multiline={true}
                             onChangeText={value => {
@@ -462,18 +472,19 @@ export default class SetupDetail extends ValidationComponent {
                             <View>
                                 <Text style={{
                                     position: 'absolute',
-                                    left:3,
+                                    left:5,
                                     fontSize:18,
-                                    fontWeight:'bold',
                                     zIndex:1,
-                                    top:7
+                                    top:9
                                 }}>£</Text>
                                 <TextInput
                                     style={{ height: 40,
+                                        minWidth:80,
                                         borderColor: 'gray',
                                         borderWidth: 1,
                                         borderRadius: 5,
                                         paddingLeft:20,
+                                        textAlign:'center'
                                     }}
                                     value={this.state.selected_service.price}
                                     onChangeText={value => {
@@ -490,7 +501,7 @@ export default class SetupDetail extends ValidationComponent {
                                 <SelectMultipleButton
                                     key={interest.id}
                                     buttonViewStyle={{
-                                        width: 120,
+                                        minWidth: 90,
                                         borderRadius: 50,
                                         borderColor: 'gray',
                                         margin: 5}}

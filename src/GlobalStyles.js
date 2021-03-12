@@ -31,7 +31,7 @@ export const bottomSheetStyle = {
 export const multiBtnGroupStyle = {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    padding: 10,
+    padding: 0,
     alignItems:'center',
     justifyContent:'center'
 };

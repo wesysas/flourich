@@ -13,7 +13,8 @@ const styles = StyleSheet.create({
         backgroundColor: "white",
         alignItems: 'center',            
         top: Platform.OS === 'ios' ? 45: 25,
-        left: 25
+        left: 25,
+        justifyContent:'center'
     },
     btnStyleB: {
         position: 'absolute',
@@ -24,7 +25,8 @@ const styles = StyleSheet.create({
         backgroundColor: "gray",
         alignItems: 'center',
         top: Platform.OS === 'ios' ? 45: 25,
-        left: 25
+        left: 25,
+        justifyContent:'center'
     }
 
 });

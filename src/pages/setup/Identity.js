@@ -30,9 +30,7 @@ const styles = StyleSheet.create({
         color: 'black'
     },
     subTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: 'gray',
+        fontSize: 18,
         marginVertical: 10
     },
     separate: {
@@ -51,6 +49,7 @@ export default class Identity extends Component {
             cardtype: '',
             filename: '',
             image: '',
+            uploadedCard: false,
             availAvatar: false,
             spinner: false,
             option: 1,
@@ -142,7 +141,7 @@ export default class Identity extends Component {
         var res = await uploadCard(this.state);
         this.setState({spinner: false});
         if(res != null) {
-            this.setState({"availAvatar": true});
+            this.setState({"uploadedCard": true});
         }
     }
     uploadAvatarImage = async (image) => {
@@ -162,36 +161,32 @@ export default class Identity extends Component {
         var res = await uploadAvatar(this.state);
         this.setState({spinner: false});
         if(res != null) {
-           // this.props.navigation.navigate("PendingAccount");
-            this.props.navigation.navigate("Home");
+            this.setState({"availAvatar": true});
         }
     }
     render() {
         return (
             <SafeAreaView>
-                <View style={styles.container}>
+                <ScrollView style={styles.container}>
                     <Spinner
                         visible={this.state.spinner}
                     />
                     <Text style={styles.headerTitle}>Continue Set Up</Text>
-                    <View style={{marginVertical: 20, minHeight:80, zIndex:1}}>
-                        <Text style={styles.subTitle}>Select the type of ID to proceed</Text>
-                        <Text>Country</Text>
-                        <DropDownPicker
-                            items={  [
-                            {label: 'United Kingdom', value: 'uk'},
-                            {label: 'France', value: 'fr'}]}
-                            //defaultValue={this.state.operate_type}
-                            style={{borderWidth:0, borderBottomWidth:1, paddingHorizontal:0}}
-                            placeholder="Select a country"
-                            itemStyle={{
-                                justifyContent: 'flex-start'
-                            }}
-                            onChangeItem={item => this.setState({
-                                country: item.value
-                            })}
-                        />
-                    </View>
+                    <Text style={styles.subTitle}>Select the type of ID to proceed</Text>
+                    <DropDownPicker
+                        items={  [
+                        {label: 'United Kingdom', value: 'uk'},
+                        {label: 'France', value: 'fr'}]}
+                        //defaultValue={this.state.operate_type}
+                        style={{borderWidth:0, borderBottomWidth:1, paddingHorizontal:0}}
+                        placeholder="Select a country"
+                        itemStyle={{
+                            justifyContent: 'flex-start'
+                        }}
+                        onChangeItem={item => this.setState({
+                            country: item.value
+                        })}
+                    />
 
                     <View style={styles.separate}>
                         <Button
@@ -202,9 +197,7 @@ export default class Identity extends Component {
                             title="Identity Card"
                             onPress={()=> {
                                 this.setState({'cardtype': 'Identity Card'});
-                                
-                                //this.showActionSheet();
-
+                                this.setState({"availAvatar": false});
                                 if(this.state.option === 1) {
                                     this.openCamera();
                                 }
@@ -220,7 +213,7 @@ export default class Identity extends Component {
                             type="outline"
                             onPress={()=> {
                                 this.setState({'cardtype': 'Passport'});
-
+                                this.setState({"availAvatar": false});
                                 if(this.state.option === 1) {
                                     this.openCamera();
                                 }
@@ -236,7 +229,23 @@ export default class Identity extends Component {
                             type="outline"
                             onPress={()=> {
                                 this.setState({'cardtype': 'Drivers License'});
-
+                                this.setState({"availAvatar": false});
+                                if(this.state.option === 1) {
+                                    this.openCamera();
+                                }
+                                if(this.state.option === 2) {
+                                    this.openPicker();
+                                }
+                            }}
+                        />
+                        <Button
+                            buttonStyle={styles.btnStyle}
+                            ViewComponent={LinearGradient}
+                            titleStyle={styles.btnTitle}
+                            linearGradientProps={btnGradientProps}
+                            title="Profile Picture"
+                            onPress={()=> {
+                                this.setState({"availAvatar": true});
                                 if(this.state.option === 1) {
                                     this.openCamera();
                                 }
@@ -247,25 +256,17 @@ export default class Identity extends Component {
                         />
                     </View>
 
-                    <View style={{ marginVertical: 20, alignItems: 'center' }}>
-                        <Text>For security reasons, you will be required</Text>
-                        <Text>to complete the verification process within 10 minutes.</Text>
-                    </View>
+                    <Text style={{fontSize:13, textAlign:'center', marginBottom:20}}>For security reasons, you will be required to complete the verification process within 10 minutes.</Text>
                     <Button
                         buttonStyle={styles.btnStyle}
                         ViewComponent={LinearGradient}
                         titleStyle={styles.btnTitle}
                         linearGradientProps={btnGradientProps}
                         title="Next"
-                        disabled={!this.state.availAvatar}
                         onPress={()=> {
-
-                            if(this.state.option === 1) {
-                                this.openCamera();
-                            }
-                            if(this.state.option === 2) {
-                                this.openPicker();
-                            }
+                            if(this.state.availAvatar && this.state.uploadedCard) {   
+                                this.props.navigation.navigate("PendingAccount");
+                            }                             
                         }}
                     />
                     <ActionSheet
@@ -278,7 +279,7 @@ export default class Identity extends Component {
                             this.setState({option});
                             }}
                     />
-                </View>
+                </ScrollView>
             </SafeAreaView>
         )
     }

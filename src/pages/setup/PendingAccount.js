@@ -18,10 +18,31 @@ const styles = StyleSheet.create({
 
 export default class PendingAccount extends Component {
 
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            progress: 0,
+            indeterminate: true,
+        };
     }
 
+    componentDidMount() {       
+        let progress = 0;
+        this.setState({ progress });
+        setTimeout(() => {
+            this.setState({ indeterminate: false });
+            var loading = setInterval(() => {
+                progress += Math.random() / 5;
+                if (progress > 1) {
+                    progress = 1;
+                    clearInterval(loading);
+                    this.props.navigation.navigate('Home');
+                }
+                this.setState({ progress });
+            }, 100);
+        }, 500);
+    }
     render() {
 
         return (
@@ -34,7 +55,7 @@ export default class PendingAccount extends Component {
                 </View>
                 <View style={{ flex: 1, alignItems: 'stretch', justifyContent: 'center', marginHorizontal: 30 }}>
                     <Slider
-                        value={0.5}
+                        value={this.state.progress}
                         maximumTrackTintColor='#c7e0dc' 
                         minimumTrackTintColor='#76c371'
                         trackStyle={{ height:8}}

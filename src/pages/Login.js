@@ -3,6 +3,7 @@ import { ActivityIndicator, View, Text, StyleSheet, Image, TouchableOpacity, Scr
 import { Button, SocialIcon, Input } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import LinearGradient from 'react-native-linear-gradient/index';
+import BackButton from "../components/BackButton";
 
 import {API_URL, googleConfig} from '../globalconfig';
 
@@ -29,7 +30,7 @@ const styles = StyleSheet.create({
         // justifyContent: 'space-around',
         paddingHorizontal: 30,
         marginTop:10,
-        paddingBottom:30,
+        paddingBottom:30,        
     },
     btn: {
         borderRadius: 8,
@@ -39,6 +40,7 @@ const styles = StyleSheet.create({
         fontSize: 20
     },
     btnIcon: {
+        alignSelf:'flex-start',
         flex: 0,
         color: 'black',
         margin: 25
@@ -163,8 +165,8 @@ export default class LoginPage extends ValidationComponent {
     // }
     _loginWithEmail = async() => {
         var validate = this.validate({
-            email: {email: true},
-            password: {minlength:6},
+            email: {required:true, email: true},
+            password: { required: true,minlength:6},
         });
         if(validate) {
             this.setState({spinner: true});
@@ -214,12 +216,14 @@ export default class LoginPage extends ValidationComponent {
     render() {
         // const { user } = this.state;
         return (
-            <View style={styles.container}>
+            <ScrollView style={styles.container}>
                 <Spinner
                     visible={this.state.spinner}
                 />
+                <BackButton navigation={this.props.navigation} />                
                 <Image style={styles.image} source={require('../assets/img/get_started_logo.jpg')} />
-                <ScrollView contentContainerStyle={styles.btnContainer}>
+                <Text style={{ textAlign: 'center', color:'white', position:'absolute', top:55, fontSize:25, left:85}}>Get Started.</Text>
+                <View style={styles.btnContainer}>
                     <View style={{
                             flexDirection: 'row',
                             alignItems: 'center',
@@ -240,28 +244,27 @@ export default class LoginPage extends ValidationComponent {
 
                     <TextInput
                         style={styles.txtInputStyle}
-                        placeholder="email@address.com"
+                        placeholder="Email"
                         value={this.state.email}
                         onChangeText={value => {
                             this.setState({"email":value});
-                            // this.validate({
-                            //     email: {email: true, required: true},
-                            //     password: {minlength:6, required: true},
-                            // });
+                            this.validate({
+                                email: {email: true, required: true},
+                            });
                         }}
                     ></TextInput>
                     {this.isFieldInError('email') && this.getErrorsInField('email').map(errorMessage => <Text style={styles.error}>{errorMessage}</Text>) }
 
                     <TextInput
                         style={styles.txtInputStyle}
-                        placeholder="password"
+                        placeholder="Password"
                         value={this.state.password}
                         onChangeText={value => {
                             this.setState({"password":value});
-                            // this.validate({
-                            //     email: {email: true, required: true},
-                            //     password: {minlength:6, required: true},
-                            // });
+                            this.validate({
+                                email: {email: true, required: true},
+                                password: {minlength:6, required: true},
+                            });
                         }}
                         secureTextEntry={true}
                     ></TextInput>
@@ -286,8 +289,8 @@ export default class LoginPage extends ValidationComponent {
                         style={{
                             flexDirection: 'row',
                             alignItems: 'center',
-                            justifyContent: 'space-evenly',
                             borderColor: 'gray',
+                            justifyContent:'center',
                             borderRadius: 8,
                             borderWidth: 1,
                             height: 40,
@@ -297,57 +300,63 @@ export default class LoginPage extends ValidationComponent {
                     >
                         <Image
                             style={{
-                                // width:50,
-                                height: 25,
+                                position:'absolute',
+                                left:10,
                                 resizeMode: 'contain'
                             }}
                             source={require('../assets/img/google.png')} />
-                        <Text>Connect wdddith Google</Text>
-
+                        <Text>Connect with Google</Text>
                     </TouchableOpacity>
 
-                    <Button
-                        icon={
-                            <Icon
+                    <TouchableOpacity
+                        style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            borderColor: 'gray',
+                            justifyContent:'center',
+                            backgroundColor:'black',
+                            borderRadius: 8,
+                            borderWidth: 1,
+                            height: 40,
+                            marginBottom:10
+                        }}
+                        onPress={() => {}}
+                    >
+                        <Icon style={{
+                                position:'absolute',
+                                left:12
+                            }}
                                 name="apple"
                                 size={25}
                                 color="white"
                             />
-                        }
-                        buttonStyle={{ 
-                            backgroundColor: 'black', 
-                            justifyContent: 'space-evenly', 
-                            paddingHorizontal: 55, 
+                        <Text style={{color:'white'}}>Connect with Apple</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            borderColor: 'gray',
+                            justifyContent:'center',
+                            backgroundColor:'#39559f',
                             borderRadius: 8,
+                            borderWidth: 1,
+                            height: 40,
                             marginBottom:10
-                         }}
-
-                        iconContainerStyle={styles.btnIcon}
-                        title="Connect with Apple"
-                    />
-
-                    <Button
-                        icon={
-                            <Icon
+                        }}
+                        onPress={() => {}}
+                    >
+                        <Icon style={{
+                                position:'absolute',
+                                left:12
+                            }}
                                 name="facebook-square"
                                 size={25}
                                 color="white"
                             />
-                        }
-                        // type="outline"
-                        color="blue"
-                        buttonStyle={{ 
-                            backgroundColor: '#39559f', 
-                            justifyContent: 'space-evenly', 
-                            paddingHorizontal: 55, 
-                            borderRadius: 8,
-                            marginBottom:10
-                         }}
-                        titleStyle={styles.btnTitle}
-                        iconContainerStyle={styles.btnIcon}
-                        iconLeft
-                        title="Connect with Facebook"
-                    />
+                        <Text style={{color:'white'}}>Connect with Facebook</Text>
+                    </TouchableOpacity>                   
 
                     {/* <View style={styles.numberPart}>
                         <View style={{
@@ -373,8 +382,8 @@ export default class LoginPage extends ValidationComponent {
                             keyboardType={'numeric'}
                         />
                     </View> */}
-                </ScrollView>
-            </View>
+                </View>
+            </ScrollView>
         )
     }
 

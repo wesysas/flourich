@@ -13,6 +13,7 @@ import ValidationComponent from 'react-native-form-validator';
 // import { LoginManager, AccessToken } from "react-native-fbsdk";
 import { local } from '../shared/const/local';
 import Spinner from 'react-native-loading-spinner-overlay';
+import BackButton from "../components/BackButton";
 
 const styles = StyleSheet.create({
     container: {
@@ -22,15 +23,15 @@ const styles = StyleSheet.create({
         width: 'auto'
     },
     btnContainer: {
-        // flexGrow: 1,
-        // justifyContent: 'space-around',
+        flexGrow: 1,
+        justifyContent: 'center',
         paddingHorizontal: 30,
         marginTop:10,
         paddingBottom:30,
     },
     btn: {
         borderRadius: 8,
-        marginBottom:10,
+        marginTop:30,
     },
     btnText: {
         fontSize: 20
@@ -148,12 +149,14 @@ export default class SignupPage extends ValidationComponent {
     //         }
     //     );
     // }
+
     _signupWithEmail = async() => {
         var validate = this.validate({
-            email: {email: true},
-            password: {minlength:6},
-            confirmPassword : {equalPassword : this.state.password}
+            email: { required: true},
+            password: { required: true,minlength:6},
+            confirmPassword : { required: true, equalPassword : this.state.password} 
         });
+        console.log('validate', validate);
         if(validate) {
             console.log(this.state);
             this.setState({spinner: true});
@@ -181,14 +184,16 @@ export default class SignupPage extends ValidationComponent {
                 <Spinner
                     visible={this.state.spinner}
                 />
+                <BackButton navigation={this.props.navigation} />
                 <Image style={styles.image} source={require('../assets/img/get_started_logo.jpg')} />
+                <Text style={{ textAlign: 'center', color:'white', position:'absolute', top:55, fontSize:25, left:85}}>Get Started.</Text>
                 <View style={styles.btnContainer}>
                     <View style={{
                             flexDirection: 'row',
                             alignItems: 'center',
                             justifyContent: 'space-evenly',
                         }}>
-                        <Text style={{ textAlign: 'center' }}>Create Account With Email  
+                        <Text style={{ textAlign: 'center' }}>Already have an account?
                             <Text 
                                 style={{ 
                                     color:'#03489c',
@@ -203,7 +208,7 @@ export default class SignupPage extends ValidationComponent {
 
                     <TextInput
                         style={styles.txtInputStyle}
-                        placeholder="email@address.com"
+                        placeholder="Email"
                         value={this.state.email}
                         onChangeText={value => {
                             this.setState({"email":value});
@@ -217,14 +222,10 @@ export default class SignupPage extends ValidationComponent {
 
                     <TextInput
                         style={styles.txtInputStyle}
-                        placeholder="password"
+                        placeholder="Password"
                         value={this.state.password}
                         onChangeText={value => {
                             this.setState({"password":value});
-                            // this.validate({
-                            //     email: {email: true},
-                            //     password: {minlength:6},
-                            // });
                         }}
                         secureTextEntry={true}
                     ></TextInput>
@@ -258,7 +259,7 @@ export default class SignupPage extends ValidationComponent {
                             }}
                         />
                     </View>
-                    <Text style={{ marginVertical:10, textAlign:'center'}}>Or</Text>
+                    {/* <Text style={{ marginVertical:10, textAlign:'center'}}>Or</Text>
                     <TouchableOpacity
                         style={{
                             flexDirection: 'row',
@@ -324,7 +325,7 @@ export default class SignupPage extends ValidationComponent {
                         iconContainerStyle={styles.btnIcon}
                         iconLeft
                         title="Connect with Facebook"
-                    />
+                    /> */}
 
                     {/* <View style={styles.numberPart}>
                         <View style={{
