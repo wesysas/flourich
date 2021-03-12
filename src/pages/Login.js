@@ -243,9 +243,6 @@ export default class LoginPage extends ValidationComponent {
                         value={this.state.email}
                         onChangeText={value => {
                             this.setState({"email":value});
-                            this.validate({
-                                email: {email: true, required: true},
-                            });
                         }}
                     ></TextInput>
                     {this.isFieldInError('email') && this.getErrorsInField('email').map(errorMessage => <Text style={styles.error}>{errorMessage}</Text>) }
@@ -256,10 +253,6 @@ export default class LoginPage extends ValidationComponent {
                         value={this.state.password}
                         onChangeText={value => {
                             this.setState({"password":value});
-                            this.validate({
-                                email: {email: true, required: true},
-                                password: {minlength:6, required: true},
-                            });
                         }}
                         secureTextEntry={true}
                     ></TextInput>

@@ -310,14 +310,28 @@ export default class Profile extends Component {
                     {/* summary header */}
     
                     <View style={[styles.separate, { flexDirection: 'row', justifyContent: 'space-around' }]}>
-                        <TouchableOpacity onPress={() => { this.props.navigation.navigate('ProfileEdit') }}>
-                            <Text style={{ fontSize: 20 }} >Edit Profile</Text>
+                        <TouchableOpacity onPress={() => { this.props.navigation.navigate('ProfileEdit') }}
+                            style={{borderWidth:1,
+                                padding:10,
+                                marginVertical:10,
+                                borderColor:'grey', 
+                                borderRadius:8
+                            }}
+                        >
+                            <Text style={{ fontSize: 20, marginHorizontal:10 }} >Edit Profile</Text>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => {
                             this.openPortfolioPicker();
                             //this.RBSheetR.open();
-                        }}>
-                            <Text style={{ fontSize: 20 }}>Create New</Text>
+                        }}
+                        style={{borderWidth:1,
+                            padding:10,
+                            marginVertical:10,
+                            borderColor:'grey', 
+                            borderRadius:8
+                        }}
+                        >
+                            <Text style={{ fontSize: 20, marginHorizontal:10  }}>Create New</Text>
                         </TouchableOpacity>
                     </View>
     

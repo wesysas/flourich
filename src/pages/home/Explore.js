@@ -448,47 +448,8 @@ export default class Explore extends Component {
                             ))
                         }
                     </MapView>
-                    <FlatList style={styles.flatList}
-                              data={this.state.bookings}
-                              horizontal={true}
-                              keyExtractor={(item,index)=>item.bid.toString()}
-                              renderItem = {({item,index})=>
-                                  <TouchableOpacity style={{flexDirection: 'row', backgroundColor:'white', borderRadius: 10, padding:10, margin:10, height:100}}
-                                                    onPress={ () => {
-                                                        // global.user = item;
-                                                        // this.props.navigation.navigate('CreatorProfile');
-                                                    }}>
-                                      <View style={styles.newSideTxt}>
-                                          <Text style={styles.title}>{ item.first_name } {item.last_name}</Text>
-                                          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom:10 }}>
-                                              <Icon name="map-marker" size={15} />
-                                              <Text style={{ paddingLeft: 5, fontSize:12}}>{item.customer_location}</Text>
-                                          </View>
-                                          <Text style={{fontSize:15}}>{item.service_type.replace(",", " - ")}</Text>
-                                          <Text style={{}}>{Moment(item.start_at).format(("D MMM"))}  |  {Moment(item.start_at).format(("HH:mm"))}  |  £ {item.price}</Text>
-                                      </View>
-                                      <Image
-                                          style={styles.newImage}
-                                          resizeMode="cover"
-                                          source={{uri: SERVER_URL+item.avatar}}
-                                      />
-                                      <TouchableOpacity style={{position:'absolute', right:15, top:15}}
-                                          onPress={async () => {
-                                              var favorite = item.favorite?false:true;
-                                              var bookings = this.state.bookings;
-                                              bookings[index].favorite = favorite;
-                                              this.setState({bookings});
-                                             // this.setState({spinner: true});
-                                              var bookings = await updateBooking({booking:bookings[index]});
-                                            //  this.setState({spinner: false});
-                                          }}>
-                                          <Icon name='heart' color={item.favorite?'red':'white'} size={20} />
-                                      </TouchableOpacity>
-                                  </TouchableOpacity>
-                              }
-                    />
                 </View>
-                {this.state.isStatusBtnVisible &&
+                
                 <TouchableOpacity
                     style={{
                         position: 'absolute',
@@ -522,7 +483,7 @@ export default class Explore extends Component {
                 >
                     <Text style={{textAlign:'center', fontSize:20, color:global.user.status==0?"grey":ios_green_color,}}>{(global.user.status==0)?"Go\nOnline":"Go\nOffline"}</Text>
                 </TouchableOpacity>
-                }
+                
                 <BookingModal parent={this} />
                 <BottomSheet
                     ref={ref => {
@@ -609,7 +570,7 @@ export default class Explore extends Component {
 
                                         <View style={{ flexDirection: 'row', alignItems:'flex-end', justifyContent:'space-between'}}>
                                             <View>
-                                                <Text style={styles.title}>{item.service_type.replace(",", " - ")}</Text>
+                                                <Text style={styles.title}>{item.service_type ? item.service_type.replace(",", " - "):''}</Text>
                                                 <Text style={{}}>{Moment(item.start_at).format(("D MMM"))}  |  {Moment(item.start_at).format(("HH:mm"))}  |  £ {item.price}</Text>
                                             </View>
                                             <PopoverController>

@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
         width: 90,
         borderRadius: 50,
         borderColor: 'gray',
-        margin: 10
+        margin: 5
     }
 });
 const operate_type = ["sole_trader", "private_company"];
@@ -310,7 +310,7 @@ export default class SetupDetail extends ValidationComponent {
                                 {this.state.service.map((service, i) => {
                                     return (
                                         <View key={i} style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between', margin:10}}>
-                                            <View style={{flexDirection: 'row'}}>
+                                            <View style={{flexDirection: 'row', alignItems:'center'}}>
                                                 <Button
                                                     icon={<Icon name="minus" size={9} color="white" />}
                                                     type="outline"
@@ -333,7 +333,7 @@ export default class SetupDetail extends ValidationComponent {
                                         </View>
                                     );
                                 })}
-                                <View style={{flex: 1, flexDirection: 'row', margin:10}}>
+                                <View style={{flex: 1, flexDirection: 'row', margin:10, alignItems:'center'}}>
                                     <Button
                                         icon={<Icon name="plus" size={9} color="white" />}
                                         type="outline"
@@ -540,110 +540,117 @@ export default class SetupDetail extends ValidationComponent {
                            );
                        })}
                    </ScrollView>}
-                   {this.state.serviceAddSheetVisible&& <View style={{flex:1, padding:20}}>
-                       <View style={{
-                           flexDirection: 'row',
-                           alignItems: 'center',
-                           justifyContent:'space-between',
-                           marginVertical:20,
-                       }}>
-                           <Text style={{fontSize:22, fontWeight:'bold'}}>{this.state.selected_service.item}</Text>
-                           <Button
-                               buttonStyle={ styles.btn }
-                               titleStyle={{fontSize:20, marginHorizontal:10, marginVertical:0}}
-                               ViewComponent={LinearGradient}
-                               linearGradientProps={btnGradientProps}
-                               title="ADD"
-                               onPress={() => {
-                                   this.state.selected_service.categories = this.state.selected_categories;
-                                   this.state.service.push(this.state.selected_service);
-                                   this.setState({selected_categories:[]});
-                                   this.setState({service: [...new Set(this.state.service)]});
-                                   this.setState({serviceAddSheetVisible:false});
-                                   this.serviceSheet.close();
-                               }}
-                           />
-                       </View>
-                       <Text style={styles.subTitle}>Description</Text>
-                       <TextInput
-                           value={this.state.selected_service.description}
-                           multiline={true}
-                           onChangeText={value => {
-                               this.state.selected_service.description = value;
-                               this.setState({selected_service:this.state.selected_service});
-                           }}
-                       />
-                       <View style={{
-                           flex: 1,
-                           flexDirection: 'row',
-                           alignItems: 'center',
-                       }}>
-                           <Text style={{fontSize:18, marginRight:30}}>Price</Text>
-                           <View>
-                               <Text style={{
-                                   position: 'absolute',
-                                   left:3,
-                                   fontSize:18,
-                                   fontWeight:'bold',
-                                   zIndex:1,
-                                   top:7
-                               }}>£</Text>
-                               <TextInput
-                                   style={{ height: 40,
-                                       borderColor: 'gray',
-                                       borderWidth: 1,
-                                       borderRadius: 5,
-                                       paddingLeft:20,
-                                   }}
-                                   value={this.state.selected_service.price}
-                                   onChangeText={value => {
-                                       this.state.selected_service.price = value.replace(/[^0-9]/g, '');
-                                       this.setState({selected_service:this.state.selected_service});
-                                   }}
-                                   keyboardType={'numeric'}
-                               />
-                           </View>
-                       </View>
+                    {this.state.serviceAddSheetVisible&& <View style={{flex:1, padding:20}}> 
+                        <Text style={{fontSize:22, fontWeight:'bold'}}>{this.state.selected_service.item}</Text>
+                        <View style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent:'space-between',
+                            marginTop:20,
+                        }}>
+                            <Text style={styles.subTitle}>Description</Text>                           
+                            <Button
+                                buttonStyle={ styles.btn }
+                                titleStyle={{fontSize:20, marginHorizontal:10, marginVertical:0}}
+                                ViewComponent={LinearGradient}
+                                linearGradientProps={btnGradientProps}
+                                title="ADD"
+                                onPress={() => {
+                                    this.state.selected_service.categories = this.state.selected_categories;
+                                    this.state.service.push(this.state.selected_service);
+                                    this.setState({selected_categories:[]});
+                                    this.setState({service: [...new Set(this.state.service)]});
+                                    this.setState({serviceAddSheetVisible:false});
+                                    this.serviceSheet.close();
+                                }}
+                            />
+                        </View>
+                        <TextInput style={{ height: 60,
+                                        borderColor: 'gray',
+                                        borderWidth: 1,
+                                        borderRadius: 5,
+                                        paddingLeft:5,
+                                        marginTop:5
+                                    }}
+                            value={this.state.selected_service.description}
+                            multiline={true}
+                            onChangeText={value => {
+                                this.state.selected_service.description = value;
+                                this.setState({selected_service:this.state.selected_service});
+                            }}
+                        />
+                        <View style={{
+                            flex: 1,
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                        }}>
+                            <Text style={{fontSize:18, marginRight:30}}>Price</Text>
+                            <View>
+                                <Text style={{
+                                    position: 'absolute',
+                                    left:5,
+                                    fontSize:18,
+                                    zIndex:1,
+                                    top:9
+                                }}>£</Text>
+                                <TextInput
+                                    style={{ height: 40,
+                                        minWidth:80,
+                                        borderColor: 'gray',
+                                        borderWidth: 1,
+                                        borderRadius: 5,
+                                        paddingLeft:20,
+                                        textAlign:'center'
+                                    }}
+                                    value={this.state.selected_service.price}
+                                    onChangeText={value => {
+                                        this.state.selected_service.price = value.replace(/[^0-9]/g, '');
+                                        this.setState({selected_service:this.state.selected_service});
+                                    }}
+                                    keyboardType={'numeric'}
+                                />
+                            </View>
+                        </View>
 
-                       <View style={[multiBtnGroupStyle, {marginHorizontal:-20}]}>
-                           {this.state.categories.map(interest => (
-                               <SelectMultipleButton
-                                   key={interest.id}
-                                   buttonViewStyle={{
-                                       width: 120,
-                                       borderRadius: 50,
-                                       borderColor: 'gray',
-                                       margin: 5}}
-                                   textStyle={{
-                                       fontSize: 16
-                                   }}
-                                   highLightStyle={{
-                                       borderColor: "gray",
-                                       backgroundColor: "transparent",
-                                       textColor: "gray",
-                                       borderTintColor: ios_red_color,
-                                       backgroundTintColor: ios_red_color,
-                                       textTintColor: "white"
-                                   }}
-                                   value={interest.title}
-                                   selected={this.state.selected_categories.includes(interest.id)}
-                                   singleTap={valueTap =>{
-                                       var selected_categories = this.state.selected_categories;
-                                       if (selected_categories.includes(interest.id)) {
-                                           _.remove(selected_categories, ele => {
-                                               return ele === interest.id;
-                                           });
-                                       } else {
-                                           selected_categories.push(interest.id);
-                                       }
-                                       this.setState({selected_categories});
-                                   }
-                                   }
-                               />
-                           ))}
-                       </View>
-                   </View>
-                   }
+                        <View style={[multiBtnGroupStyle, {marginHorizontal:-20}]}>
+                            {this.state.categories.map(interest => (
+                                <SelectMultipleButton
+                                    key={interest.id}
+                                    buttonViewStyle={{
+                                        minWidth: 90,
+                                        borderRadius: 50,
+                                        borderColor: 'gray',
+                                        margin: 5}}
+                                    textStyle={{
+                                        fontSize: 16
+                                    }}
+                                    highLightStyle={{
+                                        borderColor: "gray",
+                                        backgroundColor: "transparent",
+                                        textColor: "gray",
+                                        borderTintColor: ios_red_color,
+                                        backgroundTintColor: ios_red_color,
+                                        textTintColor: "white"
+                                    }}
+                                    value={interest.title}
+                                    selected={this.state.selected_categories.includes(interest.id)}
+                                    singleTap={valueTap =>{
+                                        var selected_categories = this.state.selected_categories;
+                                        if (selected_categories.includes(interest.id)) {
+                                            _.remove(selected_categories, ele => {
+                                                return ele === interest.id;
+                                            });
+                                        } else {
+                                            selected_categories.push(interest.id);
+                                        }
+                                        this.setState({selected_categories});
+                                    }
+                                    }
+                                />
+                            ))}
+                        </View>
+                    </View>
+                    }
                </RBSheet> 
        
         </ScrollView>
