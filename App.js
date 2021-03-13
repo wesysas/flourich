@@ -16,6 +16,8 @@ import Index from './src/pages/Index';
 import LoginPage from './src/pages/Login';
 import SignupPage from './src/pages/Signup';
 
+import Payment from './src/pages/setup/Payment';
+import BankDetail from './src/pages/setup/BankDetail';
 import SetupDetail from './src/pages/setup/SetupDetail';
 import Identity from './src/pages/setup/Identity';
 import IdCardScan from './src/pages/setup/IdCardScan';
@@ -70,9 +72,11 @@ const SignUpStacks = () => {
         <RootStack.Navigator>
             <RootStack.Screen name="SetupDetail" component={SetupDetail} options={{ headerShown: false }}/>
             <RootStack.Screen name="Identity" component={Identity} options={{ headerShown: false }}/>
+            <RootStack.Screen name="PendingAccount" component={PendingAccount} options={{ headerShown: false }}/>
+            <RootStack.Screen name="Payment" component={Payment} options={{ headerShown: false }}/>   
+            <RootStack.Screen name="BankDetail" component={BankDetail} options={{ headerShown: false }}/>   
             <RootStack.Screen name="IdCardScan" component={IdCardScan} options={{ headerShown: false }}/>
             <RootStack.Screen name="FaceScan" component={FaceScan} options={{ headerShown: false }}/>
-            <RootStack.Screen name="PendingAccount" component={PendingAccount} options={{ headerShown: false }}/>
         </RootStack.Navigator>
     )
 };

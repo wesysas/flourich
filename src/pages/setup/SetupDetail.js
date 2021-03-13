@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
-import {View, Text, StyleSheet, ScrollView, FlatList, LogBox, TouchableOpacity, TextInput} from 'react-native';
+import React from 'react';
+import {View, Text, StyleSheet, ScrollView, LogBox, TouchableOpacity, TextInput} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import Spinner from 'react-native-loading-spinner-overlay';
-
-import {Button, Input, CheckBox, ListItem} from 'react-native-elements';
+import {Button, Input} from 'react-native-elements';
 import LinearGradient from 'react-native-linear-gradient/index';
-import { SelectMultipleButton, SelectMultipleGroupButton } from "react-native-selectmultiple-button";
+import { SelectMultipleButton } from "react-native-selectmultiple-button";
 import _ from "lodash";
 import ValidationComponent from 'react-native-form-validator';
 import {multiBtnGroupStyle, ios_red_color, ios_green_color, btnGradientProps} from "../../GlobalStyles";
@@ -13,14 +12,13 @@ import {createProfile, getDefaultService, getCategories} from '../../shared/serv
 import { getUserId } from '../../shared/service/storage';
 import DropDownPicker from 'react-native-dropdown-picker';
 import RBSheet from "react-native-raw-bottom-sheet";
-
-const ios_blue = "#007AFF";
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
 const styles = StyleSheet.create({
     container: {
-        flexGrow: 1,
-        marginTop:30,
+        flex: 1,
         paddingHorizontal: 30,
+        marginVertical:50
     },
     headerTitle: {
         fontSize: 25,
@@ -146,235 +144,230 @@ export default class SetupDetail extends ValidationComponent {
 
     render() {
         return (
-            <ScrollView contentContainerStyle={styles.container}>
+            <KeyboardAwareScrollView style={styles.container}>
                 <Spinner
                     visible={this.state.spinner}
                 />
-
-                <View style={{marginVertical: 30}}>
-                    <Text style={styles.headerTitle}>Continue Set Up</Text>
-                    <Text>You operate as</Text>
-                    <DropDownPicker
-                        items={  [
-                        {label: '  Private Limited Company', value: 'private_company', icon: () => <Icon name="users" size={18} color={ios_red_color} style={{alignSelf:'center'}} />},
-                        {label: '    Sole Trader', value: 'sole_trader', icon: () => <Icon name="user" size={18} color={ios_red_color} style={{alignSelf:'center'}}/>}]}
-                        //defaultValue={this.state.operate_type}
-                        style={{borderWidth:0, borderBottomWidth:1, paddingHorizontal:0}}                          
-                        placeholder="Select an operate"
-                        itemStyle={{
-                            justifyContent: 'flex-start'
+                <Text style={styles.headerTitle}>Continue Set Up</Text>
+                <Text>You operate as</Text>
+                <DropDownPicker
+                    items={  [
+                    {label: '  Private Limited Company', value: 'private_company', icon: () => <Icon name="users" size={18} color={ios_red_color} style={{alignSelf:'center'}} />},
+                    {label: '    Sole Trader', value: 'sole_trader', icon: () => <Icon name="user" size={18} color={ios_red_color} style={{alignSelf:'center'}}/>}]}
+                    //defaultValue={this.state.operate_type}
+                    style={{borderWidth:0, borderBottomWidth:1, paddingHorizontal:0}}                          
+                    placeholder="Select an operate"
+                    itemStyle={{
+                        justifyContent: 'flex-start'
+                    }}
+                    onChangeItem={item => this.setState({
+                        operate_type: item.value
+                    })}
+                />
+                <View style={styles.separate}>
+                    <Text style={styles.subTitle}>Add you name*</Text>
+                    <Text>First Name</Text>
+                    <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }}
+                        placeholder='Leteechia'
+                        value={this.state.firstname}
+                        onChangeText={value => {
+                            this.setState({"firstname":value})
                         }}
-                        onChangeItem={item => this.setState({
-                            operate_type: item.value
-                        })}
                     />
+                    {this.isFieldInError('firstname') && this.getErrorsInField('firstname').map(errorMessage => <Text key="firstname" style={{ color:'red',marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
 
-                    <View style={styles.separate}>
-                        <Text style={styles.subTitle}>Add you name*</Text>
-                        <Text>First Name</Text>
-                        <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }}
-                            placeholder='Leteechia'
-                            value={this.state.firstname}
-                            onChangeText={value => {
-                                this.setState({"firstname":value})
+                    <Text>Last Name</Text>
+                    <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }}
+                        placeholder='Rungasamy' 
+                        onChangeText={value => {
+                            this.setState({"lastname":value})
+                        }}
+                    />
+                    {this.isFieldInError('lastname') && this.getErrorsInField('lastname').map(errorMessage => <Text key="lastname" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
+
+                    { this._renderBusiness()}
+                </View>
+                <View style={styles.separate}>
+                    <Text style={styles.subTitle}>Add your services*</Text>
+                    <View style={multiBtnGroupStyle}>
+                        {this.state.service_type.map(interest => (
+                            <SelectMultipleButton
+                            key={interest}
+                            buttonViewStyle={styles.btnStyle}
+                            textStyle={{
+                                fontSize: 16
+                            }}
+                            highLightStyle={{
+                                borderColor: "gray",
+                                backgroundColor: "transparent",
+                                textColor: "gray",
+                                borderTintColor: ios_red_color,
+                                backgroundTintColor: ios_red_color,
+                                textTintColor: "white"
+                            }}
+                            value={interest}
+                            selected={this.state.selected_service_type.includes(interest)}
+                            singleTap={valueTap =>{
+                                    var selected_service_type = this.state.selected_service_type;
+                                    if (selected_service_type.includes(interest)) {
+                                        _.remove(selected_service_type, ele => {
+                                            return ele === interest;
+                                        });
+                                    } else {
+                                        selected_service_type.push(interest);
+                                    }
+                                    this.setState({selected_service_type});
+                                }
+                            }
+                            />
+                        ))}
+                    </View>
+                    {this.isFieldInError('services') && this.getErrorsInField('services').map(errorMessage => <Text key="services" style={{ color:'red', marginTop: -15, marginLeft: 25}}>{errorMessage}</Text>) }
+                    {this.state.service.map((service, i) => {
+                        return (
+                            <View key={i} style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between', margin:10, alignItems:'center'}}>
+                                <View style={{flexDirection: 'row', alignItems:'center'}}>
+                                    <Button
+                                        icon={<Icon name="minus" size={9} color="white" />}
+                                        type="outline"
+                                        containerStyle={{
+                                            width: 24,
+                                            height: 24,
+                                            borderRadius: 12,
+                                            backgroundColor: ios_red_color,
+                                            alignItems: 'center',
+                                        }}
+                                        buttonStyle={{borderWidth:0}}
+                                        onPress={()=>{
+                                            let service = this.state.service.filter((service, key) => key != i);
+                                            this.setState({service});
+                                        }}
+                                    />
+                                    <Text style={{marginLeft:10}}>{service.item}</Text>
+                                </View>
+                                <Text>£{service.price}</Text>
+                            </View>
+                        );
+                    })}
+                    <View style={{flex: 1, flexDirection: 'row', margin:10, alignItems:'center'}}>
+                        <Button
+                            icon={<Icon name="plus" size={9} color="white" />}
+                            type="outline"
+                            containerStyle={{
+                                width: 24,
+                                height: 24,
+                                borderRadius: 12,
+                                backgroundColor: ios_green_color,
+                                alignItems: 'center',
+                            }}
+                            buttonStyle={{borderWidth:0}}
+                            onPress={()=>{
+                                if(this.state.selected_service_type.length>0) {                                        
+                                    this.serviceSheet.open();
+                                }
                             }}
                         />
-                        {this.isFieldInError('firstname') && this.getErrorsInField('firstname').map(errorMessage => <Text key="firstname" style={{ color:'red',marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
-
-                        <Text>Last Name</Text>
-                        <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }}
-                            placeholder='Rungasamy' 
-                            onChangeText={value => {
-                                this.setState({"lastname":value})
-                            }}
-                        />
-                        {this.isFieldInError('lastname') && this.getErrorsInField('lastname').map(errorMessage => <Text key="lastname" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
-
-                        { this._renderBusiness()}
+                        <Text style={{marginLeft:10}}>Add a service</Text>
                     </View>
 
-                    <View style={styles.separate}>
-                        <Text style={styles.subTitle}>Add your services*</Text>
-                        <View style={multiBtnGroupStyle}>
-                            {this.state.service_type.map(interest => (
-                                <SelectMultipleButton
-                                key={interest}
-                                buttonViewStyle={styles.btnStyle}
-                                textStyle={{
-                                    fontSize: 16
-                                }}
-                                highLightStyle={{
-                                    borderColor: "gray",
-                                    backgroundColor: "transparent",
-                                    textColor: "gray",
-                                    borderTintColor: ios_red_color,
-                                    backgroundTintColor: ios_red_color,
-                                    textTintColor: "white"
-                                }}
-                                value={interest}
-                                selected={this.state.selected_service_type.includes(interest)}
-                                singleTap={valueTap =>{
-                                        var selected_service_type = this.state.selected_service_type;
-                                        if (selected_service_type.includes(interest)) {
-                                            _.remove(selected_service_type, ele => {
-                                                return ele === interest;
-                                            });
-                                        } else {
-                                            selected_service_type.push(interest);
-                                        }
-                                        this.setState({selected_service_type});
-                                    }
-                                }
-                                />
-                            ))}
-                        </View>
-                        {this.isFieldInError('services') && this.getErrorsInField('services').map(errorMessage => <Text key="services" style={{ color:'red', marginTop: -15, marginLeft: 25}}>{errorMessage}</Text>) }
-                        {this.state.service.map((service, i) => {
-                            return (
-                                <View key={i} style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between', margin:10, alignItems:'center'}}>
-                                    <View style={{flexDirection: 'row', alignItems:'center'}}>
-                                        <Button
-                                            icon={<Icon name="minus" size={9} color="white" />}
-                                            type="outline"
-                                            containerStyle={{
-                                                width: 24,
-                                                height: 24,
-                                                borderRadius: 12,
-                                                backgroundColor: ios_red_color,
-                                                alignItems: 'center',
-                                            }}
-                                            buttonStyle={{borderWidth:0}}
-                                            onPress={()=>{
-                                                let service = this.state.service.filter((service, key) => key != i);
-                                                this.setState({service});
-                                            }}
-                                        />
-                                        <Text style={{marginLeft:10}}>{service.item}</Text>
-                                    </View>
-                                    <Text>£{service.price}</Text>
-                                </View>
-                            );
-                        })}
-                        <View style={{flex: 1, flexDirection: 'row', margin:10, alignItems:'center'}}>
-                            <Button
-                                icon={<Icon name="plus" size={9} color="white" />}
-                                type="outline"
-                                containerStyle={{
-                                    width: 24,
-                                    height: 24,
-                                    borderRadius: 12,
-                                    backgroundColor: ios_green_color,
-                                    alignItems: 'center',
-                                }}
-                                buttonStyle={{borderWidth:0}}
-                                onPress={()=>{
-                                    if(this.state.selected_service_type.length>0) {                                        
-                                        this.serviceSheet.open();
-                                    }
+                </View>
+                <View style={styles.separate}>
+                    <Text style={styles.subTitle}>Add your Address*</Text>
+                    <Text>Full Address</Text>
+                    <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='Full address displays here'
+                        value={this.state.fulladdress}
+                        onChangeText={ value => {
+                            this.setState({"fulladdress":value})
+                        }}
+                    />
+                    {this.isFieldInError('fulladdress') && this.getErrorsInField('fulladdress').map(errorMessage => <Text key="fulladdress" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
+                    <Text>Business or Building Name</Text>
+                    <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='Business or building name goes here'
+                        value={this.state.building}
+                        onChangeText={ value => {
+                            this.setState({"building":value})
+                        }}
+                    />
+                    {this.isFieldInError('building') && this.getErrorsInField('building').map(errorMessage => <Text key="building" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
+
+                    <Text>Street Address</Text>
+                    <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='street address goes here'
+                        value={this.state.street}
+                        onChangeText={ value => {
+                            this.setState({"street":value})
+                        }}
+                    />
+                    <View style={{flexDirection:'row', justifyContent:'space-between'}}>
+                        <View style={{flex:1}}>
+                            <Text>Post Code</Text>
+                            <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='123456789UK'
+                                value={this.state.postalcode}
+                                onChangeText={ value => {
+                                    this.setState({"postalcode":value})
                                 }}
                             />
-                            <Text style={{marginLeft:10}}>Add a service</Text>
+                            {this.isFieldInError('postalcode') && this.getErrorsInField('postalcode').map(errorMessage => <Text key="postalcode" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
                         </View>
-
+                        <View style={{flex:0.5}}></View>
+                        <View style={{flex:1}}>
+                            <Text>City</Text>
+                            <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='123456789UK'
+                                value={this.state.city}
+                                onChangeText={ value => {
+                                    this.setState({"city":value})
+                                }}
+                            />  
+                            {this.isFieldInError('street') && this.getErrorsInField('street').map(errorMessage => <Text key="street" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
+                        </View>
                     </View>
-                    <View style={styles.separate}>
-                        <Text style={styles.subTitle}>Add your Address*</Text>
-                        <Text>Full Address</Text>
-                        <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='Full address displays here'
-                            value={this.state.fulladdress}
-                            onChangeText={ value => {
-                                this.setState({"fulladdress":value})
-                            }}
-                        />
-                        {this.isFieldInError('fulladdress') && this.getErrorsInField('fulladdress').map(errorMessage => <Text key="fulladdress" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
-                        <Text>Business or Building Name</Text>
-                        <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='Business or building name goes here'
-                            value={this.state.building}
-                            onChangeText={ value => {
-                                this.setState({"building":value})
-                            }}
-                        />
-                        {this.isFieldInError('building') && this.getErrorsInField('building').map(errorMessage => <Text key="building" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
+                </View>
+                <View style={styles.separate}>
+                    <Text>Website</Text>
+                    <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='www.flourich.co.uk'
+                        value={this.state.weburl}
+                        onChangeText={ value => {
+                            this.setState({"weburl":value})
+                        }}
+                    />
+                    {this.isFieldInError('weburl') && this.getErrorsInField('weburl').map(errorMessage => <Text key="weburl" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
 
-                        <Text>Street Address</Text>
-                        <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='street address goes here'
-                            value={this.state.street}
-                            onChangeText={ value => {
-                                this.setState({"street":value})
-                            }}
-                        />
+                    <Text>Instagram URL</Text>
+                    <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='Instagram Link goes here'
+                        value={this.state.instagramurl}
+                        onChangeText={ value => {
+                            this.setState({"instagramurl":value})
+                        }}
+                    />
+                    {this.isFieldInError('instagramurl') && this.getErrorsInField('instagramurl').map(errorMessage => <Text key="instagramurl" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
 
-                        <Text>City Address</Text>
-                        <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='city address goes here'
-                            value={this.state.city}
-                            onChangeText={ value => {
-                                this.setState({"city":value})
-                            }}
-                        />
+                    <Text>Linked in (optional)</Text>
+                    <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='Link to linked in profile goes here'
+                        value={this.state.linkedin}
+                        onChangeText={ value => {
+                            this.setState({"linkedin":value})
+                        }}
+                    />
 
-                        {this.isFieldInError('street') && this.getErrorsInField('street').map(errorMessage => <Text key="street" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
-                        <Text>Post Code</Text>
-                        <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='123456789UK'
-                            value={this.state.postalcode}
-                            onChangeText={ value => {
-                                this.setState({"postalcode":value})
-                            }}
-                        />
-                        {this.isFieldInError('postalcode') && this.getErrorsInField('postalcode').map(errorMessage => <Text key="postalcode" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
-
-                    </View>
-
-                    <View style={styles.separate}>
-                        <Text>Website</Text>
-                        <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='www.flourich.co.uk'
-                            value={this.state.weburl}
-                            onChangeText={ value => {
-                                this.setState({"weburl":value})
-                            }}
-                        />
-                        {this.isFieldInError('weburl') && this.getErrorsInField('weburl').map(errorMessage => <Text key="weburl" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
-
-                        <Text>Instagram URL</Text>
-                        <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='Instagram Link goes here'
-                            value={this.state.instagramurl}
-                            onChangeText={ value => {
-                                this.setState({"instagramurl":value})
-                            }}
-                        />
-                        {this.isFieldInError('instagramurl') && this.getErrorsInField('instagramurl').map(errorMessage => <Text key="instagramurl" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
-
-                        <Text>Linked in (optional)</Text>
-                        <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='Link to linked in profile goes here'
-                            value={this.state.linkedin}
-                            onChangeText={ value => {
-                                this.setState({"linkedin":value})
-                            }}
-                        />
-
-                        <Text>Behance (optional)</Text>
-                        <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='Link to behance profile goes here'
-                            value={this.state.behance}
-                            onChangeText={ value => {
-                                this.setState({"behance":value})
-                            }}
-                        />
-
-                    </View>
-
-                    <Button
-                        buttonStyle={{ marginVertical: 20, borderRadius: 8 }}
-                        ViewComponent={LinearGradient}
-                        titleStyle={styles.btnTitle}
-                        linearGradientProps={btnGradientProps}
-                        title="Next"
-                        onPress={() => {
-                            // navigation.navigate('Identity')
-                            this._validate();
+                    <Text>Behance (optional)</Text>
+                    <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='Link to behance profile goes here'
+                        value={this.state.behance}
+                        onChangeText={ value => {
+                            this.setState({"behance":value})
                         }}
                     />
 
                 </View>
-               
+                <Button
+                    buttonStyle={{ marginVertical: 20, borderRadius: 8 }}
+                    ViewComponent={LinearGradient}
+                    titleStyle={styles.btnTitle}
+                    linearGradientProps={btnGradientProps}
+                    title="Next"
+                    onPress={() => {
+                        // navigation.navigate('Identity')
+                        this._validate();
+                    }}
+                />               
                 <RBSheet
                     ref={ref => {
                         this.serviceSheet = ref;
@@ -536,7 +529,7 @@ export default class SetupDetail extends ValidationComponent {
                     </View>
                     }
                 </RBSheet> 
-        </ScrollView>
+        </KeyboardAwareScrollView>
         )
     }
 }

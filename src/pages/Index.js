@@ -1,13 +1,10 @@
-import React, { useEffect, useState, Component } from 'react';
-import {View, Text, StyleSheet, Image, TouchableOpacity, LogBox} from 'react-native';
-import AsyncStorage from '@react-native-community/async-storage';
-import {GlobalStyles, btnGradientProps} from '../GlobalStyles';
+import React, { Component } from 'react';
+import {View, Text, StyleSheet, Image, LogBox} from 'react-native';
+import {btnGradientProps} from '../GlobalStyles';
 import { Button } from 'react-native-elements';
 import LinearGradient from 'react-native-linear-gradient/index';
-import axios from 'axios';
-import { useFocusEffect } from '@react-navigation/native';
 import { local } from '../shared/const/local';
-import { saveStorage, getStorage, getUserId} from '../shared/service/storage';
+import { getStorage, getUserId} from '../shared/service/storage';
 import { getMe } from '../shared/service/api';
 import Spinner from 'react-native-loading-spinner-overlay';
 
@@ -126,7 +123,7 @@ export default class Index extends Component {
                         ViewComponent={LinearGradient}
                         linearGradientProps={btnGradientProps}
                         title="Sign Up"
-                        onPress={() => this.props.navigation.navigate('Signup')}
+                        onPress={() => this.props.navigation.navigate('SignUp')}
                     />
                 </View>
             </View>

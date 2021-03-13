@@ -1,16 +1,12 @@
-import React, { Component, useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, TextInput, Linking } from 'react-native';
-import { Button, SocialIcon, Input } from 'react-native-elements';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import React from 'react';
+import { View, Text, StyleSheet, Image, ScrollView, TextInput } from 'react-native';
+import { Button } from 'react-native-elements';
 import LinearGradient from 'react-native-linear-gradient/index';
-
-import {API_URL, googleConfig} from '../globalconfig';
 import {btnGradientProps} from '../GlobalStyles';
 import { GoogleSignin, statusCodes } from 'react-native-google-signin';
 import { loginWithGoogle, registerWithEmail} from '../shared/service/auth';
-import { saveStorage, getStorage } from '../shared/service/storage';
+import { saveStorage } from '../shared/service/storage';
 import ValidationComponent from 'react-native-form-validator';
-// import { LoginManager, AccessToken } from "react-native-fbsdk";
 import { local } from '../shared/const/local';
 import Spinner from 'react-native-loading-spinner-overlay';
 import BackButton from "../components/BackButton";
