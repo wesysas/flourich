@@ -1,23 +1,15 @@
-import React, { useState, Component  } from 'react';
+import React, { Component  } from 'react';
 import { View, Text, StyleSheet, ScrollView, SafeAreaView } from 'react-native';
-import { Button, Input, CheckBox } from 'react-native-elements';
 import LinearGradient from 'react-native-linear-gradient/index';
-import { CardView } from 'react-native-credit-card-input';
-import {Picker} from '@react-native-picker/picker';
-import { ActionSheetCustom as ActionSheet } from 'react-native-actionsheet'
-import { LogBox } from 'react-native';
+import { Button, ListItem } from 'react-native-elements';
 import ImagePicker from 'react-native-image-crop-picker';
 import { uploadCard, uploadAvatar } from '../../shared/service/api';
-import { getStorage, getUserId } from '../../shared/service/storage';
+import { getUserId } from '../../shared/service/storage';
 import Spinner from 'react-native-loading-spinner-overlay';
 import { btnGradientProps } from '../../GlobalStyles';
 import DropDownPicker from 'react-native-dropdown-picker';
+import RBSheet from 'react-native-raw-bottom-sheet';
 
-const options = [
-    'Cancel', 
-    'Camera', 
-    'Gallery', 
-  ]
 const styles = StyleSheet.create({
     container: {
         flexGrow: 1,
@@ -52,16 +44,30 @@ export default class Identity extends Component {
             uploadedCard: false,
             availAvatar: false,
             spinner: false,
-            option: 1,
         }
+        this.RBSheetR = null;
         this.imagePicker = ImagePicker;
-    }
-
-    componentDidMount() {
-        LogBox.ignoreLogs(['Animated: `useNativeDriver`']);
-    }
-    showActionSheet = () => {
-        this.ActionSheet.show()
+        this.bottomSheetList = [
+            {
+                title: 'Select an Option',
+                containerStyle: {
+                    borderTopRightRadius: 20,
+                    borderTopLeftRadius: 20,
+                }
+            },
+            {
+                title: 'Camera',
+                onPress: () => {
+                    this.openCamera();
+                }
+            },
+            {
+                title: 'Gallery',
+                onPress: () => {
+                    this.openPicker();
+                }
+            }
+        ];
     }
 
     openPicker(){
@@ -75,9 +81,10 @@ export default class Identity extends Component {
                 showCropGuidelines:false,
               }).then(image => {
                 this.uploadAvatarImage(image);
-                console.log('----avatar----');
+                this.RBSheetR.close();
               }).catch(err => {
                 console.log(err);
+                this.RBSheetR.close();
             });
         }else{
             this.imagePicker.openPicker({
@@ -85,12 +92,13 @@ export default class Identity extends Component {
                 height: 300,
                 cropping: true,
                 includeBase64:true,
-                // cropperCircleOverlay:true,
                 showCropGuidelines:false,
               }).then(image => {
                 this.uploadCardImage(image);
+                this.RBSheetR.close();
               }).catch(err => {
                 console.log(err);
+                this.RBSheetR.close();
             });
         }
     }
@@ -105,8 +113,10 @@ export default class Identity extends Component {
                 showCropGuidelines:false,
               }).then(image => {
                 this.uploadAvatarImage(image);
+                this.RBSheetR.close();
               }).catch(err => {
                   console.log(err);
+                  this.RBSheetR.close();
               });
     
         }else{
@@ -118,8 +128,10 @@ export default class Identity extends Component {
                 showCropGuidelines:false,
               }).then(image => {
                 this.uploadCardImage(image);
+                this.RBSheetR.close();
               }).catch(err => {
                   console.log(err);
+                  this.RBSheetR.close();
               });
     
         }
@@ -198,12 +210,7 @@ export default class Identity extends Component {
                             onPress={()=> {
                                 this.setState({'cardtype': 'Identity Card'});
                                 this.setState({"availAvatar": false});
-                                if(this.state.option === 1) {
-                                    this.openCamera();
-                                }
-                                if(this.state.option === 2) {
-                                    this.openPicker();
-                                }
+                                this.RBSheetR.open();
                             }}
                         />
                         <Button
@@ -214,12 +221,7 @@ export default class Identity extends Component {
                             onPress={()=> {
                                 this.setState({'cardtype': 'Passport'});
                                 this.setState({"availAvatar": false});
-                                if(this.state.option === 1) {
-                                    this.openCamera();
-                                }
-                                if(this.state.option === 2) {
-                                    this.openPicker();
-                                }
+                                this.RBSheetR.open();
                             }}
                         />
                         <Button
@@ -230,12 +232,7 @@ export default class Identity extends Component {
                             onPress={()=> {
                                 this.setState({'cardtype': 'Drivers License'});
                                 this.setState({"availAvatar": false});
-                                if(this.state.option === 1) {
-                                    this.openCamera();
-                                }
-                                if(this.state.option === 2) {
-                                    this.openPicker();
-                                }
+                                this.RBSheetR.open();
                             }}
                         />
                         <Button
@@ -246,12 +243,7 @@ export default class Identity extends Component {
                             title="Profile Picture"
                             onPress={()=> {
                                 this.setState({"availAvatar": true});
-                                if(this.state.option === 1) {
-                                    this.openCamera();
-                                }
-                                if(this.state.option === 2) {
-                                    this.openPicker();
-                                }
+                                this.RBSheetR.open();
                             }}
                         />
                     </View>
@@ -269,16 +261,33 @@ export default class Identity extends Component {
                             }                             
                         }}
                     />
-                    <ActionSheet
-                        ref={o => this.ActionSheet = o}
-                        title={<Text style={{color: '#000', fontSize: 18}}>Select an Option</Text>}
-                        options={options}
-                        cancelButtonIndex={0}
-                        // destructiveButtonIndex={2}
-                        onPress={(option) => { 
-                            this.setState({option});
-                            }}
-                    />
+                    <RBSheet
+                        ref={ref => {
+                            this.RBSheetR = ref;
+                        }}
+                        height={200}    
+                        openDuration={250}
+                        closeOnDragDown={true}
+                        customStyles={{
+                            container: {
+                                borderTopRightRadius: 20,
+                                borderTopLeftRadius: 20
+                            },
+                          draggableIcon: {
+                            backgroundColor: "lightgrey",
+                            width:120,
+                            height:5
+                          }
+                        }}
+                    >
+                        {this.bottomSheetList.map((l, i) => (
+                            <ListItem key={i} containerStyle={[styles.bottomSheetItem, l.containerStyle]} onPress={l.onPress}>
+                                <ListItem.Content style={{ alignItems: 'center' }}>
+                                    <ListItem.Title style={l.titleStyle}>{l.title}</ListItem.Title>
+                                </ListItem.Content>
+                            </ListItem>
+                        ))}
+                    </RBSheet>
                 </ScrollView>
             </SafeAreaView>
         )

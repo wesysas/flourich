@@ -1,42 +1,26 @@
-import React, { useState, useCallback, Component } from 'react';
-import { View, Text, Picker, StyleSheet, Image, TouchableOpacity, SafeAreaView, Dimensions, PermissionsAndroid } from 'react-native';
-import {ScrollView, FlatList} from 'react-native-gesture-handler'
+import React, { Component } from 'react';
+import { View, Text, StyleSheet, Image, TouchableOpacity, SafeAreaView, Dimensions, PermissionsAndroid } from 'react-native';
+import {FlatList} from 'react-native-gesture-handler'
 import FlashMessage, { showMessage } from "react-native-flash-message";
 
-import {Button, SocialIcon, Input, SearchBar, Divider, ListItem, Card, CheckBox} from 'react-native-elements';
+import {Button, Divider} from 'react-native-elements';
 import {getBookings, changeCreatorStatus, updateBooking, updateLocation} from '../../shared/service/api';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import EntypoIcon from 'react-native-vector-icons/Entypo';
-import LinearGradient from 'react-native-linear-gradient';
-import { render } from 'react-dom';
-import Geolocation from '@react-native-community/geolocation';
-import { SelectMultipleButton } from "react-native-selectmultiple-button";
 import _ from "lodash";
 import BookingModal from "../../components/BookingModal";
 
-import  { SERVER_URL,LATITUDE,LONGITUDE, LATITUDE_DELTA, LONGITUDE_DELTA, WIDTH, HEIGHT, GOOGLE_MAPS_APIKEY}  from '../../globalconfig';
-import {bottomSheetStyle, ios_green_color, btnBackgroundColor} from "../../GlobalStyles";
+import  { SERVER_URL,LATITUDE,LONGITUDE, LATITUDE_DELTA, LONGITUDE_DELTA, WIDTH, HEIGHT}  from '../../globalconfig';
+import {ios_green_color, btnBackgroundColor} from "../../GlobalStyles";
 import Moment from 'moment';
-import axios from 'axios';
 import { Popover, PopoverController } from 'react-native-modal-popover';
 
-import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
-import MapViewDirections from 'react-native-maps-directions';
+import MapView, { Marker } from 'react-native-maps';
 import BottomSheet from 'reanimated-bottom-sheet';
-import Animated from 'react-native-reanimated';
-import PopoverTooltip from 'react-native-popover-tooltip';
 import {check, PERMISSIONS, RESULTS} from 'react-native-permissions';
-import { googleConfig } from '../../globalconfig';
-import DateTimePickerModal from "react-native-modal-datetime-picker";
-import PhoneInput from "react-native-phone-number-input";
 import {getStorage} from "../../shared/service/storage";
-//navigator.geolocation.getCurrentPosition = Geolocation.getCurrentPosition;
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
-import Spinner from 'react-native-loading-spinner-overlay';
 import {local} from "../../shared/const/local";
-
-// const origin = {latitude: 51.68080542967339, longitude: 0.1236155113725498};
-// const destination = {latitude: 51.511040135977304, longitude: 0.2671244205013812};
 
 navigator.geolocation = require('@react-native-community/geolocation');
 const styles = StyleSheet.create({
@@ -198,6 +182,7 @@ export default class Explore extends Component {
 
     async componentDidMount() {
         global.user = JSON.parse(await getStorage(local.user));
+        if (!global.user.status) global.user.status = 0;
         this.watchId = navigator.geolocation.watchPosition(
             (position) => {
                 let region = {

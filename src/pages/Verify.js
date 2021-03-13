@@ -1,13 +1,10 @@
-import React, { useState, useCallback, Component } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, TextInput } from 'react-native';
-import { Button, SocialIcon, Input } from 'react-native-elements';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import GlobalStyles, {btnGradientProps} from '../GlobalStyles';
+import React, { Component } from 'react';
+import { View, Text, StyleSheet, Image, TouchableOpacity, TextInput } from 'react-native';
+import { Button } from 'react-native-elements';
+import {btnGradientProps} from '../GlobalStyles';
 
-import { RectButton } from 'react-native-gesture-handler';
 import LinearGradient from 'react-native-linear-gradient';
-import { render } from 'react-dom';
-import { getStorage, getUserId } from '../shared/service/storage';
+import { getUserId } from '../shared/service/storage';
 import { verifyCode, needApprove } from '../shared/service/api';
 
 

@@ -6,9 +6,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import EntypoIcon from 'react-native-vector-icons/Entypo';
 import Spinner from "react-native-loading-spinner-overlay";
 import RBSheet from "react-native-raw-bottom-sheet";
-
 import {getAssets, uploadAsset} from "../../shared/service/api";
-import BackButton from '../../components/BackButton';
 
 const AssetFolder = ({ iconSize, fileName }) => {
     return (

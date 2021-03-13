@@ -8,12 +8,13 @@ import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity , Image
 import { Button, Input, ListItem } from 'react-native-elements';
 import LinearGradient from 'react-native-linear-gradient/index';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome5';
+
 import { updateProfile, getDefaultService, getCategories, getCreatorService } from '../../shared/service/api';
 import BackButton from '../../components/BackButton';
 import ProfileAvatar from '../../components/ProfileAvatar';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import Moment from 'moment';
-
 import { Collapse, CollapseHeader, CollapseBody } from 'accordion-collapse-react-native';
 import { local } from '../../shared/const/local';
 import PhoneInput from "react-native-phone-number-input";
@@ -36,16 +37,12 @@ const styles = StyleSheet.create({
     },
 
     headerTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
+        fontSize: 18,
         marginBottom: 20,
-        color: 'black'
+        marginTop:30
     },
     subTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: 'gray',
-        marginVertical: 10
+        fontSize: 15
     },
     separate: {
         marginVertical: 20
@@ -55,8 +52,17 @@ const styles = StyleSheet.create({
         borderRadius: 50,
         borderColor: 'gray',
         margin: 5
+    },
+    collapseHeader:{
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        borderBottomWidth: 1,
+        paddingBottom: 5,
+        borderBottomColor: 'lightgray',
+        alignItems: 'center'
     }
 });
+
 const operate_type = ["sole_trader", "private_company"];
 export default class SetupDetail extends ValidationComponent {
     constructor(props) {
@@ -146,9 +152,10 @@ export default class SetupDetail extends ValidationComponent {
             await saveStorage(local.user, JSON.stringify(user));
             global.user = user;
         }
-        
+        saveStorage(local.user, null);
+        saveStorage(local.token, null);
+        this.props.navigation.navigate('Index');        
     }
-
     render() {
         return (
             <ScrollView contentContainerStyle={{}}>
@@ -160,13 +167,13 @@ export default class SetupDetail extends ValidationComponent {
                     <Image style={styles.image} source={require('../../assets/img/profile_logo.jpg')} />
                     <ProfileAvatar />
                 </View>
+
                 <View style={styles.container}>
-                    <Text style={styles.headerTitle}>Edit your profile</Text>
-                    
+                    <Text style={styles.headerTitle}>Edit your profile</Text>                    
                     <Collapse style={{ marginVertical: 10 }}>
                         <CollapseHeader>
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', borderBottomWidth: 1, paddingBottom: 5, borderBottomColor: 'lightgray', alignItems: 'center' }}>
-                                <Text style={{ fontSize: 18 }}>Profile Setting</Text>
+                                <Text style={styles.subTitle}>Profile Setting</Text>
                                 <Icon name="user-circle" size={18} />
                             </View>
                         </CollapseHeader>
@@ -200,11 +207,11 @@ export default class SetupDetail extends ValidationComponent {
                                     justifyContent: 'flex-start',
                                     borderColor: '#696969',
                                     borderBottomWidth: 1,
-                                    margin: 10
+                                    paddingHorizontal: 0,
+                                    marginBottom:20
                                 }}
                                 titleStyle={{
-                                    color: '#696969',
-                                    fontSize: 18
+                                    color: '#696969'
                                 }}
                                 type='outline'
                                 title={this.state.dateTitle} 
@@ -396,12 +403,21 @@ export default class SetupDetail extends ValidationComponent {
                         </CollapseBody>
                     </Collapse>
 
-
-                    
+                    <Collapse style={{ marginVertical: 10 }}>
+                        <CollapseHeader>
+                            <View style={styles.collapseHeader}>
+                                <Text style={styles.subTitle}>Payment Methods</Text>
+                                <Icon name="credit-card" size={18} />
+                            </View>
+                        </CollapseHeader>
+                        <CollapseBody style={{ margin: 10 }}>
+                        </CollapseBody>
+                    </Collapse>
+                                       
                     <Collapse style={{ marginVertical: 10 }}>
                         <CollapseHeader>
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', borderBottomWidth: 1, paddingBottom: 5, borderBottomColor: 'lightgray', alignItems: 'center' }}>
-                                <Text style={{ fontSize: 18 }}>Address</Text>
+                                <Text style={styles.subTitle}>Address</Text>
                                 <Icon name="map-marker" size={18} />
                             </View>
                         </CollapseHeader>
@@ -434,61 +450,123 @@ export default class SetupDetail extends ValidationComponent {
                                 }}
                             />
                             {this.isFieldInError('street') && this.getErrorsInField('street').map(errorMessage => <Text key="street" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
-                            <Text>Post Code</Text>
-                            <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='123456789UK'
-                                value={this.state.user.postalcode}
-                                onChangeText={value => {
-                                    this.state.user.postalcode = value;
-                                    this.setState({user:this.state.user});
-                                }}
-                            />
-                            {this.isFieldInError('postalcode') && this.getErrorsInField('postalcode').map(errorMessage => <Text key="postalcode" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
-
+                                                        
+                            <View style={{flexDirection:'row', justifyContent:'space-between'}}>
+                                <View style={{flex:1}}>
+                                    <Text>Post Code</Text>
+                                    <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='123456789UK'
+                                        value={this.state.user.postalcode}
+                                        onChangeText={value => {
+                                            this.state.user.postalcode = value;
+                                            this.setState({user:this.state.user});
+                                        }}
+                                    />
+                                    {this.isFieldInError('postalcode') && this.getErrorsInField('postalcode').map(errorMessage => <Text key="postalcode" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
+                                </View>
+                                <View style={{flex:0.5}}></View>
+                                <View style={{flex:1}}>
+                                    <Text>City</Text>
+                                    <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='123456789UK'
+                                        value={this.state.city}
+                                        onChangeText={ value => {
+                                            this.setState({"city":value})
+                                        }}
+                                    />  
+                                    {this.isFieldInError('street') && this.getErrorsInField('street').map(errorMessage => <Text key="street" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
+                                </View>
+                            </View>
                         </CollapseBody>
                     </Collapse>
-                    <View style={styles.separate}>
-                        <Text style={styles.headerTitle}>SUPPORT</Text>
-                        <ListItem>
-                            <ListItem.Content>
-                                <ListItem.Title>How Flourich Works</ListItem.Title>
-                            </ListItem.Content>
-                        </ListItem>
-                        <ListItem>
-                            <ListItem.Content>
-                                <ListItem.Title>Safety Center</ListItem.Title>
-                                <ListItem.Subtitle>
-                                    Get support tools and information you need to be safe
-                                </ListItem.Subtitle>
-                            </ListItem.Content>
-                        </ListItem>
-                        <ListItem>
-                            <ListItem.Content>
-                                <ListItem.Title>Get Help/Support</ListItem.Title>
-                            </ListItem.Content>
-                        </ListItem>
-                    </View>
 
-                    <View style={styles.separate}>
-                        <Text style={styles.headerTitle}>LEGAL</Text>
-                        <ListItem>
-                            <ListItem.Content>
-                                <ListItem.Title>Terms of Service</ListItem.Title>
-                            </ListItem.Content>
-                        </ListItem>
-                    </View>
+                    <Collapse style={{ marginVertical: 10 }}>
+                        <CollapseHeader>
+                            <View style={styles.collapseHeader}>
+                                <Text style={styles.subTitle}>Notification Settings</Text>
+                                <Icon name="bell-o" size={18} />
+                            </View>
+                        </CollapseHeader>
+                        <CollapseBody style={{ margin: 10 }}>
+                        </CollapseBody>
+                    </Collapse>
+                    
+                    <Collapse style={{ marginVertical: 10 }}>
+                        <CollapseHeader>
+                            <View style={styles.collapseHeader}>
+                                <Text style={styles.subTitle}>Wallet</Text>
+                                <FontAwesomeIcon name="wallet" size={18} />
+                            </View>
+                        </CollapseHeader>
+                        <CollapseBody style={{ margin: 10 }}>
+                        </CollapseBody>
+                    </Collapse>
+                    
+                    <Collapse style={{ marginVertical: 10 }}>
+                        <CollapseHeader>
+                            <View style={styles.collapseHeader}>
+                                <Text style={styles.subTitle}>Settings</Text>
+                                <Icon name="gear" size={18} />
+                            </View>
+                        </CollapseHeader>
+                        <CollapseBody style={{ margin: 10 }}>
+                        </CollapseBody>
+                    </Collapse>
+                    
+                    <Text style={styles.headerTitle}>SUPPORT</Text>                    
+                    <Collapse style={{ marginVertical: 10 }}>
+                        <CollapseHeader>
+                            <View style={styles.collapseHeader}>
+                                <Text style={styles.subTitle}>How Flourich Works</Text>
+                            </View>
+                        </CollapseHeader>
+                        <CollapseBody style={{ margin: 10 }}>
+                        </CollapseBody>
+                    </Collapse>
+
+                    <Collapse style={{ marginVertical: 10 }}>
+                        <CollapseHeader>
+                            <View style={styles.collapseHeader}>
+                                <View>
+                                    <Text style={styles.subTitle}>Safety Center</Text>
+                                    <Text style={{fontSize:12, color:'gray'}}>Get support tools and information you need to be safe</Text>
+                                </View> 
+                            </View>
+                        </CollapseHeader>
+                        <CollapseBody style={{ margin: 10 }}>
+                        </CollapseBody>
+                    </Collapse>
+
+                    <Collapse style={{ marginVertical: 10 }}>
+                        <CollapseHeader>
+                            <View style={styles.collapseHeader}>
+                                <Text style={styles.subTitle}>Get Help/Support</Text>
+                            </View>
+                        </CollapseHeader>
+                        <CollapseBody style={{ margin: 10 }}>
+                        </CollapseBody>
+                    </Collapse>                    
+                    
+                    <Text style={styles.headerTitle}>LEGAL</Text>                    
+                    <Collapse style={{ marginVertical: 10 }}>
+                        <CollapseHeader>
+                            <View style={styles.collapseHeader}>
+                                <Text style={styles.subTitle}>Terms of Service</Text>
+                            </View>
+                        </CollapseHeader>
+                        <CollapseBody style={{ margin: 10 }}>
+                        </CollapseBody>
+                    </Collapse>
+                    
                     <Button
-                        buttonStyle={{ marginVertical: 20, borderRadius: 8 }}
+                        buttonStyle={{ marginVertical: 20, borderRadius: 8, width:150, alignSelf:'center' }}
                         ViewComponent={LinearGradient}
                         titleStyle={styles.btnTitle}
                         linearGradientProps={btnGradientProps}
-                        title="Save"
+                        title="Log out"
                         onPress={() => {
-                            // navigation.navigate('Identity')
                             this._validate();
                         }}
                     />
-                <   Text style={{ alignSelf: 'center' }}>Flourich Version 3.0 (01012021)</Text>
-
+                    <Text style={{ alignSelf: 'center' }}>Flourich Version 3.0 (01012021)</Text>
                 </View>
                
                <RBSheet

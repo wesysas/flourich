@@ -92,6 +92,17 @@ export const getMe = async (data) => {
     }
 }
 
+export const getReviews = async (data) => {
+    try {
+        var res = await _post('/v1/profile/get_reviews', data);
+        return res;
+    } catch (err) {
+        // Handle Error Here
+        _handleError(err);
+        return null;
+    }
+}
+
 export const needApprove = async (data) => {
     try {
         var res = await _post('/v1/profile/needapprove', data);

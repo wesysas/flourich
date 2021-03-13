@@ -1,21 +1,16 @@
-import React, { Component, useState, Dimentiions, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, Image, TouchableOpacity, SafeAreaView, Platform } from 'react-native';
-import { Button, Input, CheckBox, Avatar, ListItem, BottomSheet } from 'react-native-elements';
+import React, { Component} from 'react';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Platform } from 'react-native';
+import { Button, Avatar, ListItem } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Carousel from 'react-native-snap-carousel';
-import { Col, Row, Grid } from 'react-native-easy-grid';
-
-import ReviewItem from '../../components/ReviewItem';
-import BackButton from '../../components/BackButton';
 import ProfileAvatar from '../../components/ProfileAvatar';
-
 import RBSheet from 'react-native-raw-bottom-sheet';
-import { getStorage, getUserId, saveStorage } from '../../shared/service/storage';
-import { local } from '../../shared/const/local';
+import { getUserId } from '../../shared/service/storage';
+import Moment from 'moment';
 import { LogBox, FlatList } from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
 import Spinner from 'react-native-loading-spinner-overlay';
-import { getCreatorMediaData, getMe, uploadPortfolio, uploadStory } from '../../shared/service/api';
+import { getCreatorMediaData, getMe, uploadPortfolio, uploadStory, getReviews } from '../../shared/service/api';
 import { SERVER_URL } from '../../globalconfig';
 
 const styles = StyleSheet.create({
@@ -56,7 +51,7 @@ const styles = StyleSheet.create({
         height: 100,
         aspectRatio: 1,
         alignSelf: 'center',
-        resizeMode: 'contain',
+        resizeMode: 'center',
         margin: 5
     },
     mozaicImgLarge: {
@@ -68,7 +63,12 @@ const styles = StyleSheet.create({
     bottomSheetItem: {
         // backgroundColor:'transparent',
     },
-
+    reviewContainer: {
+        paddingBottom: 10
+    },
+    reviewDescription:{
+        paddingHorizontal: 20
+    }
 });
 const _renderCarouselItem = ({ item, index }) => {
     return (
@@ -115,19 +115,16 @@ export default class Profile extends Component {
             },
             {
                 title: 'Portfolio Post',
-                titleStyle: { fontWeight: 'bold' },
                 onPress: () => {this.openPortfolioPicker() }
             },
             {
                 title: 'Story (Photo)',
-                titleStyle: { fontWeight: 'bold' },
                 onPress: () => {
                     this.openStoryPicker();
                 }
             },
             {
                 title: 'Story (Video)',
-                titleStyle: { fontWeight: 'bold' },
                 onPress: () => {
                     this.openStoryVideoPicker();
                 }
@@ -147,10 +144,14 @@ export default class Profile extends Component {
     }
 
    async refreshScreen() {
-       var user = await getMe({ userid: global.user.cid });
+        console.log("refreshed");
+        var user = await getMe({ userid: global.user.cid });
+        var reviews = await getReviews({ userid: global.user.cid, limit: 2 });
         var result = await getCreatorMediaData({ userid: global.user.cid });
+
         global.user = user;
         this.setState({user});
+        this.setState({reviews});
         this.setState({story: result.story});
         this.setState({portfolio: result.portfolio});
     }
@@ -158,18 +159,21 @@ export default class Profile extends Component {
      *  open image picker for portfolio
      */
     openPortfolioPicker = () => {
-        this.RBSheetR.close();
+        
         ImagePicker.openPicker({
             width: 300,
-            height: 400,
+            height: 300,
             cropping: true,
             includeBase64:true,
             showCropGuidelines:false,
           }).then(image => {
             this.uploadPortfolioImage(image);
+            this.RBSheetR.close();
           }).catch(err => {
             console.log(err);
+            this.RBSheetR.close();
         });
+        
     }
     /**
      * 
@@ -269,22 +273,8 @@ export default class Profile extends Component {
     goPortfolioPost = () => {
         this.RBSheetR.close()
         this.props.navigation.navigate('ProfileAdd');
-    }
-
-    goStory = () => {
-        alert('goStory');
-    }
-    
-    logout = async () => {
-        saveStorage(local.user, null);
-        saveStorage(local.token, null);
-        this.props.navigation.navigate('Index');
-    }    
-
-    goStoryHilight = () => {
-        alert('goStoryHilight');
-    }
-
+    }  
+   
     render () {
         return (
             <ScrollView contentContainerStyle={styles.container}>
@@ -302,7 +292,7 @@ export default class Profile extends Component {
                     marginVertical: 30,
                     marginHorizontal: 20
                 }}>
-                    <Text style={styles.headerTitle}>{this.state.user.first_name} {this.state.user.last_name}</Text>
+                    <Text style={styles.headerTitle}>{this.state.user.first_name??''} {this.state.user.last_name}</Text>
                     <Text >{this.state.user.fulladdress}, {this.state.user.street}</Text>
                     <Text >{this.state.user.services}</Text>
                     <Text >{this.state.user.weburl}</Text>
@@ -321,8 +311,8 @@ export default class Profile extends Component {
                             <Text style={{ fontSize: 20, marginHorizontal:10 }} >Edit Profile</Text>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => {
-                            this.openPortfolioPicker();
-                            //this.RBSheetR.open();
+                            //this.openPortfolioPicker();
+                            this.RBSheetR.open();
                         }}
                         style={{borderWidth:1,
                             padding:10,
@@ -331,7 +321,7 @@ export default class Profile extends Component {
                             borderRadius:8
                         }}
                         >
-                            <Text style={{ fontSize: 20, marginHorizontal:10  }}>Create New</Text>
+                            <Text style={{ fontSize: 20, marginHorizontal:10  }}>Add New</Text>
                         </TouchableOpacity>
                     </View>
     
@@ -350,48 +340,74 @@ export default class Profile extends Component {
                             }} />
                     </View>
                     {/* image mozaic part */}
-                    <FlatList style={{ marginTop: 30 }}
+
+
+                    <FlatList style={{ marginVertical: 30 }}
                         data={this.state.portfolio}
                         numColumns={3}
-                        renderItem={({ item }) => <View><Image style={styles.mozaicImg} source={{uri: SERVER_URL+item.media_url }} /></View>}
-                        />
+                        renderItem={({ item }) => 
+                        <View><Image style={styles.mozaicImg} source={{uri: SERVER_URL+item.media_url }} /></View>}
+                    />  
+
+                    {global.user.rating_point && 
+                        <View style={[styles.separate, {
+                            flexDirection: 'row',
+                            alignItems: 'center',       
+                        }]}>
+                            <Icon name="star" color="green" size={25} />
+                            <Text style={{fontSize:20}}> {global.user.rating_point} ({global.user.rating_count})</Text>
+                        </View>
+                    }
+                    <FlatList
+                        data={this.state.reviews}
+                        renderItem={({ item }) => 
+                        <View style={styles.reviewContainer}>
+                            <ListItem>
+                                <Avatar
+                                    rounded
+                                    size="medium"
+                                    source={{uri: SERVER_URL+ item.avatar}}
+                                />
+                                <ListItem.Content>
+                                    <ListItem.Title>{item.first_name} {item.last_name}</ListItem.Title>
+                                    <ListItem.Subtitle>
+                                        {Moment(item.updated_at).fromNow()}
+                                    </ListItem.Subtitle>
+                                </ListItem.Content>
+                            </ListItem>
+                            <Text style={styles.reviewDescription}>{item.review}</Text>
+                        </View>
+                            }
+                    />  
                     
-    
-                    <View style={[styles.separate, {
-                        flexDirection: 'row',
-                        alignItems: 'center',
-    
-                    }]}
-    
-                    >
-                        <Icon name="star" color="green" size={25} />
-                        <Text style={{ fontSize: 20 }}>4.5 (123)</Text>
-                    </View>
-    
-                    <View>
-                        <ReviewItem />
-                    </View>
+                    {global.user.rating_point && 
                     <Button
-                        type="clear"
-    
-                        titleStyle={{ textDecorationLine: 'underline' }}
-    
-                        title="see all reviews"
+                        type="clear"    
+                        style={{marginVertical:20}}
+                        titleStyle={{ textDecorationLine: 'underline', color:'black', fontSize:15 }}    
+                        title={"See all "+global.user.rating_count+" reviews"}
                         onPress={() => this.props.navigation.navigate('AllReview')}
-                    />
+                    />}
     
                 </View>
                 <RBSheet
                     ref={ref => {
                         this.RBSheetR = ref;
                     }}
-                    openDuration={250}
+                    closeOnDragDown={true}
                     customStyles={{
                         container: {
                             borderTopRightRadius: 20,
                             borderTopLeftRadius: 20
-                        }
+                        },
+                      draggableIcon: {
+                        backgroundColor: "lightgrey",
+                        width:120,
+                        height:5
+                      }
                     }}
+
+                    openDuration={250}
                 >
                     {this.bottomSheetList.map((l, i) => (
                         <ListItem key={i} containerStyle={[styles.bottomSheetItem, l.containerStyle]} onPress={l.onPress}>

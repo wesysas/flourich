@@ -1,6 +1,5 @@
 import 'react-native-gesture-handler';
 import React, { useEffect } from 'react';
-import { StyleSheet, Text, View, Image, Platform } from 'react-native';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 
 import SplashScreen from 'react-native-splash-screen';
@@ -26,7 +25,6 @@ import PendingAccount from './src/pages/setup/PendingAccount';
 import CustomCamera from './src/pages/setup/CustomCamera';
 
 import Verify from './src/pages/Verify';
-
 import Explore from './src/pages/home/Explore';
 import Booking from './src/pages/home/Booking';
 import Inbox from './src/pages/home/Inbox';
@@ -36,7 +34,6 @@ import Studio from './src/pages/home/Studio';
 
 import Profile from './src/pages/profile/Profile';
 import ProfileEdit from './src/pages/profile/ProfileEdit';
-import ProfileAdd from './src/pages/profile/ProfileAdd';
 import AllReview from './src/pages/profile/AllReview';
 //session
 import Start from "./src/pages/Session/Start";
@@ -47,6 +44,7 @@ const RootStack = createStackNavigator();
 const HomeStack = createStackNavigator();
 const BookingStack = createStackNavigator();
 const InboxStack = createStackNavigator();
+const ProfileStack = createStackNavigator();
 const Drawer = createDrawerNavigator();
 
 const Tab = createBottomTabNavigator();
@@ -95,6 +93,14 @@ const InboxStacks = () => {
         </InboxStack.Navigator>
     )
 };
+const ProfileStacks = () => {
+    return (
+        <ProfileStack.Navigator>
+            <ProfileStack.Screen name="Profile" component={Profile} options={{ headerShown: false }} />
+            <ProfileStack.Screen name="ProfileEdit" component={ProfileEdit} options={{ headerShown: false }} />
+        </ProfileStack.Navigator>
+    )
+};
 
 function getTabBarVisible(route) {
     const routeName = getFocusedRouteNameFromRoute(route);
@@ -104,10 +110,12 @@ function getTabBarVisible(route) {
 }
 const HomeTabs = () => {
   return (
-    <Tab.Navigator           
+    <Tab.Navigator       
+        
+
       tabBarOptions={{
         keyboardHidesTabBar:true,
-        labelStyle: { fontSize: 12, color:'black' },
+        labelStyle: { fontSize: 12 },
         tabStyle:{marginVertical:15},
         activeTintColor:'black',
         inactiveTintColor:'gray',
@@ -117,38 +125,38 @@ const HomeTabs = () => {
         <Tab.Screen name="Home"
                     component={HomeStacks}
                     options={({ route }) => ({
-                        tabBarIcon: () => (
-                            <FontAwesomeIcon name="home" color="#2f2f2f" size={25} />
+                        tabBarIcon: ({ color }) => (
+                            <FontAwesomeIcon name="home" color={color} size={25}/>
                         ),
                         tabBarVisible: getTabBarVisible(route)
                     })} />
-        <Tab.Screen name="Booking"
+        <Tab.Screen name="Bookings"
                     component={BookingStacks}
                     options={{
-                        tabBarBadge: 1,
-                        tabBarBadgeStyle:{top:-8},
-                        tabBarIcon: () => (
-                            <Icon name="calendar-blank" color="#2f2f2f" size={25} />
+                        // tabBarBadge: 1,
+                        // tabBarBadgeStyle:{top:-8},
+                        tabBarIcon: ({color }) => (
+                            <Icon name="calendar-blank" color={color} size={25} />
                         ),
                     }} />
         <Tab.Screen name="Inbox" component={InboxStacks}
                     options={{
-                        tabBarIcon: () => (
-                            <Icon name="comment-outline" color="#2f2f2f" size={25} />
+                        tabBarIcon: ({ color }) => (
+                            <Icon name="comment-outline" color={color} size={25} />
                         ),
                     }} />
 
         <Tab.Screen name="Studio" component={Studio}
                     options={{
-                        tabBarIcon: () => (
-                            <Icon name="camera-outline" color="#2f2f2f" size={25} />
+                        tabBarIcon: ({ color }) => (
+                            <Icon name="camera-outline" color={color} size={25} />
                         ),
                     }} />
 
-        <Tab.Screen name="Profile" component={Profile}
+        <Tab.Screen name="Profile" component={ProfileStacks}
                     options={{
-                        tabBarIcon: () => (
-                            <FontAwesomeIcon name="user-circle" color="black" size={25} />
+                        tabBarIcon: ({ color }) => (
+                            <FontAwesomeIcon name="user-circle" color={color} size={25} />
                         ),
                     }} />
     </Tab.Navigator>
@@ -160,46 +168,21 @@ export default function App() {
     SplashScreen.hide();
   }, [])
   return (
-      <NavigationContainer theme={MyTheme}>
-      <RootStack.Navigator>
-        {/* <RootStack.Screen name="SignUpStacks" component={SignUpStacks} options={{ headerShown: false }} /> */}
+<NavigationContainer theme={MyTheme}>
+    <RootStack.Navigator>
         <RootStack.Screen name="Index" component={Index} options={{ headerShown: false }} />
         <RootStack.Screen name="Login" component={LoginPage} options={{ headerShown: false }} />
         <RootStack.Screen name="Signup" component={SignupPage} options={{ headerShown: false }} />
-          <RootStack.Screen name="Verify" component={Verify} options={{ headerShown: false }} />
+        <RootStack.Screen name="Verify" component={Verify} options={{ headerShown: false }} />
         <RootStack.Screen name="Home" component={HomeTabs} options={{ headerShown: false }} />
         <RootStack.Screen name="SignUpStacks" component={SignUpStacks} options={{ headerShown: false }} />
-        <RootStack.Screen name="Profile" component={Profile} options={{ headerShown: false }} />
-        <RootStack.Screen name="ProfileEdit" component={ProfileEdit} options={{ headerShown: false }} />
-        <RootStack.Screen name="ProfileAdd" component={ProfileAdd} options={{ headerShown: false }} />
         <RootStack.Screen name="AllReview" component={AllReview} options={{ headerShown: false }}/>
-          <RootStack.Screen name="CustomCamera" component={CustomCamera} options={{ headerShown: false }}/>
-          <RootStack.Screen name="ChatBox" component={ChatBox} options={{ headerShown: false }}/>
-
-          <RootStack.Screen name="Start" component={Start} options={{ headerShown: false }}/>
-          <RootStack.Screen name="Complete" component={Complete} options={{ headerShown: false }}/>
-          <RootStack.Screen name="Progress" component={Progress} options={{ headerShown: false }}/>
-      </RootStack.Navigator>
-    </NavigationContainer>
+        <RootStack.Screen name="CustomCamera" component={CustomCamera} options={{ headerShown: false }}/>
+        <RootStack.Screen name="ChatBox" component={ChatBox} options={{ headerShown: false }}/>
+        <RootStack.Screen name="Start" component={Start} options={{ headerShown: false }}/>
+        <RootStack.Screen name="Complete" component={Complete} options={{ headerShown: false }}/>
+        <RootStack.Screen name="Progress" component={Progress} options={{ headerShown: false }}/>
+    </RootStack.Navigator>
+</NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  backButton:{
-    backgroundColor:'red',
-    position:'absolute',
-    width:50,
-    height:50,
-    top:20,
-    left:20,
-    borderRadius:25,
-    shadowColor: "#000000",
-                    shadowOffset: {
-                        width: 0,
-                        height: 20,
-                    },
-                    shadowOpacity: 0.9,
-                    shadowRadius: 8,
-                    elevation: 1,
-  }
-});

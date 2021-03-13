@@ -2,7 +2,6 @@
 import axios from 'axios';
 import {API_URL} from '../../globalconfig';
 
-
 const _post = async (url, data)=> {
     return new Promise((resolve, reject) =>{
         axios.post(API_URL + url, data)

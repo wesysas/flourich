@@ -1,5 +1,5 @@
 import React, { Component  } from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, SafeAreaView } from 'react-native';
 import { Button } from 'react-native-elements';
 import LinearGradient from 'react-native-linear-gradient/index';
 import { btnGradientProps } from '../../GlobalStyles';

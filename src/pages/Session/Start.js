@@ -1,11 +1,8 @@
 import {Image, Text, StyleSheet, View} from "react-native";
 import React from "react";
 import ValidationComponent from 'react-native-form-validator';
-import { Rating} from 'react-native-ratings';
-import {btnGradientProps, ios_green_color, ios_red_color} from "../../GlobalStyles";
-import {getBookingStatus, getStatusData} from "../../shared/service/api";
-import {Button, CheckBox} from "react-native-elements";
-import LinearGradient from "react-native-linear-gradient/index.android";
+import { ios_green_color, ios_red_color} from "../../GlobalStyles";
+import { CheckBox} from "react-native-elements";
 import BackButton from '../../components/BackButton';
 
 const styles = StyleSheet.create({

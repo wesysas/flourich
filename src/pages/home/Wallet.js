@@ -1,10 +1,6 @@
-import React, { useState, useCallback, Component } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, TextInput } from 'react-native';
-import { Button, SocialIcon, Input } from 'react-native-elements';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import { RectButton } from 'react-native-gesture-handler';
-import LinearGradient from 'react-native-linear-gradient';
-import { render } from 'react-dom';
+import React, { Component } from 'react';
+import { View, Text, StyleSheet, Image } from 'react-native';
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,

@@ -1,19 +1,13 @@
 import React, { Component } from 'react';
 import {View, Text, SafeAreaView, StyleSheet, Image, TouchableOpacity, FlatList} from 'react-native';
-
-import { Card, ListItem, Button, CheckBox, Overlay } from 'react-native-elements'
-
+import { CheckBox } from 'react-native-elements'
 import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import AsyncStorage from '@react-native-community/async-storage';
-
-import BackButton from '../../components/BackButton';
 import BookingModal from "../../components/BookingModal";
 import {getBookings, updateBooking} from "../../shared/service/api";
 import {SERVER_URL} from "../../../src/globalconfig";
 import Moment from 'moment';
 import {ios_green_color} from "../../GlobalStyles";
-import Spinner from "react-native-loading-spinner-overlay";
 
 const IconText = ({ iconName, size, txt }) => {
     return (

@@ -4,8 +4,7 @@ import { ListItem, Avatar } from 'react-native-elements'
 import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view';
 import EntypoIcon from 'react-native-vector-icons/Entypo';
 import Moment from "moment";
-import {SERVER_URL, ios_red_color} from "../../globalconfig";
-import BackButton from "../../components/BackButton";
+import {SERVER_URL} from "../../globalconfig";
 import {getMessage} from "../../shared/service/api";
 
 export default class Inbox extends Component {
