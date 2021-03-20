@@ -66,7 +66,7 @@ export default class ChatBox extends Component {
                             source={{uri: SERVER_URL+global.booking.avatar}}
                         />
                         <View style={{justifyContent:'center', marginLeft:10}}>
-                            <Text style={{fontWeight:'bold', fontSize:18}}>{global.booking.first_name} {global.booking.last_name}</Text>
+                            <Text style={{fontWeight:'bold', fontSize:18}}>{global.booking.first_name}</Text>
                             <Text>Online Now</Text>
                         </View>
                     </View>

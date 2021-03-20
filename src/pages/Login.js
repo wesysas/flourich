@@ -164,6 +164,7 @@ export default class LoginPage extends ValidationComponent {
             password: { required: true,minlength:6},
         });
         if(validate) {
+            console.log("----trying to login----");
             this.setState({spinner: true});
             var res = await loginWithEmail(this.state);
             this.setState({spinner: false});
@@ -175,6 +176,7 @@ export default class LoginPage extends ValidationComponent {
                 global.user = res.user;
                 var userid = res.user.cid;
                 this._getMe(userid);
+                console.log("----trying to login----");
             }
         }
     }

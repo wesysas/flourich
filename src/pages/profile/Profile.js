@@ -11,7 +11,7 @@ import { LogBox, FlatList } from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
 import Spinner from 'react-native-loading-spinner-overlay';
 import { getCreatorMediaData, getMe, uploadPortfolio, uploadStory, getReviews } from '../../shared/service/api';
-import { SERVER_URL } from '../../globalconfig';
+import { SERVER_URL, WIDTH } from '../../globalconfig';
 
 const styles = StyleSheet.create({
     container: {
@@ -48,7 +48,6 @@ const styles = StyleSheet.create({
     mozaicImg: {
         borderRadius: 10,
         width: 100,
-        height: 100,
         aspectRatio: 1,
         alignSelf: 'center',
         resizeMode: 'center',
@@ -154,6 +153,7 @@ export default class Profile extends Component {
         this.setState({reviews});
         this.setState({story: result.story});
         this.setState({portfolio: result.portfolio});
+        console.log("-----portfolio------", result.portfolio.length);
     }
     /**
      *  open image picker for portfolio
@@ -342,7 +342,7 @@ export default class Profile extends Component {
                     {/* image mozaic part */}
 
 
-                    <FlatList style={{ marginVertical: 30 }}
+                    <FlatList style={{ marginVertical: 30, alignSelf:'center' }}
                         data={this.state.portfolio}
                         numColumns={3}
                         renderItem={({ item }) => 

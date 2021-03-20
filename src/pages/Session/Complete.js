@@ -37,7 +37,7 @@ export default class SetupDetail extends ValidationComponent {
                     color: ios_red_color
                 }}>Content creation{"\n"}session is complete.</Text>
 
-                <Text style={{ textAlign:'center', marginTop:30}}>{global.booking.first_name} {global.booking.last_name} left a review.</Text>
+                <Text style={{ textAlign:'center', marginTop:30}}>{global.booking.first_name} left a review.</Text>
 
                 <Rating
                     type='custom'
