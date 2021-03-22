@@ -7,35 +7,38 @@ import { local } from '../shared/const/local';
 import { getStorage, getUserId} from '../shared/service/storage';
 import { getMe } from '../shared/service/api';
 import Spinner from 'react-native-loading-spinner-overlay';
+import { isIphoneX } from 'react-native-iphone-x-helper';
+import { WIDTH, DefaultBtnHeight } from '../globalconfig';
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
+    container:{
+        flex:1,
+        flexDirection:'column',
+        justifyContent:'flex-start',
+        marginBottom:isIphoneX()?30:0,        
     },
-    image: {
-        height:'70%',
+    image:{
+        flex:2.5,
         width:'100%',
-        alignSelf: 'center',
-        resizeMode: 'stretch',
+        resizeMode: 'cover',
     },
-    text: {
-        fontSize: 25,
+    text:{
+        fontSize:28,
         textAlign: 'center',
-        fontWeight: 'bold',
         padding: 20,
         color: 'black'
     },
-    btnContainer: {
-        flex: 1,
+    btnContainer:{
         flexDirection: 'row',
-        alignItems: 'center',
         justifyContent: 'space-around'
     },
-    btn: {
-        width: 150,
-        borderRadius: 8
+    btn:{
+        width: WIDTH/2.5,
+        borderRadius:8,
+        // paddingVertical:14
+        height:DefaultBtnHeight
     },
-    btnText: {
+    btnText:{
         color: 'black'
     }
 });
@@ -100,16 +103,15 @@ export default class Index extends Component {
 
     render() {
         return (
+            <View style={{flex:1}}>
+                <Spinner visible={this.state.spinner}/>
+            <Image style={styles.image} source={require('../assets/img/login_signup.jpg')} />
             <View style={styles.container}>
-                <Spinner
-                    visible={this.state.spinner}
-                />
-                <Image style={styles.image} source={require('../assets/img/login_signup.jpg')} />
-                <Text style={styles.text}>Make money on the go{"\n"}doing what you love.</Text>
+            <Text style={styles.text}>Make money on the go{"\n"}doing what you love.</Text>
                 <View style={styles.btnContainer}>
                     <Button
                         type="outline"
-                        buttonStyle={styles.btn}
+                        buttonStyle={[styles.btn, {borderColor:'black'}]}
                         titleStyle={styles.btnText}
                         title="Log In"
                         onPress={() => {
@@ -126,7 +128,9 @@ export default class Index extends Component {
                         onPress={() => this.props.navigation.navigate('Signup')}
                     />
                 </View>
+
             </View>
+        </View>
         )
     }
 

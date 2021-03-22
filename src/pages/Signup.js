@@ -10,6 +10,7 @@ import ValidationComponent from 'react-native-form-validator';
 import { local } from '../shared/const/local';
 import Spinner from 'react-native-loading-spinner-overlay';
 import BackButton from "../components/BackButton";
+import { HEIGHT, DefaultBtnHeight } from '../globalconfig';
 
 const styles = StyleSheet.create({
     container: {
@@ -19,18 +20,22 @@ const styles = StyleSheet.create({
         width: 'auto'
     },
     btnContainer: {
-        flexGrow: 1,
-        justifyContent: 'center',
+        height:HEIGHT / 1.6,
+        flexDirection:'column',
+        justifyContent: 'space-evenly',
         paddingHorizontal: 30,
-        marginTop:10,
-        paddingBottom:30,
+        marginVertical: 10,
+    },
+    txtInputStyle: {
+        borderWidth:1, 
+        borderRadius:10, 
+        borderColor:'gray', 
+        padding:14, 
+        fontSize: 18, 
     },
     btn: {
-        borderRadius: 8,
-        marginTop:30,
-    },
-    btnText: {
-        fontSize: 20
+        paddingVertical:14,
+        borderRadius: 8
     },
     btnIcon: {
         flex: 0,
@@ -39,19 +44,11 @@ const styles = StyleSheet.create({
     },
     numberPart: {
         flexDirection: 'row',
-        alignItems: 'center'
+        alignItems:'center'
     },
     error: {
         color:'red'
-    },
-    txtInputStyle: {
-        borderWidth:1, 
-        borderRadius:10, 
-        borderColor:'gray', 
-        padding:10, 
-        fontSize: 18, 
-        marginVertical:10
-    },
+    }
 });
 
 export default class SignupPage extends ValidationComponent {
