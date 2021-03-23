@@ -17,13 +17,7 @@ const styles = StyleSheet.create({
     container: {
         // flexGrow: 1,
         // paddingHorizontal: 30,
-    },
-    image: {
-        width: '100%',
-        height: 200,
-        resizeMode: 'cover',
-    },
-
+    },   
     headerTitle: {
         fontSize: 20,
         fontWeight: 'bold',
@@ -104,14 +98,7 @@ export default class Profile extends Component {
 
         this.user = null;
         this.RBSheetR = null;
-        this.bottomSheetList = [
-            {
-                title: 'Create New',
-                containerStyle: {
-                    borderTopRightRadius: 20,
-                    borderTopLeftRadius: 20,
-                }
-            },
+        this.bottomSheetList = [           
             {
                 title: 'Portfolio Post',
                 onPress: () => {this.openPortfolioPicker() }
@@ -153,7 +140,7 @@ export default class Profile extends Component {
         this.setState({reviews});
         this.setState({story: result.story});
         this.setState({portfolio: result.portfolio});
-        console.log("-----portfolio------", result.portfolio.length);
+        console.log("-----portfolio------", user.banner);
     }
     /**
      *  open image picker for portfolio
@@ -285,7 +272,6 @@ export default class Profile extends Component {
                     alignItems: 'stretch'
                 }}>
                     {/* <BackButton navigation={this.props.navigation} /> */}
-                    <Image style={styles.image} source={require('../../assets/img/profile_logo.jpg')} />
                     <ProfileAvatar />
                 </View>
                 <View style={{
@@ -406,7 +392,7 @@ export default class Profile extends Component {
                         height:5
                       }
                     }}
-
+                    height={200}
                     openDuration={250}
                 >
                     {this.bottomSheetList.map((l, i) => (

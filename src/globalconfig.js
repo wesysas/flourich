@@ -1,10 +1,10 @@
 import {Dimensions} from "react-native";
-// export const API_URL = 'http://10.99.4.49:4000/api';
-// export const SERVER_URL = 'http://10.99.4.49:4000/';
-// export const CHAT_URL = 'http://10.99.4.49:3000/';
-export const API_URL = 'http://leti.flourich.co.uk/api';
-export const SERVER_URL = 'http://leti.flourich.co.uk/';
-export const CHAT_URL = 'http://chat.flourich.co.uk:3000/';
+export const API_URL = 'http://10.99.4.49:4000/api';
+export const SERVER_URL = 'http://10.99.4.49:4000/';
+export const CHAT_URL = 'http://10.99.4.49:3000/';
+// export const API_URL = 'http://leti.flourich.co.uk/api';
+// export const SERVER_URL = 'http://leti.flourich.co.uk/';
+// export const CHAT_URL = 'http://chat.flourich.co.uk:3000/';
 
 export const facebook = {
     clientID: 'INSERT-CLIENT-ID-HERE',

@@ -1,17 +1,11 @@
 import React, { Component} from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Platform } from 'react-native';
-import { Button, Avatar, ListItem } from 'react-native-elements';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import Carousel from 'react-native-snap-carousel';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { Avatar, ListItem } from 'react-native-elements';
 import BackButton from '../../components/BackButton';
-import ProfileAvatar from '../../components/ProfileAvatar';
-import RBSheet from 'react-native-raw-bottom-sheet';
-import { getUserId, saveStorage } from '../../shared/service/storage';
 import Moment from 'moment';
-import { LogBox, FlatList } from 'react-native';
-import ImagePicker from 'react-native-image-crop-picker';
+import { FlatList } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
-import { getCreatorMediaData, getMe, uploadPortfolio, uploadStory, getReviews } from '../../shared/service/api';
+import { getReviews } from '../../shared/service/api';
 import { SERVER_URL } from '../../globalconfig';
 import { SafeAreaView } from 'react-native';
 

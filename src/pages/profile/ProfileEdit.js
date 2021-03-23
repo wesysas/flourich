@@ -164,7 +164,6 @@ export default class SetupDetail extends ValidationComponent {
                 />
                 <View style={{ alignItems: 'stretch' }}>
                     <BackButton navigation={this.props.navigation} />
-                    <Image style={styles.image} source={require('../../assets/img/profile_logo.jpg')} />
                     <ProfileAvatar />
                 </View>
 
