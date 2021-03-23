@@ -22,6 +22,7 @@ export const GOOGLE_MAPS_APIKEY = 'AIzaSyAKXQN4GlcQgn3qmtsZDpFCuVHqtkf4whk';
 export const WIDTH = Dimensions.get('window').width;
 export const HEIGHT = Dimensions.get('window').height;
 export const ASPECT_RATIO = WIDTH / HEIGHT;
+export const DefaultBtnHeight = 50;
 
 export const LATITUDE_DELTA = 0.14;
 export const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;

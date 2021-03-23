@@ -12,6 +12,8 @@ import ValidationComponent from 'react-native-form-validator';
 import { local } from '../shared/const/local';
 import Spinner from 'react-native-loading-spinner-overlay';
 import {btnGradientProps} from "../GlobalStyles";
+import { isIphoneX } from "react-native-iphone-x-helper";
+import { HEIGHT, DefaultBtnHeight } from '../globalconfig';
 
 const styles = StyleSheet.create({
     container: {
@@ -21,43 +23,45 @@ const styles = StyleSheet.create({
         width: 'auto'
     },
     btnContainer: {
-        // flexGrow: 1,
-        // justifyContent: 'space-around',
+        height:HEIGHT / 1.6,
+        flexDirection:'column',
+        justifyContent: 'space-evenly',
         paddingHorizontal: 30,
-        marginTop:10,
-        paddingBottom:30,        
+        marginVertical: 10,
+    },
+    txtInputStyle: {
+        borderWidth:1, 
+        borderRadius:10, 
+        borderColor:'gray', 
+        padding:14, 
+        fontSize: 18, 
+    },
+    touchableBtn:{
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderColor: 'gray',
+        justifyContent:'center',
+        borderRadius: 8,
+        borderWidth: 1,
+        height: DefaultBtnHeight,
+        marginBottom:10
     },
     btn: {
-        borderRadius: 8,
-        marginBottom:10,
+        paddingVertical:14,
+        borderRadius: 8
     },
     btnText: {
         fontSize: 20
     },
     btnIcon: {
-        alignSelf:'flex-start',
         flex: 0,
         color: 'black',
         margin: 25
     },
     numberPart: {
         flexDirection: 'row',
-        alignItems: 'center'
-    },
-    error: {
-        color:'red'
-    },
-    spinnerTextStyle: {
-        color: '#FFF'
-    },
-    txtInputStyle: {
-        borderWidth:1, 
-        borderRadius:10, 
-        borderColor:'gray', 
-        padding:10, 
-        fontSize: 18, 
-        marginVertical:10
-    },
+        alignItems:'center'
+    }
 });
 
 export default class LoginPage extends ValidationComponent {
@@ -214,166 +218,110 @@ export default class LoginPage extends ValidationComponent {
         // const { user } = this.state;
         return (
             <ScrollView style={styles.container}>
-                <Spinner
-                    visible={this.state.spinner}
-                />
-                <BackButton navigation={this.props.navigation} />                
-                <Image style={styles.image} source={require('../assets/img/get_started_logo.jpg')} />
-                <Text style={{ textAlign: 'center', color:'white', position:'absolute', top:55, fontSize:25, left:85}}>Get Started.</Text>
-                <View style={styles.btnContainer}>
-                    <View style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            justifyContent: 'space-evenly',
-                        }}>
-                        <Text style={{ textAlign: 'center' }}>New User?   
-                            <Text 
-                                style={{ 
-                                    color:'#03489c',
-                                }}
-                                onPress={()=> {
-                                    this.props.navigation.navigate('Signup',{transition:'vertical'})
-                                }}
-                                > Create an account
-                            </Text>
+            <Spinner
+                visible={this.state.spinner}
+            />
+            <BackButton navigation={this.props.navigation} />    
+            <Image style={styles.image} source={require('../assets/img/get_started_logo.jpg')} />
+            <View style={styles.btnContainer}>
+                <View style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'space-evenly',
+                    }}>
+                    <Text style={{ textAlign: 'center' }}>New User?   
+                        <Text 
+                            style={{ 
+                                color:'#03489c',
+                            }}
+                            onPress={()=> {
+                                this.props.navigation.navigate('Signup',{transition:'vertical'})
+                            }}
+                            > Create an account
                         </Text>
-                    </View>
-
-                    <TextInput
-                        style={styles.txtInputStyle}
-                        placeholder="Email"
-                        value={this.state.email}
-                        onChangeText={value => {
-                            this.setState({"email":value});
-                        }}
-                    ></TextInput>
-                    {this.isFieldInError('email') && this.getErrorsInField('email').map(errorMessage => <Text style={styles.error}>{errorMessage}</Text>) }
-
-                    <TextInput
-                        style={styles.txtInputStyle}
-                        placeholder="Password"
-                        value={this.state.password}
-                        onChangeText={value => {
-                            this.setState({"password":value});
-                        }}
-                        secureTextEntry={true}
-                    ></TextInput>
-                    {this.isFieldInError('password') && this.getErrorsInField('password').map(errorMessage => <Text style={styles.error}>{errorMessage}</Text>) }
-
-                    <View>
-                        <Button
-                        buttonStyle={ styles.btn }
-                            titleStyle={styles.btnTitle}
-                            ViewComponent={LinearGradient}
-                            linearGradientProps={btnGradientProps}
-                            title="Continue"
-                            onPress={() => {
-                                // navigation.navigate('Verify')
-                                this._loginWithEmail();
-                            }}
-                        />
-                    </View>
-                    <Text style={{ marginVertical:10, textAlign:'center'}}>Or</Text>
-
-                    <TouchableOpacity
-                        style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            borderColor: 'gray',
-                            justifyContent:'center',
-                            borderRadius: 8,
-                            borderWidth: 1,
-                            height: 40,
-                            marginBottom:10
-                        }}
-                        onPress={() => this._loginWithGoogle()}
-                    >
-                        <Image
-                            style={{
-                                position:'absolute',
-                                left:10,
-                                resizeMode: 'contain'
-                            }}
-                            source={require('../assets/img/google.png')} />
-                        <Text>Connect with Google</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                        style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            borderColor: 'gray',
-                            justifyContent:'center',
-                            backgroundColor:'black',
-                            borderRadius: 8,
-                            borderWidth: 1,
-                            height: 40,
-                            marginBottom:10
-                        }}
-                        onPress={() => {}}
-                    >
-                        <Icon style={{
-                                position:'absolute',
-                                left:12
-                            }}
-                                name="apple"
-                                size={25}
-                                color="white"
-                            />
-                        <Text style={{color:'white'}}>Connect with Apple</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                        style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            borderColor: 'gray',
-                            justifyContent:'center',
-                            backgroundColor:'#39559f',
-                            borderRadius: 8,
-                            borderWidth: 1,
-                            height: 40,
-                            marginBottom:10
-                        }}
-                        onPress={() => {}}
-                    >
-                        <Icon style={{
-                                position:'absolute',
-                                left:12
-                            }}
-                                name="facebook-square"
-                                size={25}
-                                color="white"
-                            />
-                        <Text style={{color:'white'}}>Connect with Facebook</Text>
-                    </TouchableOpacity>                   
-
-                    {/* <View style={styles.numberPart}>
-                        <View style={{
-                            width: 30,
-                            height: 30,
-                            backgroundColor: 'black',
-                            borderRadius: 15
-                        }}>
-                        </View>
-                        <Picker
-                            selectedValue={this.state.selectedValue}
-                            style={{ width: 100 }}
-                        // onValueChange={(itemValue, itemIndex) => setSelectedValue(itemValue)}
-                        >
-                            <Picker.Item label="+01" value="01" />
-                            <Picker.Item label="+02" value="02" />
-                        </Picker>
-                        <TextInput
-                            style={{ borderColor: 'gray', fontSize: 20 }}
-                            onChangeText={text => onChangeText(text)}
-                            value={this.state.value}
-                            placeholder="Enter Phone Number"
-                            keyboardType={'numeric'}
-                        />
-                    </View> */}
+                    </Text>
                 </View>
-            </ScrollView>
+
+                <TextInput
+                    style={styles.txtInputStyle}
+                    placeholder="email@address.com"
+                    value={this.state.email}
+                    onChangeText={value => {
+                        this.setState({"email":value});
+                    }}
+                ></TextInput>
+                {this.isFieldInError('email') && this.getErrorsInField('email').map(errorMessage => <Text style={styles.error}>{errorMessage}</Text>) }
+
+                <TextInput
+                    style={styles.txtInputStyle}
+                    placeholder="password"
+                    value={this.state.password}
+                    onChangeText={value => {
+                        this.setState({"password":value});
+                    }}
+                    secureTextEntry={true}
+                ></TextInput>
+                {this.isFieldInError('password') && this.getErrorsInField('password').map(errorMessage => <Text style={styles.error}>{errorMessage}</Text>) }
+
+                <View>
+                    <Button
+                    buttonStyle={ styles.btn }
+                        titleStyle={styles.btnTitle}
+                        ViewComponent={LinearGradient}
+                        linearGradientProps={btnGradientProps}
+                        title="Continue"
+                        onPress={() => {
+                            this._loginWithEmail();
+                        }}
+                    />
+                </View>
+                <Text style={{ marginVertical:10, textAlign:'center'}}>Or</Text>
+
+                <TouchableOpacity
+                    style={styles.touchableBtn}
+                    onPress={() => this._loginWithGoogle()}
+                >
+                    <Image
+                        style={{
+                            position:'absolute',
+                            left:10,
+                            resizeMode: 'contain'
+                        }}
+                        source={require('../assets/img/google.png')} />
+                    <Text>Connect with Google</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={[{backgroundColor:'black'}, styles.touchableBtn]}
+                    onPress={() => {}}
+                >
+                    <Icon style={{
+                            position:'absolute',
+                            left:12
+                        }}
+                            name="apple"
+                            size={25}
+                            color="white"
+                        />
+                    <Text style={{color:'white'}}>Connect with Apple</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={[{backgroundColor:'#39559f'}, styles.touchableBtn]}                        
+                    onPress={() => {}}
+                >
+                    <Icon style={{
+                            position:'absolute',
+                            left:12
+                        }}
+                            name="facebook-square"
+                            size={25}
+                            color="white"
+                        />
+                    <Text style={{color:'white'}}>Connect with Facebook</Text>
+                </TouchableOpacity>   
+            </View>
+        </ScrollView>
         )
     }
 
