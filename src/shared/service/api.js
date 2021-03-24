@@ -81,6 +81,16 @@ export const uploadAvatar = async (data) => {
     }
 }
 
+export const uploadBankDetail = async (data) => {
+    try {
+        var resp = await _post('/v1/profile/bank_detail', data);
+        return resp;
+    } catch (err) {
+        // Handle Error Here
+        _handleError(err);
+        return null;
+    }
+}
 export const getMe = async (data) => {
     try {
         var res = await _post('/v1/profile/getme', data);

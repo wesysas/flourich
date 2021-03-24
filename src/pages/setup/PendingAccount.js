@@ -29,11 +29,12 @@ export default class PendingAccount extends Component {
 
     componentDidMount() {       
         let progress = 0;
+        console.log(global.user);
         this.setState({ progress });
         setTimeout(() => {
             this.setState({ indeterminate: false });
             var loading = setInterval(() => {
-                progress += Math.random() / 5;
+                progress += Math.random() / 20;
                 if (progress > 1) {
                     progress = 1;
                     clearInterval(loading);
@@ -49,8 +50,8 @@ export default class PendingAccount extends Component {
             <View style={styles.container}>
                 <Image style={styles.image} source={require('../../assets/img/pending.jpg')} />
                 <View style={styles.txtPart}>
-                    <Text style={{ fontSize: 30, fontWeight: '500', color: '#000022' }}>Leteechia,</Text>
-                    <Text style={{ textAlign: 'center' }}>Your profile verification is pending. We will inform you{"\n"} when complete in 1-2 business days</Text>
+                    <Text style={{ fontSize: 30, fontWeight: '500', color: '#000022', marginBottom:10 }}>{global.user.first_name}</Text>
+                    <Text style={{ textAlign: 'center' }}>Your profile verification is pending. We will inform you when complete in 1-2 business days</Text>
 
                 </View>
                 <View style={{ flex: 1, alignItems: 'stretch', justifyContent: 'center', marginHorizontal: 30 }}>

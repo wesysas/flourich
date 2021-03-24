@@ -164,8 +164,6 @@ export default class SignupPage extends ValidationComponent {
                 var profile_id = res.user.creator_id;
                 if(profile_id === null) {
                     this.props.navigation.navigate('SignUpStacks');
-                }else{
-                    this.props.navigation.navigate('Home');
                 }
             }
         }

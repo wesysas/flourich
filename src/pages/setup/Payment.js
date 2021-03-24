@@ -42,7 +42,7 @@ export default class Identity extends Component {
                         titleStyle={{ color: 'gray',textDecorationLine: 'underline', fontSize:15}}
                         title="Skip"
                         onPress={() => {
-                            this.props.navigation.navigate('Home');
+                            this.props.navigation.navigate('PendingAccount');
                         }}
                     />
                 </View>

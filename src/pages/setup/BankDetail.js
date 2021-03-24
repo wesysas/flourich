@@ -5,6 +5,8 @@ import LinearGradient from 'react-native-linear-gradient/index';
 import { btnGradientProps } from '../../GlobalStyles';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import BackButton from "../../components/BackButton";
+import {uploadBankDetail} from '../../shared/service/api';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 const styles = StyleSheet.create({
     container: {
@@ -38,12 +40,22 @@ const styles = StyleSheet.create({
 
 export default class Identity extends Component {
     constructor(props) {
-        super(props);        
+        super(props);      
+        this.state = {
+            cid: global.user.cid,
+            bank_name: '',
+            account_number: '',
+            short_code: '',
+            spinner: false,
+        }  
     }
 
     render() {
         return (
             <SafeAreaView>
+                <Spinner
+                    visible={this.state.spinner}
+                />
                 <BackButton navigation={this.props.navigation} />   
                 <View style={styles.container}>             
                     <Text style={styles.subTitle}>Add bank details</Text>
@@ -53,7 +65,7 @@ export default class Identity extends Component {
                             style={{fontSize:18}}
                             placeholder="Bank Name"
                             onChangeText={value => {
-                                this.setState({"password":value});                              
+                                this.setState({"bank_name":value});                              
                             }}
                         />
                         <Icon name="check-circle" size={25} />
@@ -64,7 +76,7 @@ export default class Identity extends Component {
                             style={{fontSize:18}}
                             placeholder="Account Number"
                             onChangeText={value => {
-                                this.setState({"password":value});                              
+                                this.setState({"account_number":value});                              
                             }}
                         />
                         <Icon name="check-circle" size={25} />
@@ -76,7 +88,7 @@ export default class Identity extends Component {
                             placeholder="Sort Code"
                             keyboardType={'numeric'}
                             onChangeText={value => {
-                                this.setState({"password":value});                              
+                                this.setState({"short_code":value});                              
                             }}
                         />
                         <Icon name="check-circle" size={25} />
@@ -89,8 +101,14 @@ export default class Identity extends Component {
                         titleStyle={styles.btnTitle}
                         linearGradientProps={btnGradientProps}
                         title="Continue"
-                        onPress = {() => {
-                            this.props.navigation.navigate('Home');
+                        onPress = { async() => {
+                            this.setState({spinner:true});
+                            var res = await uploadBankDetail(this.state);
+                            this.setState({spinner:false});
+                           
+                            if(res != null) {
+                               this.props.navigation.navigate('PendingAccount');
+                            }
                         }}                        
                     />
                 </View>

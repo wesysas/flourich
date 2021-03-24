@@ -159,6 +159,7 @@ export default class Identity extends Component {
     uploadAvatarImage = async (image) => {
         var userid = await getUserId();
         this.setState({"userid": userid});
+        this.setState({avatar:true});
 
         var ext = image.mime;
         var ext_a = ext.split("/");
@@ -257,7 +258,7 @@ export default class Identity extends Component {
                         title="Next"
                         onPress={()=> {
                             if(this.state.availAvatar && this.state.uploadedCard) {   
-                                this.props.navigation.navigate("PendingAccount");
+                                this.props.navigation.navigate("Payment");
                             }                             
                         }}
                     />

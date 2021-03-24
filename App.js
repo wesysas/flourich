@@ -70,9 +70,10 @@ const SignUpStacks = () => {
         <RootStack.Navigator>
             <RootStack.Screen name="SetupDetail" component={SetupDetail} options={{ headerShown: false }}/>
             <RootStack.Screen name="Identity" component={Identity} options={{ headerShown: false }}/>
-            <RootStack.Screen name="PendingAccount" component={PendingAccount} options={{ headerShown: false }}/>
             <RootStack.Screen name="Payment" component={Payment} options={{ headerShown: false }}/>   
-            <RootStack.Screen name="BankDetail" component={BankDetail} options={{ headerShown: false }}/>   
+            <RootStack.Screen name="BankDetail" component={BankDetail} options={{ headerShown: false }}/>  
+            <RootStack.Screen name="PendingAccount" component={PendingAccount} options={{ headerShown: false }}/> 
+            
             <RootStack.Screen name="IdCardScan" component={IdCardScan} options={{ headerShown: false }}/>
             <RootStack.Screen name="FaceScan" component={FaceScan} options={{ headerShown: false }}/>
         </RootStack.Navigator>

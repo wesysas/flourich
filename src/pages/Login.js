@@ -244,7 +244,7 @@ export default class LoginPage extends ValidationComponent {
 
                 <TextInput
                     style={styles.txtInputStyle}
-                    placeholder="email@address.com"
+                    placeholder="Email"
                     value={this.state.email}
                     onChangeText={value => {
                         this.setState({"email":value});
@@ -254,7 +254,7 @@ export default class LoginPage extends ValidationComponent {
 
                 <TextInput
                     style={styles.txtInputStyle}
-                    placeholder="password"
+                    placeholder="Password"
                     value={this.state.password}
                     onChangeText={value => {
                         this.setState({"password":value});

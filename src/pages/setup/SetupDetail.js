@@ -28,10 +28,10 @@ const styles = StyleSheet.create({
     },
     subTitle: {
         fontSize: 20,
-        marginVertical: 10
+        marginBottom: 20
     },
     separate: {
-        marginVertical: 20
+        marginTop: 20
     },
     btnStyle: {
         width: 90,
@@ -46,7 +46,7 @@ export default class SetupDetail extends ValidationComponent {
     constructor(props) {
         super(props);
         this.state = {
-            userid: '',
+            userid: global.user.cid,
             operate_type:operate_type[0],
             firstname: "", 
             lastname: "", 
@@ -76,7 +76,7 @@ export default class SetupDetail extends ValidationComponent {
     }
     async componentDidMount() {
         LogBox.ignoreLogs(['Warning: `componentWillReceiveProps`']);
-
+        console.log(global.user.cid);
         var default_service = await getDefaultService();
         var categories = await getCategories();
         var service_type = default_service.map((service) => {
@@ -130,14 +130,14 @@ export default class SetupDetail extends ValidationComponent {
         
         if(validate) {
             this.setState({spinner:true});
-            var userid = await getUserId();
-            this.setState({'userid': userid});
+            console.log(this.state);
             var res = await createProfile(this.state);
             this.setState({spinner:false});
+            global.user.first_name = this.state.firstname;
+            global.user.last_name = this.state.lastname;
+            
             if(res != null) {
-                this.props.navigation.navigate('Identity');
-            }else{
-                this.props.navigation.navigate('Home');
+               this.props.navigation.navigate('Identity');
             }
         }
     };
@@ -165,10 +165,10 @@ export default class SetupDetail extends ValidationComponent {
                     })}
                 />
                 <View style={styles.separate}>
-                    <Text style={styles.subTitle}>Add you name*</Text>
+                    <Text style={styles.subTitle}>Add your details*</Text>
                     <Text>First Name</Text>
                     <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }}
-                        placeholder='Leteechia'
+                        placeholder=''
                         value={this.state.firstname}
                         onChangeText={value => {
                             this.setState({"firstname":value})
@@ -178,7 +178,7 @@ export default class SetupDetail extends ValidationComponent {
 
                     <Text>Last Name</Text>
                     <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }}
-                        placeholder='Rungasamy' 
+                        placeholder='' 
                         onChangeText={value => {
                             this.setState({"lastname":value})
                         }}
@@ -186,8 +186,55 @@ export default class SetupDetail extends ValidationComponent {
                     {this.isFieldInError('lastname') && this.getErrorsInField('lastname').map(errorMessage => <Text key="lastname" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
 
                     { this._renderBusiness()}
-                </View>
-                <View style={styles.separate}>
+                
+                    <Text>Full Address</Text>
+                    <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder=''
+                        value={this.state.fulladdress}
+                        onChangeText={ value => {
+                            this.setState({"fulladdress":value})
+                        }}
+                    />
+                    {this.isFieldInError('fulladdress') && this.getErrorsInField('fulladdress').map(errorMessage => <Text key="fulladdress" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
+                    <Text>Business or Building Name</Text>
+                    <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder=''
+                        value={this.state.building}
+                        onChangeText={ value => {
+                            this.setState({"building":value})
+                        }}
+                    />
+                    {this.isFieldInError('building') && this.getErrorsInField('building').map(errorMessage => <Text key="building" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
+
+                    <Text>Street Address</Text>
+                    <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder=''
+                        value={this.state.street}
+                        onChangeText={ value => {
+                            this.setState({"street":value})
+                        }}
+                    />
+                    <View style={{flexDirection:'row', justifyContent:'space-between'}}>
+                        <View style={{flex:1}}>
+                            <Text>Post Code</Text>
+                            <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder=''
+                                value={this.state.postalcode}
+                                onChangeText={ value => {
+                                    this.setState({"postalcode":value})
+                                }}
+                            />
+                            {this.isFieldInError('postalcode') && this.getErrorsInField('postalcode').map(errorMessage => <Text key="postalcode" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
+                        </View>
+                        <View style={{flex:0.5}}></View>
+                        <View style={{flex:1}}>
+                            <Text>City</Text>
+                            <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder=''
+                                value={this.state.city}
+                                onChangeText={ value => {
+                                    this.setState({"city":value})
+                                }}
+                            />  
+                            {this.isFieldInError('street') && this.getErrorsInField('street').map(errorMessage => <Text key="street" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
+                        </View>
+                    </View>
+
                     <Text style={styles.subTitle}>Add your services*</Text>
                     <View style={multiBtnGroupStyle}>
                         {this.state.service_type.map(interest => (
@@ -271,59 +318,10 @@ export default class SetupDetail extends ValidationComponent {
                     </View>
 
                 </View>
-                <View style={styles.separate}>
-                    <Text style={styles.subTitle}>Add your Address*</Text>
-                    <Text>Full Address</Text>
-                    <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='Full address displays here'
-                        value={this.state.fulladdress}
-                        onChangeText={ value => {
-                            this.setState({"fulladdress":value})
-                        }}
-                    />
-                    {this.isFieldInError('fulladdress') && this.getErrorsInField('fulladdress').map(errorMessage => <Text key="fulladdress" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
-                    <Text>Business or Building Name</Text>
-                    <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='Business or building name goes here'
-                        value={this.state.building}
-                        onChangeText={ value => {
-                            this.setState({"building":value})
-                        }}
-                    />
-                    {this.isFieldInError('building') && this.getErrorsInField('building').map(errorMessage => <Text key="building" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
-
-                    <Text>Street Address</Text>
-                    <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='street address goes here'
-                        value={this.state.street}
-                        onChangeText={ value => {
-                            this.setState({"street":value})
-                        }}
-                    />
-                    <View style={{flexDirection:'row', justifyContent:'space-between'}}>
-                        <View style={{flex:1}}>
-                            <Text>Post Code</Text>
-                            <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='123456789UK'
-                                value={this.state.postalcode}
-                                onChangeText={ value => {
-                                    this.setState({"postalcode":value})
-                                }}
-                            />
-                            {this.isFieldInError('postalcode') && this.getErrorsInField('postalcode').map(errorMessage => <Text key="postalcode" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
-                        </View>
-                        <View style={{flex:0.5}}></View>
-                        <View style={{flex:1}}>
-                            <Text>City</Text>
-                            <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='123456789UK'
-                                value={this.state.city}
-                                onChangeText={ value => {
-                                    this.setState({"city":value})
-                                }}
-                            />  
-                            {this.isFieldInError('street') && this.getErrorsInField('street').map(errorMessage => <Text key="street" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
-                        </View>
-                    </View>
-                </View>
+                
                 <View style={styles.separate}>
                     <Text>Website</Text>
-                    <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='www.flourich.co.uk'
+                    <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder=''
                         value={this.state.weburl}
                         onChangeText={ value => {
                             this.setState({"weburl":value})
@@ -332,7 +330,7 @@ export default class SetupDetail extends ValidationComponent {
                     {this.isFieldInError('weburl') && this.getErrorsInField('weburl').map(errorMessage => <Text key="weburl" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
 
                     <Text>Instagram URL</Text>
-                    <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='Instagram Link goes here'
+                    <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder=''
                         value={this.state.instagramurl}
                         onChangeText={ value => {
                             this.setState({"instagramurl":value})
@@ -341,7 +339,7 @@ export default class SetupDetail extends ValidationComponent {
                     {this.isFieldInError('instagramurl') && this.getErrorsInField('instagramurl').map(errorMessage => <Text key="instagramurl" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
 
                     <Text>Linked in (optional)</Text>
-                    <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='Link to linked in profile goes here'
+                    <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder=''
                         value={this.state.linkedin}
                         onChangeText={ value => {
                             this.setState({"linkedin":value})
@@ -349,7 +347,7 @@ export default class SetupDetail extends ValidationComponent {
                     />
 
                     <Text>Behance (optional)</Text>
-                    <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder='Link to behance profile goes here'
+                    <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder=''
                         value={this.state.behance}
                         onChangeText={ value => {
                             this.setState({"behance":value})
@@ -475,6 +473,7 @@ export default class SetupDetail extends ValidationComponent {
                                         minWidth:80,
                                         borderColor: 'gray',
                                         borderWidth: 1,
+                                        fontSize:18,
                                         borderRadius: 5,
                                         paddingLeft:20,
                                         textAlign:'center'
