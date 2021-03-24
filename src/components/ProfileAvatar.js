@@ -95,7 +95,7 @@ export default class ProfileAvatar extends Component {
                                         this.setState({avatar:false});
                                         this.RBSheetR.open();
                                     }}>
-                        <Icon name="camera" size={15} />
+                        <Icon name="pencil" size={15} />
                     </TouchableOpacity>
                 <View style={styles.avatarImage}>
                     <Avatar
@@ -106,7 +106,7 @@ export default class ProfileAvatar extends Component {
                         containerStyle={styles.avatarContainer}
                         source={{uri: SERVER_URL+ global.user.avatar+"?time=" + new Date()}}
                     />
-                    {global.user.rating_point && 
+                    {global.user.rating_count >=5 && 
                         <View style={styles.markContainer}>
                             <Icon name="star" color="green" size={15} />
                             <Text> {global.user.rating_point} ({global.user.rating_count})</Text>

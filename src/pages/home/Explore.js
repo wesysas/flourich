@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component} from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, SafeAreaView, Dimensions, PermissionsAndroid } from 'react-native';
 import {FlatList} from 'react-native-gesture-handler'
 import FlashMessage, { showMessage } from "react-native-flash-message";
@@ -130,6 +130,7 @@ export default class Explore extends Component {
         };
         this.date_filter = 1;
         this.bottomSheet = null;
+        this.googlebar = null;
         global.user = {};
     }
     watchId = null;
@@ -180,7 +181,8 @@ export default class Explore extends Component {
         }
     }
 
-    async componentDidMount() {
+    async componentDidMount() {      
+        this.googlebar.setAddressText('Some Text');
         global.user = JSON.parse(await getStorage(local.user));
         if (!global.user.status) global.user.status = 0;
         this.watchId = navigator.geolocation.watchPosition(
@@ -219,6 +221,7 @@ export default class Explore extends Component {
             lastLat: lastLat || this.state.lastLat,
             lastLong: lastLong || this.state.lastLong
         });
+        console.log(this.state.mapRegion);
         var update = updateLocation({cid:global.user.cid, lat:region.latitude, long:region.longitude});
     }
 
@@ -254,11 +257,15 @@ export default class Explore extends Component {
             <SafeAreaView>
                 <FlashMessage position="top" statusBarHeight={20} style={{zIndex:3}} />
                 <GooglePlacesAutocomplete
+                    ref={ref => {
+                        this.googlebar = ref;
+                    }}
                     listViewDisplayed='auto'
                     placeholder='Search Location Here'
                     minLength={1} // minimum length of text to search
                     autoFocus={false}
                     fetchDetails={true}
+                    renderDescription={row => row.description || row.formatted_address || row.name}
                     onPress={(data, details = null) => { // 'details' is provided when fetchDetails = true
 
                         let region = {
@@ -282,19 +289,21 @@ export default class Explore extends Component {
                     styles={{
                         container: {
                             zIndex:2, position: 'absolute',
-                            width: Dimensions.get('window').width-140,
-                            marginTop:62,
+                            width: WIDTH-135,
+                            marginTop:58,
                             marginLeft:45,
                         },
                         description: {
-                            fontWeight: 'bold',
                             textAlign: 'right'
                         },
                         predefinedPlacesDescription: {
                             color: '#1faadb',
                         },
                     }}
-                    currentLocation={false} // Will add a 'Current location' button at the top of the predefined places list
+                    getDefaultValue={() => {
+                        return 'hello'; // text input default value
+                    }}
+                    currentLocation={true} // Will add a 'Current location' button at the top of the predefined places list
                     currentLocationLabel="Current location"
                     nearbyPlacesAPI='GooglePlacesSearch' // Which API to use: GoogleReverseGeocoding or GooglePlacesSearch
                     GoogleReverseGeocodingQuery={{
@@ -327,11 +336,11 @@ export default class Explore extends Component {
 
                     elevation: 4,
                     margin: 10,
-                    paddingHorizontal:20,
+                    paddingHorizontal:15,
                     height: 50,
-                    width: Dimensions.get('window').width - 20
+                    width: WIDTH - 20
                 }}>
-                    <Icon name="search" size={15} color={"grey"}/>
+                    <Icon name="map-marker" size={25}/>
                     <View style={{
                         width:60,
                         flexDirection: 'row',

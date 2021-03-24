@@ -338,7 +338,7 @@ export default class SetupDetail extends ValidationComponent {
                     />
                     {this.isFieldInError('instagramurl') && this.getErrorsInField('instagramurl').map(errorMessage => <Text key="instagramurl" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
 
-                    <Text>Linked in (optional)</Text>
+                    <Text>Linkedin (optional)</Text>
                     <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder=''
                         value={this.state.linkedin}
                         onChangeText={ value => {
@@ -508,7 +508,7 @@ export default class SetupDetail extends ValidationComponent {
                                         backgroundTintColor: ios_red_color,
                                         textTintColor: "white"
                                     }}
-                                    value={interest.title}
+                                    value={interest.category}
                                     selected={this.state.selected_categories.includes(interest.id)}
                                     singleTap={valueTap =>{
                                         var selected_categories = this.state.selected_categories;
