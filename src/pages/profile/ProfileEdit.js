@@ -9,7 +9,7 @@ import { Button, Input, ListItem } from 'react-native-elements';
 import LinearGradient from 'react-native-linear-gradient/index';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome5';
-
+import ToggleSwitch from 'toggle-switch-react-native'
 import { updateProfile, getDefaultService, getCategories, getCreatorService } from '../../shared/service/api';
 import BackButton from '../../components/BackButton';
 import ProfileAvatar from '../../components/ProfileAvatar';
@@ -172,7 +172,7 @@ export default class SetupDetail extends ValidationComponent {
                     <Collapse style={{ marginVertical: 10 }}>
                         <CollapseHeader>
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', borderBottomWidth: 1, paddingBottom: 5, borderBottomColor: 'lightgray', alignItems: 'center' }}>
-                                <Text style={styles.subTitle}>Profile Setting</Text>
+                                <Text style={styles.subTitle}>Profile Settings</Text>
                                 <Icon name="user-circle" size={18} />
                             </View>
                         </CollapseHeader>
@@ -199,7 +199,7 @@ export default class SetupDetail extends ValidationComponent {
                             />
                             {this.isFieldInError('lastname') && this.getErrorsInField('lastname').map(errorMessage => <Text key="lastname" style={{ color:'red', textAlign: 'center'}}>{errorMessage}</Text>) }
                             
-                            <Text>Birth Date</Text>
+                            <Text>Date of Birth</Text>
                             <Button 
                                 buttonStyle={{
                                     borderWidth: 0,
@@ -381,7 +381,7 @@ export default class SetupDetail extends ValidationComponent {
                             />
                             {this.isFieldInError('instagramurl') && this.getErrorsInField('instagramurl').map(errorMessage => <Text key="instagramurl" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
 
-                            <Text>Linked in (optional)</Text>
+                            <Text>Linkedin (optional)</Text>
                             <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder=''
                                 value={this.state.user.linkedin}
                                 onChangeText={value => {
@@ -405,11 +405,35 @@ export default class SetupDetail extends ValidationComponent {
                     <Collapse style={{ marginVertical: 10 }}>
                         <CollapseHeader>
                             <View style={styles.collapseHeader}>
-                                <Text style={styles.subTitle}>Payment Methods</Text>
+                                <Text style={styles.subTitle}>Bank Details</Text>
                                 <Icon name="credit-card" size={18} />
                             </View>
                         </CollapseHeader>
                         <CollapseBody style={{ margin: 10 }}>
+                            <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} 
+                                placeholder='Bank Name'
+                                value={this.state.user.bank_name}
+                                onChangeText={value => {
+                                    this.state.user.bank_name = value;
+                                    this.setState({user:this.state.user});
+                                }}
+                            />
+                            <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} 
+                                placeholder='Account Number'
+                                value={this.state.user.account_number}
+                                onChangeText={value => {
+                                    this.state.user.account_number = value;
+                                    this.setState({user:this.state.user});
+                                }}
+                            />
+                            <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} 
+                                placeholder='Sort Code'
+                                value={this.state.user.short_code}
+                                onChangeText={value => {
+                                    this.state.user.short_code = value;
+                                    this.setState({user:this.state.user});
+                                }}
+                            />
                         </CollapseBody>
                     </Collapse>
                                        
@@ -485,6 +509,16 @@ export default class SetupDetail extends ValidationComponent {
                             </View>
                         </CollapseHeader>
                         <CollapseBody style={{ margin: 10 }}>
+                        <ToggleSwitch
+                            isOn={this.state.user.notification}
+                            onColor="lightgrey"
+                            offColor={ios_red_color}
+                            label="Turn On/Off"
+                            onToggle={isOn => {
+                                this.state.user.notification = isOn;
+                                this.setState({user});
+                            }}
+                        />
                         </CollapseBody>
                     </Collapse>
                     
@@ -499,27 +533,8 @@ export default class SetupDetail extends ValidationComponent {
                         </CollapseBody>
                     </Collapse>
                     
-                    <Collapse style={{ marginVertical: 10 }}>
-                        <CollapseHeader>
-                            <View style={styles.collapseHeader}>
-                                <Text style={styles.subTitle}>Settings</Text>
-                                <Icon name="gear" size={18} />
-                            </View>
-                        </CollapseHeader>
-                        <CollapseBody style={{ margin: 10 }}>
-                        </CollapseBody>
-                    </Collapse>
-                    
-                    <Text style={styles.headerTitle}>SUPPORT</Text>                    
-                    <Collapse style={{ marginVertical: 10 }}>
-                        <CollapseHeader>
-                            <View style={styles.collapseHeader}>
-                                <Text style={styles.subTitle}>How Flourich Works</Text>
-                            </View>
-                        </CollapseHeader>
-                        <CollapseBody style={{ margin: 10 }}>
-                        </CollapseBody>
-                    </Collapse>
+                    <Text style={styles.headerTitle}>SUPPORT</Text> 
+                    <Text style={styles.subTitle}>How Flourich Works</Text>     
 
                     <Collapse style={{ marginVertical: 10 }}>
                         <CollapseHeader>
@@ -709,7 +724,7 @@ export default class SetupDetail extends ValidationComponent {
                                         backgroundTintColor: ios_red_color,
                                         textTintColor: "white"
                                     }}
-                                    value={interest.title}
+                                    value={interest.category}
                                     selected={this.state.selected_categories.includes(interest.id)}
                                     singleTap={valueTap =>{
                                         var selected_categories = this.state.selected_categories;

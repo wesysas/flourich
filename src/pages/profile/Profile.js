@@ -10,8 +10,9 @@ import Moment from 'moment';
 import { LogBox, FlatList } from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
 import Spinner from 'react-native-loading-spinner-overlay';
-import { getCreatorMediaData, getMe, uploadPortfolio, uploadStory, getReviews } from '../../shared/service/api';
+import { getCreatorMediaData, getMe, uploadPortfolio, uploadStory, getReviews, getCreatorService} from '../../shared/service/api';
 import { SERVER_URL, WIDTH } from '../../globalconfig';
+import BackButton from '../../components/BackButton';
 
 const styles = StyleSheet.create({
     container: {
@@ -20,9 +21,11 @@ const styles = StyleSheet.create({
     },   
     headerTitle: {
         fontSize: 20,
-        fontWeight: 'bold',
         marginBottom: 20,
         color: 'black'
+    },
+    bodyText: {
+        marginVertical: 2
     },
     subTitle: {
         fontSize: 20,
@@ -92,7 +95,10 @@ export default class Profile extends Component {
             spinner: false,
             story:[],
             portfolio: [],
-            user: global.user
+            user: global.user,
+            min: 100,
+            max: 100,
+            category: 'Food'
         };
         this.activIndex = 3,
 
@@ -134,13 +140,31 @@ export default class Profile extends Component {
         var user = await getMe({ userid: global.user.cid });
         var reviews = await getReviews({ userid: global.user.cid, limit: 2 });
         var result = await getCreatorMediaData({ userid: global.user.cid });
+        var service = await getCreatorService({ userid: global.user.cid });
 
         global.user = user;
         this.setState({user});
         this.setState({reviews});
         this.setState({story: result.story});
         this.setState({portfolio: result.portfolio});
-        console.log("-----portfolio------", user.banner);
+        this.setState({service});
+
+        if (service.length>0)
+        {
+            var sorted = service.sort(function(a, b) {
+                if (a.category_id < b.category_id) {
+                  return -1;
+                }
+                return 0;          
+            });
+
+            var category = sorted.map((prop, key) => { return prop.category });
+            category = [...new Set(category)];
+
+            this.setState({category:category.join(", ")});
+            this.setState({min: Math.min.apply(null, service.map((prop, key) => { return prop.price }))});
+            this.setState({max: Math.max.apply(null, service.map((prop, key) => { return prop.price }))});        
+        }
     }
     /**
      *  open image picker for portfolio
@@ -271,7 +295,7 @@ export default class Profile extends Component {
                 <View style={{
                     alignItems: 'stretch'
                 }}>
-                    {/* <BackButton navigation={this.props.navigation} /> */}
+                    <BackButton navigation={this.props.navigation} />
                     <ProfileAvatar />
                 </View>
                 <View style={{
@@ -279,35 +303,38 @@ export default class Profile extends Component {
                     marginHorizontal: 20
                 }}>
                     <Text style={styles.headerTitle}>{this.state.user.first_name??''} {this.state.user.last_name}</Text>
-                    <Text >{this.state.user.fulladdress}, {this.state.user.street}</Text>
-                    <Text >{this.state.user.services}</Text>
-                    <Text >{this.state.user.weburl}</Text>
+                    <Text style={styles.bodyText}>{this.state.user.fulladdress}, {this.state.user.street}</Text>
+                    <Text style={styles.bodyText}>£ {this.state.min}~{this.state.max}</Text>
+                    <Text style={styles.bodyText}>{this.state.category}</Text>
+                    <Text style={styles.bodyText}>{this.state.user.weburl}</Text>
     
                     {/* summary header */}
     
-                    <View style={[styles.separate, { flexDirection: 'row', justifyContent: 'space-around' }]}>
+                    <View style={[styles.separate, { flexDirection: 'row', justifyContent: 'space-between' }]}>
                         <TouchableOpacity onPress={() => { this.props.navigation.navigate('ProfileEdit') }}
                             style={{borderWidth:1,
                                 padding:10,
                                 marginVertical:10,
-                                borderColor:'grey', 
-                                borderRadius:8
+                                borderColor:'lightgrey', 
+                                width : 150,
+                                borderRadius:5
                             }}
                         >
-                            <Text style={{ fontSize: 20, marginHorizontal:10 }} >Edit Profile</Text>
+                            <Text style={{ fontSize: 18, textAlign:'center', color:'grey' }} >Edit Profile</Text>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => {
-                            //this.openPortfolioPicker();
                             this.RBSheetR.open();
                         }}
                         style={{borderWidth:1,
                             padding:10,
                             marginVertical:10,
-                            borderColor:'grey', 
-                            borderRadius:8
+                            borderColor:'lightgrey', 
+                            backgroundColor:'#f7f9fc', 
+                            width : 150,
+                            borderRadius:5
                         }}
                         >
-                            <Text style={{ fontSize: 20, marginHorizontal:10  }}>Add New</Text>
+                            <Text style={{ fontSize: 18, textAlign:'center' }}>Add New</Text>
                         </TouchableOpacity>
                     </View>
     
