@@ -4,7 +4,7 @@ import { GiftedChat } from 'react-native-gifted-chat';
 import SocketIOClient from 'socket.io-client';
 import Icon from "react-native-vector-icons/FontAwesome";
 import {Avatar} from "react-native-elements";
-import {SERVER_URL, CHAT_URL} from "../../globalconfig";
+import {SERVER_URL} from "../../globalconfig";
 import BackButton from "../../components/BackButton";
 
 export default class ChatBox extends Component {
@@ -24,7 +24,7 @@ export default class ChatBox extends Component {
             isReady:false,
         };
 
-        this.socket = SocketIOClient(CHAT_URL); //This should be your ip or local
+        this.socket = SocketIOClient(SERVER_URL); //This should be your ip or local
         this.socket.on('messages', this.onReceivedMessage);
         this.socket.on('userId', this.getUserId);
     }
