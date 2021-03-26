@@ -1,5 +1,5 @@
 import React, { Component} from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity, Platform } from 'react-native';
 import { Button, Avatar, ListItem } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Carousel from 'react-native-snap-carousel';
@@ -13,6 +13,8 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import { getCreatorMediaData, getMe, uploadPortfolio, uploadStory, getReviews, getCreatorService} from '../../shared/service/api';
 import { SERVER_URL, WIDTH } from '../../globalconfig';
 import BackButton from '../../components/BackButton';
+import PhotoGrid from './PhotoGrid'
+import _ from 'lodash'
 
 const styles = StyleSheet.create({
     container: {
@@ -146,7 +148,11 @@ export default class Profile extends Component {
         this.setState({user});
         this.setState({reviews});
         this.setState({story: result.story});
-        this.setState({portfolio: result.portfolio});
+        var portfolio = [];
+        _.each(result.portfolio, (item, callback) => {
+            portfolio.push(SERVER_URL + item.media_url)
+        });
+        this.setState({portfolio});
         this.setState({service});
 
         if (service.length>0)
@@ -353,14 +359,9 @@ export default class Profile extends Component {
                             }} />
                     </View>
                     {/* image mozaic part */}
-
-
-                    <FlatList style={{ marginVertical: 30, alignSelf:'center' }}
-                        data={this.state.portfolio}
-                        numColumns={3}
-                        renderItem={({ item }) => 
-                        <View><Image style={styles.mozaicImg} source={{uri: SERVER_URL+item.media_url }} /></View>}
-                    />  
+                    <SafeAreaView style={{ flex: 1 }}>
+                        <PhotoGrid source={this.state.portfolio} />
+                    </SafeAreaView>
 
                     {global.user.rating_point && 
                         <View style={[styles.separate, {

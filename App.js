@@ -19,7 +19,6 @@ import Payment from './src/pages/setup/Payment';
 import BankDetail from './src/pages/setup/BankDetail';
 import SetupDetail from './src/pages/setup/SetupDetail';
 import Identity from './src/pages/setup/Identity';
-import IdCardScan from './src/pages/setup/IdCardScan';
 import FaceScan from './src/pages/setup/FaceScan';
 import PendingAccount from './src/pages/setup/PendingAccount';
 import CustomCamera from './src/pages/setup/CustomCamera';
@@ -29,12 +28,13 @@ import Explore from './src/pages/home/Explore';
 import Booking from './src/pages/home/Booking';
 import Inbox from './src/pages/home/Inbox';
 import ChatBox from './src/pages/home/ChatBox';
-import Wallet from './src/pages/home/Wallet';
 import Studio from './src/pages/home/Studio';
 
 import Profile from './src/pages/profile/Profile';
 import ProfileEdit from './src/pages/profile/ProfileEdit';
 import AllReview from './src/pages/profile/AllReview';
+import Wallet from './src/pages/profile/Wallet';
+import Report from './src/pages/profile/Report';
 //session
 import Start from "./src/pages/Session/Start";
 import Complete from "./src/pages/Session/Complete";
@@ -74,7 +74,6 @@ const SignUpStacks = () => {
             <RootStack.Screen name="BankDetail" component={BankDetail} options={{ headerShown: false }}/>  
             <RootStack.Screen name="PendingAccount" component={PendingAccount} options={{ headerShown: false }}/> 
             
-            <RootStack.Screen name="IdCardScan" component={IdCardScan} options={{ headerShown: false }}/>
             <RootStack.Screen name="FaceScan" component={FaceScan} options={{ headerShown: false }}/>
         </RootStack.Navigator>
     )
@@ -99,6 +98,8 @@ const ProfileStacks = () => {
         <ProfileStack.Navigator>
             <ProfileStack.Screen name="Profile" component={Profile} options={{ headerShown: false }} />
             <ProfileStack.Screen name="ProfileEdit" component={ProfileEdit} options={{ headerShown: false }} />
+            <ProfileStack.Screen name="Wallet" component={Wallet} options={{ headerShown: false }}/>
+            <ProfileStack.Screen name="Report" component={Report} options={{ headerShown: false }}/>
         </ProfileStack.Navigator>
     )
 };
@@ -178,6 +179,7 @@ export default function App() {
         <RootStack.Screen name="Home" component={HomeTabs} options={{ headerShown: false }} />
         <RootStack.Screen name="SignUpStacks" component={SignUpStacks} options={{ headerShown: false }} />
         <RootStack.Screen name="AllReview" component={AllReview} options={{ headerShown: false }}/>
+
         <RootStack.Screen name="CustomCamera" component={CustomCamera} options={{ headerShown: false }}/>
         <RootStack.Screen name="ChatBox" component={ChatBox} options={{ headerShown: false }}/>
         <RootStack.Screen name="Start" component={Start} options={{ headerShown: false }}/>

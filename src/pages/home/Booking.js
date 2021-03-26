@@ -189,7 +189,7 @@ export default class Booking extends Component {
                                           <View>
                                               <Text style={{fontSize: 18}}>{item.first_name} {item.last_name}</Text>
                                               <IconText iconName="map-marker" size={15} txt={item.customer_location} />
-                                              <Text style={[styles.summaryTxt, {marginTop:10}]}>{item.service_type.replace(",", " - ")}</Text>
+                                              {item.service_type&&<Text style={[styles.summaryTxt, {marginTop:10}]}>{item.service_type.replace(",", " - ")}</Text>}
                                               <Text style={styles.summaryTxt}>{Moment(item.start_at).format(("D MMM"))}  |  {Moment(item.start_at).format(("HH:mm"))}  |  £ {item.price}</Text>
                                           </View>
                                           <Image

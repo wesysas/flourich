@@ -410,24 +410,27 @@ export default class SetupDetail extends ValidationComponent {
                             </View>
                         </CollapseHeader>
                         <CollapseBody style={{ margin: 10 }}>
+                            <Text>Bank Name</Text>
                             <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} 
-                                placeholder='Bank Name'
+                                placeholder=''
                                 value={this.state.user.bank_name}
                                 onChangeText={value => {
                                     this.state.user.bank_name = value;
                                     this.setState({user:this.state.user});
                                 }}
                             />
+                            <Text>Account Number</Text>
                             <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} 
-                                placeholder='Account Number'
+                                placeholder=''
                                 value={this.state.user.account_number}
                                 onChangeText={value => {
                                     this.state.user.account_number = value;
                                     this.setState({user:this.state.user});
                                 }}
                             />
+                            <Text>Sort Code</Text>
                             <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} 
-                                placeholder='Sort Code'
+                                placeholder=''
                                 value={this.state.user.short_code}
                                 onChangeText={value => {
                                     this.state.user.short_code = value;
@@ -524,10 +527,13 @@ export default class SetupDetail extends ValidationComponent {
                     
                     <Collapse style={{ marginVertical: 10 }}>
                         <CollapseHeader>
-                            <View style={styles.collapseHeader}>
+                            <TouchableOpacity style={styles.collapseHeader} 
+                             onPress={() => {
+                                this.props.navigation.navigate('Wallet');     
+                            }}>
                                 <Text style={styles.subTitle}>Wallet</Text>
                                 <FontAwesomeIcon name="wallet" size={18} />
-                            </View>
+                            </TouchableOpacity>
                         </CollapseHeader>
                         <CollapseBody style={{ margin: 10 }}>
                         </CollapseBody>

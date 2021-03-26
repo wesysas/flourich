@@ -59,6 +59,17 @@ export const updateProfile = async (data) => {
     }
 }
 
+export const withdraw = async (data) => {
+    try {
+        var resp = await _post('/v1/profile/withdraw', data);
+        return resp;
+    } catch (err) {
+        // Handle Error Here
+        _handleError(err);
+        return null;
+    }
+}
+
 export const uploadCard = async (data) => {
     try {
         var resp = await _post('/v1/profile/uploadcard', data);
