@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Dimensions, SafeAreaView, Image } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, FlatList, SafeAreaView, Image } from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
 import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import EntypoIcon from 'react-native-vector-icons/Entypo';
 import Spinner from "react-native-loading-spinner-overlay";
 import RBSheet from "react-native-raw-bottom-sheet";
-import {getAssets, withdraw} from "../../shared/service/api";
+import {getTransaction, withdraw} from "../../shared/service/api";
 import BackButton from '../../components/BackButton';
 import { Button, Input, ListItem } from 'react-native-elements';
 import LinearGradient from 'react-native-linear-gradient/index';
@@ -36,20 +36,15 @@ export default class Studio extends Component {
         this.state = {
             withdraw_amount: '',
             ballence:2400,
-            spinner:false
+            spinner:false,
+            transactions:[]
         };
         this.RBSheetR = null;
     }   
 
-    componentDidMount() {
-
+    async componentDidMount() {
         if (global.user.ballence>0)
             this.setState({ballence:global.user.ballence});
-    }
-    async loadFiles(){
-        var files = await getAssets({creator_id:global.user.cid});
-
-       
     }
 
     render() {
@@ -70,6 +65,13 @@ export default class Studio extends Component {
                         // tabStyle={{ width: 100 }}
                         />}
                     tabBarPosition='overlayTop'
+                    onChangeTab={async({ i, from })=>{
+                        if (i == 1 && from == 1){
+                            var transactions = await getTransaction({ userid: global.user.cid });
+                            this.setState({transactions});
+                            console.log("-----transactions----------", transactions);
+                        }
+                    }}
                 >
                     <ScrollView tabLabel='Ballence' style={styles.innerTab}>
                         <View style={{ alignItems:'center', marginHorizontal:20, marginVertical:40, borderColor:'lightgrey', borderWidth:1, borderRadius:10, paddingVertical:20, paddingHorizontal:5 }}>
@@ -109,34 +111,26 @@ export default class Studio extends Component {
                     </ScrollView>
                     <ScrollView tabLabel='Recent Activities' style={styles.innerTab}>
                         <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignContent: 'stretch' }}>
-                            
-                            <View style={{flexDirection:'row', width:'100%', justifyContent:'space-between', marginTop:10,
-                                alignItems:'center', borderBottomColor:'grey', borderBottomWidth:1}}>
-                                <View>
-                                <Text style={{fontWeight:'bold'}}>Bank account</Text>
-                                <Text style={{}}>Instant transfer from wallet</Text>
-                                <Text style={{color:'grey', marginVertical:10, fontSize:12}}>{Moment().format("DD MMM")}</Text>
-                                </View>
-                                <View>
-                                <Text style={{fontSize:30, textAlign:'right'}}>- £ {this.state.withdraw_amount}</Text>
-                                </View>
-                            </View>
-                            <View style={{flexDirection:'row', width:'100%', justifyContent:'space-between', marginTop:10,
-                                alignItems:'center', borderBottomColor:'grey', borderBottomWidth:1}}>
-                                <View>
-                                <Text style={{fontWeight:'bold'}}>Wallet</Text>
-                                <Text style={{}}>Payment received from flourich</Text>
-                                <Text style={{color:'grey', marginVertical:10, fontSize:12}}>{Moment().format("DD MMM")}</Text>
-                                </View>
-                                <View>
-                                <Text style={{fontSize:30, textAlign:'right'}}>+ £ 300</Text>
-                                </View>
-                            </View>                           
+                        {this.state.transactions.map((transaction, i) => {
+                                return (
+                                    <View style={{flexDirection:'row', width:'100%', justifyContent:'space-between', marginTop:10,
+                                        alignItems:'center', borderBottomColor:'grey', borderBottomWidth:1}}>
+                                        <View>
+                                        <Text style={{fontWeight:'bold'}}>{transaction.amount>0?'Wallet':'Bank account'}</Text>
+                                        <Text>{transaction.amount>0?'Payment received from flourich':'Instant transfer from wallet'}</Text>
+                                        <Text style={{color:'grey', marginVertical:10, fontSize:12}}>{Moment(transaction.created_at).format("DD MMM")}</Text>
+                                        </View>
+                                        <View>
+                                        <Text style={{fontSize:30, textAlign:'right'}}>{transaction.amount>0?'+':'-'} £ {Math.abs(transaction.amount)}</Text>
+                                        </View>
+                                    </View>
+                                );
+                            })}                  
                         </View>
                     </ScrollView>
                 </ScrollableTabView>
                 <Modal style={styles.modal} position={"center"} ref={"modal3"} >
-                    <TouchableOpacity style={{alignSelf:'left', marginHorizontal:10}} 
+                    <TouchableOpacity style={{position:'absolute', left:10, top:10}} 
                             onPress={() => {
                             this.refs.modal3.close()
                         }}>
@@ -147,8 +141,8 @@ export default class Studio extends Component {
                             source={require('../../assets/img/close.png')} />
                     </TouchableOpacity>
                     
-                    <Text style={{fontSize:50, marginTop:50}}>£ {this.state.withdraw_amount}</Text>
-                    <Text style={{marginVertical:30}}>Transferred to account no {global.user.account_number}</Text>
+                    <Text style={{fontSize:50, marginTop:50, textAlign:'center'}}>£ {this.state.withdraw_amount}</Text>
+                    <Text style={{marginVertical:30, textAlign:'center'}}>Transferred to account no {global.user.account_number}</Text>
 
                     <TouchableOpacity style={{alignSelf:'center', marginVertical:30}} 
                             onPress={() => {
@@ -229,7 +223,6 @@ const styles = StyleSheet.create({
     modal: {
         height: 500,
         width: 300,
-        alignItems:'center',
         borderColor:'lightgrey',
         borderWidth:1, 
         borderRadius:10, 
