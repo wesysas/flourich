@@ -13,7 +13,7 @@ const IconText = ({ iconName, size, txt }) => {
     return (
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Icon name={iconName} size={size} />
-            <Text style={{ paddingLeft: 5}}>{txt}</Text>
+            <Text style={{ paddingLeft: 5,flex: 1, flexWrap: 'wrap'}}>{txt}</Text>
         </View>
     );
 };
@@ -77,12 +77,12 @@ const BookingModal = ({ parent }) => {
                     />
                     <View style={styles.newSideTxt}>
                         <Text style={styles.name}>{parent.state.booking.first_name} {parent.state.booking.last_name}</Text>
-                        <IconText iconName="map-marker" size={15} txt={parent.state.booking.customer_location} />
+                        <IconText iconName="map-marker" size={20} txt={parent.state.booking.customer_location} />
                         <Text style={styles.summaryTxt}>{Moment(parent.state.booking.start_at).format(("D MMM"))}  |  {Moment(parent.state.booking.start_at).format(("HH:mm"))}  |  £ {parent.state.booking.price}</Text>
                     </View>
                 </View>
                 <View>
-                    {parent.state.booking.service_type&&<Text style={styles.title}>{parent.state.booking.service_type.replace(",", " - ")}</Text>}
+                    <Text style={styles.title}>{parent.state.booking.item}</Text>
                     <Text style={styles.desc}>
                         {parent.state.booking.content}
                     </Text>

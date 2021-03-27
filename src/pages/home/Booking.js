@@ -13,7 +13,7 @@ const IconText = ({ iconName, size, txt }) => {
     return (
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Icon name={iconName} size={size} />
-            <Text style={{ paddingLeft: 5}}>{txt}</Text>
+            <Text style={{ paddingLeft: 5, flex: 1, flexWrap: 'wrap'}}>{txt}</Text>
         </View>
     );
 };
@@ -67,12 +67,12 @@ const CustomCard = ({item, parent}) => {
                 />
                 <View style={styles.newSideTxt}>
                     <Text style={styles.name}>{item.first_name} {item.last_name}</Text>
-                    <IconText iconName="map-marker" size={15} txt={item.customer_location} />
+                    <IconText iconName="map-marker" size={20} txt={item.customer_location} />
                     <Text style={styles.summaryTxt}>{Moment(item.start_at).format(("D MMM"))}  |  {Moment(item.start_at).format(("HH:mm"))}  |  £ {item.price}</Text>
                 </View>
             </View>
             <View>
-                <Text style={styles.title}>{item.service_type.replace(",", " - ")}</Text>
+                <Text style={styles.title}>{item.item}</Text>
                 <Text style={styles.desc}>
                     {item.content}
                 </Text>
@@ -128,17 +128,6 @@ export default class Booking extends Component {
     }
 
     async componentDidMount() {
-        this._unsubscribe = this.props.navigation.addListener('focus', async () => {
-            this.setState({spinner: true});
-            var bookings = await getBookings({creator_id:global.user.cid, status:[1,2,3,4,5,6,7,8,10], date_filter:365});
-            var pastBookings = await getBookings({creator_id:global.user.cid, status:[9], date_filter:365});
-            this.setState({bookings});
-            this.setState({pastBookings});
-        });
-    }
-
-    componentWillUnmount() {
-        this._unsubscribe();
     }
 
     render() {
@@ -159,6 +148,15 @@ export default class Booking extends Component {
                             backgroundColor='rgba(255, 255, 255, 0.7)'
                         // tabStyle={{ width: 100 }}
                         />}
+                    onChangeTab={async({ i, from })=>{
+                        if (i == from){                            
+                            var bookings = await getBookings({creator_id:global.user.cid, status:[1,2,3,4,5,6,7,8,10], date_filter:365});
+                            var pastBookings = await getBookings({creator_id:global.user.cid, status:[9], date_filter:365});
+                            this.setState({bookings});
+                            this.setState({pastBookings});
+                            console.log(bookings);
+                        }
+                    }}
                     tabBarPosition='overlayTop'
                 >
                     <FlatList tabLabel='New' style={styles.flatList}
@@ -188,8 +186,8 @@ export default class Booking extends Component {
                                           <Text style={{ position: 'absolute', right: 115, top: 5, color:'grey' }}>completed</Text>
                                           <View>
                                               <Text style={{fontSize: 18}}>{item.first_name} {item.last_name}</Text>
-                                              <IconText iconName="map-marker" size={15} txt={item.customer_location} />
-                                              {item.service_type&&<Text style={[styles.summaryTxt, {marginTop:10}]}>{item.service_type.replace(",", " - ")}</Text>}
+                                              <IconText iconName="map-marker" size={20} txt={item.customer_location} />
+                                              {item.service_type&&<Text style={[styles.summaryTxt, {marginTop:10}]}>{item.item}</Text>}
                                               <Text style={styles.summaryTxt}>{Moment(item.start_at).format(("D MMM"))}  |  {Moment(item.start_at).format(("HH:mm"))}  |  £ {item.price}</Text>
                                           </View>
                                           <Image

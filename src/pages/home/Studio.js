@@ -7,6 +7,9 @@ import EntypoIcon from 'react-native-vector-icons/Entypo';
 import Spinner from "react-native-loading-spinner-overlay";
 import RBSheet from "react-native-raw-bottom-sheet";
 import {getAssets, uploadAsset} from "../../shared/service/api";
+import { Button, Input, ListItem } from 'react-native-elements';
+import LinearGradient from 'react-native-linear-gradient/index';
+import {multiBtnGroupStyle, ios_red_color, ios_green_color, btnGradientProps} from "../../GlobalStyles";
 
 const AssetFolder = ({ iconSize, fileName }) => {
     return (
@@ -65,7 +68,7 @@ export default class Studio extends Component {
                 uri: res.uri
             });
 
-            data.append("booking_id", global.booking.bid);
+            data.append("booking_id", global.user.cid);
             data.append("media_type", res.type);
 
             this.setState({spinner: true});
@@ -85,7 +88,7 @@ export default class Studio extends Component {
 
     componentDidMount() {
         this._unsubscribe = this.props.navigation.addListener('focus', async () => {
-            if (global.upload_asset) {this.RBSheetR.open();}
+            //this.RBSheetR.open();
             this.loadFiles();
         });
     }
@@ -113,7 +116,17 @@ export default class Studio extends Component {
                     visible={this.state.spinner}
                 />
                 {/* <BackButton navigation={this.props.navigation} /> */}
-                <Text style={{ fontSize: 25, fontWeight: 'bold', color: 'black', textAlign: 'center', marginTop:20}}>Studio</Text>
+                <Text style={{ fontSize: 25, fontWeight: 'bold', color: 'black', textAlign: 'center', marginTop:20}}>Studio</Text>               
+                <Button
+                    containerStyle={{position:'absolute', right:5, top:20}}
+                    titleStyle={{fontSize:20, marginHorizontal:5, marginVertical:0}}
+                    ViewComponent={LinearGradient}
+                    linearGradientProps={btnGradientProps}
+                    title="Upload"
+                    onPress={() => {
+                        this.RBSheetR.open();
+                    }}
+                />
                 <ScrollableTabView
                     style={styles.container}
                     renderTabBar={() =>
@@ -129,8 +142,8 @@ export default class Studio extends Component {
                                 return (
                                     <AssetFolder key={i} iconSize={this.state.iconSize} fileName={file.media_url.replace(/^.*[\\\/]/, '').replace(/^.*[_]/, '')} />
                                 );
-                            })}
-                        </View>
+                            })}                            
+                        </View>                        
                     </ScrollView>
                     <ScrollView tabLabel='Video files' style={styles.innerTab}>
                         <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignContent: 'stretch' }}>
@@ -149,7 +162,7 @@ export default class Studio extends Component {
                     }}
                     height={100}
                     closeOnDragDown={true}
-                    closeOnPressMask={false}
+                    closeOnPressMask={true}
                     customStyles={{
                         container: {
                             borderTopRightRadius: 20,

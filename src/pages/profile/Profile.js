@@ -15,6 +15,7 @@ import { SERVER_URL, WIDTH } from '../../globalconfig';
 import BackButton from '../../components/BackButton';
 import PhotoGrid from './PhotoGrid'
 import _ from 'lodash'
+import { ImageStore } from 'react-native';
 
 const styles = StyleSheet.create({
     container: {
@@ -70,11 +71,12 @@ const styles = StyleSheet.create({
 });
 const _renderCarouselItem = ({ item, index }) => {
     return (
-        <View>
+        <View style={{justifyContent:'center'}}>
             <Avatar
                 rounded
                 size="large"
                 containerStyle={{
+                    alignSelf:'center',
                     borderColor: 'red',
                     borderWidth: 2,
                     padding: 5,
@@ -83,7 +85,7 @@ const _renderCarouselItem = ({ item, index }) => {
                 source={{uri: SERVER_URL+item.media_url }}
             />
             {/* <Text style={{fontSize: 30}}>{item.title}</Text> */}
-            {/* <Text>{item.text}</Text> */}
+            <Text style={{textAlign:'center'}}>Story {index+1}</Text>
         </View>
     );
 }
@@ -112,15 +114,15 @@ export default class Profile extends Component {
                 onPress: () => {this.openPortfolioPicker() }
             },
             {
-                title: 'Story (Photo)',
+                title: 'Story',
                 onPress: () => {
                     this.openStoryPicker();
                 }
             },
             {
-                title: 'Story (Video)',
+                title: 'Story highlight',
                 onPress: () => {
-                    this.openStoryVideoPicker();
+                    this.openStoryPicker();
                 }
             },
         ];
@@ -154,6 +156,7 @@ export default class Profile extends Component {
         });
         this.setState({portfolio});
         this.setState({service});
+        console.log("-----service------", service);
 
         if (service.length>0)
         {
@@ -177,14 +180,14 @@ export default class Profile extends Component {
      */
     openPortfolioPicker = () => {
         
-        ImagePicker.openPicker({
-            width: 300,
-            height: 300,
-            cropping: true,
+        ImagePicker.openPicker({         
+            multiple: true,
             includeBase64:true,
-            showCropGuidelines:false,
-          }).then(image => {
-            this.uploadPortfolioImage(image);
+          }).then(images => {
+            console.log(images.length);
+            if (images.length>0){
+                this.uploadPortfolioImage(images);
+            }
             this.RBSheetR.close();
           }).catch(err => {
             console.log(err);
@@ -197,21 +200,14 @@ export default class Profile extends Component {
      * @param {*} image 
      * upload portfolio to user portfolio
      */
-    uploadPortfolioImage = async (image) => {
+    uploadPortfolioImage = async (images) => {
         var userid = await getUserId();
         this.setState({"userid": userid});
-
-        var ext = image.mime;
-        var ext_a = ext.split("/");
-        if(ext_a.length > 1) {
-            ext = ext_a[1];
-        }
-        var data = image.data;
+      
         this.setState({spinner: true});
         var params = {
             userid: userid,
-            media: data,
-            ext: ext,
+            images: images,
         }
         var res = await uploadPortfolio(params);
         this.setState({spinner: false});
@@ -269,7 +265,6 @@ export default class Profile extends Component {
         var res = await uploadStory(data);
         this.setState({spinner: false});
         if(res != null) {
-            alert('success');
             this.refreshScreen();
         }
     }
@@ -345,7 +340,8 @@ export default class Profile extends Component {
                     </View>
     
                     {/* carousel part */}
-                    <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', }}>
+                    <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', paddingVertical:10, marginHorizontal:5,
+                    borderBottomWidth:1, borderTopWidth:1, borderColor:'lightgrey' }}>
                         <Carousel
                             layout={"default"}
                             ref={(c) => { this._carousel = c; }}
@@ -359,7 +355,7 @@ export default class Profile extends Component {
                             }} />
                     </View>
                     {/* image mozaic part */}
-                    <SafeAreaView style={{ flex: 1 }}>
+                    <SafeAreaView style={{ flex: 1, marginTop:40 }}>
                         <PhotoGrid source={this.state.portfolio} />
                     </SafeAreaView>
 
