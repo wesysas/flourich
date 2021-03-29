@@ -6,8 +6,10 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import BookingModal from "../../components/BookingModal";
 import {getBookings, updateBooking} from "../../shared/service/api";
 import {SERVER_URL} from "../../../src/globalconfig";
+import SocketIOClient from 'socket.io-client';
 import Moment from 'moment';
 import {ios_green_color} from "../../GlobalStyles";
+
 
 const IconText = ({ iconName, size, txt }) => {
     return (
@@ -44,6 +46,7 @@ const CustomCard = ({item, parent}) => {
                        parent.props.navigation.navigate('Progress');
                }}
         >
+            
             <TouchableOpacity style={styles.sideIcon}
                               onPress={async () => {
                                   var favorite = item.favorite?false:true;
@@ -58,6 +61,7 @@ const CustomCard = ({item, parent}) => {
                                   var newBooking = await updateBooking({booking:bookings[index]});
                               }}>
                 <Icon name='heart' color={item.favorite?'red':'grey'} size={35}/>
+                {item.creator_read == 0?<Text style={{color:'red'}}>New</Text>:null}
             </TouchableOpacity>
             <View style={styles.new}>
                 <Image
@@ -80,6 +84,7 @@ const CustomCard = ({item, parent}) => {
             <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
                 <CustomCheckBox title='Accept' checked={item.status_id==3?true:false}
                                 onPress={() => {
+                                    item.creator_read = 1;
                                     parent.setState({booking:item});
                                     parent.setState({check_type:'accept'});
                                     parent.setState({ showPopover: true });
@@ -94,12 +99,15 @@ const CustomCard = ({item, parent}) => {
                                     });
 
                                     bookings[index].status_id = 10;
+                                    
+                                    bookings[index].creator_read = 1;
                                     parent.setState({bookings});
                                     var newBooking = await updateBooking({booking:bookings[index]});
                                 }}
                 />
                 <CustomCheckBox title='Postpone' checked={item.status_id==2?true:false}
                                 onPress={() => {
+                                    item.creator_read = 1;
                                     parent.setState({booking:item});
                                     parent.setState({check_type:'postpone'});
                                     parent.setState({ showPopover: true });
@@ -125,6 +133,14 @@ export default class Booking extends Component {
             isToTimePickerVisible:false,
             toTime:new Date(),
         }
+
+        this.socket = SocketIOClient(SERVER_URL);
+        this.socket.on('new-bookings', async (mes) => {
+            this.setState({spinner: true});
+            var bookings = await getBookings({creator_id:global.user.cid, status:[1,2,3,4,5,6,7,8,10], date_filter:365});
+            this.setState({bookings});
+            
+        });
     }
 
     async componentDidMount() {
