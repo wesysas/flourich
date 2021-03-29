@@ -134,6 +134,16 @@ export const getReviews = async (data) => {
         return null;
     }
 }
+export const getTransaction = async (data) => {
+    try {
+        var res = await _post('/v1/profile/get_transaction', data);
+        return res;
+    } catch (err) {
+        // Handle Error Here
+        _handleError(err);
+        return null;
+    }
+}
 
 export const needApprove = async (data) => {
     try {

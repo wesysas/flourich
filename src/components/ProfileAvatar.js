@@ -79,7 +79,10 @@ export default class ProfileAvatar extends Component {
         this.setState({spinner: false});
         console.log(filename);
         if(res != null) {
-            global.user.avatar = res.avatar;
+            if (this.state.avatar)
+                global.user.avatar = res.avatar;
+            else
+                global.user.banner = res.avatar;
         }
     }
     render () {
