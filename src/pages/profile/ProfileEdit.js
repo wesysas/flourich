@@ -512,16 +512,19 @@ export default class SetupDetail extends ValidationComponent {
                             </View>
                         </CollapseHeader>
                         <CollapseBody style={{ margin: 10 }}>
-                        <ToggleSwitch
-                            isOn={this.state.user.notification}
-                            onColor="lightgrey"
-                            offColor={ios_red_color}
-                            label="Turn On/Off"
-                            onToggle={isOn => {
-                                this.state.user.notification = isOn;
-                                this.setState({user});
-                            }}
-                        />
+                        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <ToggleSwitch
+                                    isOn={this.state.user.notification}
+                                    onColor="lightgrey"
+                                    offColor={ios_red_color}
+                                    // label="Turn On/Off"
+                                    onToggle={isOn => {
+                                        this.state.user.notification = isOn;
+                                        this.setState({user});
+                                    }}
+                                />
+                                    {this.state.user.notification ? <Text>Enabled</Text> : <Text>Disabled</Text>}
+                                </View>
                         </CollapseBody>
                     </Collapse>
                     
