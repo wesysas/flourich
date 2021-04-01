@@ -293,6 +293,7 @@ export default class Profile extends Component {
     }  
 
     logOut = async () => {
+        this.setState({spinner:true})
         await saveStorage(local.isLogin, 'false');
         await saveStorage(local.token, '');
         await saveStorage(local.user, '');
@@ -306,6 +307,7 @@ export default class Profile extends Component {
 
         await saveStorage('login_type', '');
 
+        this.setState({spinner:false})
         this.props.navigation.navigate("Index");
     }    
    
