@@ -151,10 +151,7 @@ export default class SetupDetail extends ValidationComponent {
         if(res != null) {            
             await saveStorage(local.user, JSON.stringify(user));
             global.user = user;
-        }
-        saveStorage(local.user, null);
-        saveStorage(local.token, null);
-        this.props.navigation.navigate('Index');        
+        }   
     }
     render() {
         return (
@@ -584,7 +581,7 @@ export default class SetupDetail extends ValidationComponent {
                         ViewComponent={LinearGradient}
                         titleStyle={styles.btnTitle}
                         linearGradientProps={btnGradientProps}
-                        title="Log out"
+                        title="Update Profile"
                         onPress={() => {
                             this._validate();
                         }}
