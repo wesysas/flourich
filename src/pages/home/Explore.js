@@ -181,11 +181,12 @@ export default class Explore extends Component {
         }
     }
 
-    async componentDidMount() {      
+    async componentDidMount() {    
+        this.requestLocationPermission();  
         this.googlebar.setAddressText('Some Text');
         global.user = JSON.parse(await getStorage(local.user));
         if (!global.user.status) global.user.status = 0;
-        this.watchId = navigator.geolocation.watchPosition(
+        this.watchId = navigator.geolocation.getCurrentPosition(
             (position) => {
                 let region = {
                     latitude: position.coords.latitude,
@@ -195,7 +196,8 @@ export default class Explore extends Component {
                     latitudeDelta: LATITUDE_DELTA,
                     longitudeDelta: LONGITUDE_DELTA
                 };
-                this.onRegionChange(region, region.latitude, region.longitude);
+                this.onRegionChange(region, region.latitude, region.longitude);                
+                this.searchSubmit("");
             },
             error => console.log(error),
             { enableHighAccuracy: true, timeout: 2000, maximumAge: 1000 }
@@ -209,7 +211,6 @@ export default class Explore extends Component {
             titleStyle:{fontSize:20, textAlign:'center'}
         });
 
-        this.searchSubmit("");
         this._unsubscribe = this.props.navigation.addListener('focus', () => {
             this.searchSubmit("");
         });
