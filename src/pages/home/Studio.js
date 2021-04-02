@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Dimensions, SafeAreaView } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Dimensions, SafeAreaView, Image } from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
 import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -10,6 +10,7 @@ import {getAssets, uploadAsset} from "../../shared/service/api";
 import { Button, Input, ListItem } from 'react-native-elements';
 import LinearGradient from 'react-native-linear-gradient/index';
 import {multiBtnGroupStyle, ios_red_color, ios_green_color, btnGradientProps} from "../../GlobalStyles";
+import { WIDTH } from '../../globalconfig';
 
 const AssetFolder = ({ iconSize, fileName }) => {
     return (
@@ -117,16 +118,15 @@ export default class Studio extends Component {
                 />
                 {/* <BackButton navigation={this.props.navigation} /> */}
                 <Text style={{ fontSize: 25, fontWeight: 'bold', color: 'black', textAlign: 'center', marginTop:20}}>Studio</Text>               
-                <Button
-                    containerStyle={{position:'absolute', right:5, top:20}}
-                    titleStyle={{fontSize:20, marginHorizontal:5, marginVertical:0}}
-                    ViewComponent={LinearGradient}
-                    linearGradientProps={btnGradientProps}
-                    title="Upload"
+                
+                <TouchableOpacity style={{position:'absolute', left:WIDTH/2-40, bottom:20, height:80,zIndex:5}}
                     onPress={() => {
-                        this.RBSheetR.open();
-                    }}
-                />
+                                    this.RBSheetR.open();
+                                }}>
+                    <Image style={{width:80, height:80}}
+                        resizeMode="contain"
+                        source={require('../../assets/img/upload-icon.png')} />
+                </TouchableOpacity>
                 <ScrollableTabView
                     style={styles.container}
                     renderTabBar={() =>

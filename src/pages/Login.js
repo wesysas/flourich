@@ -87,10 +87,18 @@ export default class LoginPage extends ValidationComponent {
         // const [value, onChangeText] = useState('');
     }
     componentDidMount() {
-        GoogleSignin.configure({
-            webClientId: '978751469400-c303fj6md5lksgp776k57ov17v7fen02.apps.googleusercontent.com',
-            offlineAccess: false,
-        });
+        if (isIphoneX()) {
+            GoogleSignin.configure({
+                webClientId: '978751469400-c303fj6md5lksgp776k57ov17v7fen02.apps.googleusercontent.com',
+                offlineAccess: false,
+            });
+        } else {
+            GoogleSignin.configure({
+                "client_id": "978751469400-q2mr41he9ogansdktom86fl3olbpjd6j.apps.googleusercontent.com",
+                "client_type": 3,
+                offlineAccess: false, // if you want to access Google API on behalf of the user FROM YOUR SERVER
+            });
+        }
     };
     
     componentWillUnmount() {
@@ -107,6 +115,7 @@ export default class LoginPage extends ValidationComponent {
                 first_name: user.givenName,
                 last_name: user.familyName,
                 avatar: user.photo,
+                _token: idToken,
                 login_type: 'google'
             }
             this.saveSocialUser(params);

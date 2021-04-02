@@ -107,7 +107,7 @@ export default class ProfileAvatar extends Component {
                         size="xlarge"
                         avatarStyle={styles.avatar}
                         containerStyle={styles.avatarContainer}
-                        source={ global.user.avatar.indexOf('http') == -1 ? 
+                        source={ global.user.avatar && global.user.avatar.indexOf('http') == -1 ? 
                         { uri: SERVER_URL + global.user.avatar + '?time=' + new Date() } : { uri: global.user.avatar}}
                     />
                     {global.user.rating_count >=5 && 

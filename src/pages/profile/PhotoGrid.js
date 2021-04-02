@@ -1,20 +1,33 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { View, Text, Dimensions, TouchableOpacity, ImageBackground } from 'react-native'
+import { View, Text, Dimensions, TouchableOpacity, ImageBackground, } from 'react-native'
 import _ from 'lodash'
+import { Overlay, Button } from 'react-native-elements';
 import ImageLoad from 'react-native-image-placeholder'
-
-const { width } = Dimensions.get('window')
+import { Modal } from 'react-native';
+import ImageViewer from 'react-native-image-zoom-viewer';
+const { width, height } = Dimensions.get('window')
+import Icon from 'react-native-vector-icons/FontAwesome5';
+import { SERVER_URL, WIDTH } from '../../globalconfig';
+import Video from 'react-native-video';
+import VideoPlayer from 'react-native-video-player';
+import { removePortfolio } from '../../shared/service/api'
+import Spinner from 'react-native-loading-spinner-overlay';
 
 class PhotoGrid extends Component {
   constructor(props) {
     super(props)
     this.state = {
       lastImageClicked: false,
+      showZoomimg: false,
+      selectedMedia: null,
+      paused: false,
+      longClickItem: null,
+      spinner:false
     }
   }
 
-  _renderRow(images, _flexdirection, showmore_flag = false, morenumber = 0, extra=false) {
+  _renderRow(images, _flexdirection, showmore_flag = false, morenumber = 0, extra = false) {
     const source = images;
     const firstViewImages = []
     const secondViewImages = []
@@ -38,7 +51,7 @@ class PhotoGrid extends Component {
     let ratio = 2 / 3;
     const direction = _flexdirection == 'row' ? 'column' : 'row';
 
-    const firstImageWidth = !extra ? width / source.length : width/3 ;
+    const firstImageWidth = !extra ? width / source.length : width / 3;
     const firstImageHeight = firstImageWidth;
 
     const secondImageWidth = direction === 'column' ? (width / secondViewImages.length) : (width * ratio)
@@ -51,32 +64,76 @@ class PhotoGrid extends Component {
       <View style={[{ flexDirection: direction }]}>
         <View style={{ flexDirection: direction === 'row' ? 'column' : 'row' }}>
           {firstViewImages.map((image, index) => (
+
             <TouchableOpacity activeOpacity={0.7} key={index}
               style={{ flex: 1, borderRadius: 50 }}
-
               onPress={() => {
-                if (index == 2 && showmore_flag){
-                  this.setState({lastImageClicked:true});
+                if (index == 2 && showmore_flag) {
+                  this.setState({ lastImageClicked: true });
+                } else {
+                  this.setState({ showZoomimg: true, selectedMedia: image })
                 }
-              }}>
-              {index == 2 && showmore_flag ? (
-                <ImageBackground
-                  borderRadius={10}
-                  style={[styles.image, { width: firstImageWidth, height: firstImageWidth }, this.props.imageStyle]}
-                  source={typeof image === 'string' ? { uri: image } : image}
-                >
-                  <View style={styles.lastWrapper}>
-                    <Text style={[styles.textCount, this.props.textStyles]}>+{morenumber}</Text>
-                  </View>
-                </ImageBackground>
-              )
-                : <ImageLoad
+              }}
+              >
+               {/* {this.state.longClickItem && this.state.longClickItem.id == image.id ?  <TouchableOpacity style={{position:'absolute', zIndex:9999, top:15, left:15}}>
+                  <Icon name="trash" size={20} color="red" />
+                </TouchableOpacity>:null} */}
 
-                  borderRadius={10}
-                  key={index}
-                  style={[styles.image, { width: firstImageWidth, height: firstImageHeight }]}
-                  source={typeof image === 'string' ? { uri: image } : image}
-                />}
+              {index == 2 && showmore_flag ? (
+                (image.media_type == 'photo' ?
+                  <ImageBackground
+                    borderRadius={10}
+                    style={[styles.image, { width: firstImageWidth, height: firstImageWidth }, this.props.imageStyle]}
+                    source={{ uri: SERVER_URL + image.media_url }}
+                  >
+                    <View style={styles.lastWrapper}>
+                      <Text style={[styles.textCount, this.props.textStyles]}>+{morenumber}</Text>
+                    </View>
+                  </ImageBackground> :
+                  <View style={{ width: firstImageWidth, height: firstImageWidth }}>
+                    <Video 
+                      source={{ uri: SERVER_URL + image.media_url }}
+                      keyExtractor={image => image.id}
+                      resizeMode={"cover"}
+                      style={[styles.image, {
+                        width: firstImageWidth,
+                        height: firstImageHeight
+                      }]}
+                    />
+                    <Icon name="play" size={25} color="lightgray" style={styles.videoPlayer}> </Icon>
+                    <View style={[styles.image, {
+                      position: 'absolute', width: firstImageWidth, backgroundColor: '#b9b9b978',
+                      height: firstImageHeight, alignItems: 'center', justifyContent: 'center'
+                    }]}>
+                      <Text style={[styles.textCount, this.props.textStyles]}>+{morenumber}</Text>
+                    </View>
+                  </View>)
+
+              )
+                :
+                (image.media_type == 'photo' ?
+
+                  <ImageLoad
+
+                    borderRadius={10}
+                    key={index}
+                    style={[styles.image, { width: firstImageWidth, height: firstImageHeight }]}
+                    source={{ uri: SERVER_URL + image.media_url }}
+                  /> :
+                  <View style={{ width: firstImageWidth, height: firstImageWidth }}>
+                    <Video 
+                      source={{ uri: SERVER_URL + image.media_url }}
+                      keyExtractor={image.id}
+                      resizeMode={"cover"}
+                      style={[styles.image, {
+                        width: firstImageWidth,
+                        height: firstImageHeight
+                      }]}
+                    />
+                    <Icon name="play" size={25} color="lightgray" style={styles.videoPlayer}> </Icon>
+                  </View>
+
+                )}
 
             </TouchableOpacity>
           ))}
@@ -89,14 +146,33 @@ class PhotoGrid extends Component {
                   flex: 1,
                   borderRadius: 10,
                 }}
-                  onPress={() => {}}>
-                  <ImageLoad
+                  onPress={() => {
 
-                    borderRadius={10}
-                    key={index}
-                    style={[styles.image, { width: secondImageWidth, height: secondImageHeight }, this.props.imageStyle]}
-                    source={typeof image === 'string' ? { uri: image } : image}
-                  />
+                    console.log('i\'m here www');
+                    this.setState({ showZoomimg: true, selectedMedia: image })
+                    console.log(this.state.selectedMedia);
+                  }}>
+                  {
+                    image.media_type == 'photo' ?
+
+                      <ImageLoad
+
+                        borderRadius={10}
+                        key={index}
+                        style={[styles.image, { width: secondImageWidth, height: secondImageHeight }, this.props.imageStyle]}
+                        source={{ uri: SERVER_URL + image.media_url }}
+                      /> :
+                      <View style={{ width: secondImageWidth, height: secondImageHeight }}>
+                        <Video
+                          source={{ uri: SERVER_URL + image.media_url }}
+                          keyExtractor={image.id}
+                          resizeMode={"cover"}
+                          style={[styles.image, { width: secondImageWidth, height: secondImageHeight }, this.props.imageStyle]}
+                         
+                        />
+                        <Icon name="play" size={25} color="lightgray" style={styles.videoPlayer}> </Icon>
+                      </View>
+                  }
                 </TouchableOpacity>
               ))}
             </View>
@@ -109,20 +185,32 @@ class PhotoGrid extends Component {
 
   _renderExtraImages() {
     var extraImgs = this.props.source.slice(9);
-    var group = parseInt(extraImgs.length /3) + (extraImgs.length % 3  == 0 ? 0 : 1);
+    var group = parseInt(extraImgs.length / 3) + (extraImgs.length % 3 == 0 ? 0 : 1);
     var arr = [];
-    for (var i = 0; i< group; i++){
-        arr.push(i*3);
+    for (var i = 0; i < group; i++) {
+      arr.push(i * 3);
     }
     return (
       <View>
         {arr.map((item) => (
-           <View>
-             {this._renderRow(extraImgs.slice(item, item+3), 'row', false ,0,  true)}
-           </View>
-          ))}
+          <View>
+            {this._renderRow(extraImgs.slice(item, item + 3), 'row', false, 0, true)}
+          </View>
+        ))}
       </View>
     )
+  }
+
+  deleteItem  = async () =>{
+    this.setState({showZoomimg:false, spinner:true});
+    var res = await removePortfolio({portfolio_id:this.state.selectedMedia.id});   
+    
+    this.setState({spinner:false});
+
+    console.log(res);
+    if (res) {
+      this.props.callbackFrom(this.state.selectedMedia.id);
+    }
   }
 
   render() {
@@ -152,19 +240,61 @@ class PhotoGrid extends Component {
           thirdRow.push(img);
         }
       }
-      index++
+      index++;
     })
 
     return (
       <View>
-        {this._renderRow(firstRow, sourceLen == 3? 'column':'row')}
-        {secondRow.length && (sourceLen >=6 )? this._renderRow(secondRow, 'column') : this._renderRow(secondRow, 'row')}
-        {this._renderRow(thirdRow, 'row', !this.state.lastImageClicked && extraNum?true:false,extraNum)}
+        <Spinner
+                    visible={this.state.spinner}
+                />
+        {this._renderRow(firstRow, sourceLen == 3 ? 'column' : 'row')}
+        {secondRow.length && (sourceLen >= 6) ? this._renderRow(secondRow, 'column') : this._renderRow(secondRow, 'row')}
+        {this._renderRow(thirdRow, 'row', !this.state.lastImageClicked && extraNum ? true : false, extraNum)}
         {
-          this.state.lastImageClicked?(
+          this.state.lastImageClicked ? (
             this._renderExtraImages()
-          ):null
+          ) : null
         }
+
+        <Modal visible={this.state.showZoomimg}
+          style={{ width: width, height: height }}
+          transparent={true}
+          onRequestClose={() => { this.setState({ showZoomimg: false }) }}>
+
+          {
+            this.state.selectedMedia && this.state.selectedMedia.media_type == 'photo' ?
+              <ImageViewer
+                imageUrls={[{ url: SERVER_URL + this.state.selectedMedia.media_url }]}
+                // index={0}
+                enableImageZoom={true}
+                backgroundColor="#b9b9b978"
+                imageStyle={{ width: width, resizeMode: 'cover', height: height }}
+              />
+              :
+              this.state.selectedMedia &&
+              <VideoPlayer
+                video={{ uri: SERVER_URL + this.state.selectedMedia.media_url }}
+                autoplay={true}
+                style={{ backgroundColor: '#b9b9b978', height: height - 70 }}
+              />
+          }
+          <View style={{ flexDirection: 'row' }} >
+            <Button
+              icon={<Icon name="times" size={30} color="black" />}
+              containerStyle={{ width: width / 2 }}
+              buttonStyle={{ borderWidth: 0 }}
+              onPress={() => { this.setState({ showZoomimg: false }) }}
+            />
+            <Button
+              icon={<Icon name="trash" size={30} color="black" />}
+              containerStyle={{ width: width / 2 }}
+              buttonStyle={{ borderWidth: 0 }}
+              onPress={() => { this.deleteItem() }}
+            />
+          </View>
+
+        </Modal>
       </View>
     )
   }
@@ -204,6 +334,9 @@ const styles = {
   textCount: {
     color: '#fff',
     fontSize: 60
+  },
+  videoPlayer: {
+    position: 'absolute', top: '45%', left: '45%'
   }
 }
 
