@@ -15,6 +15,16 @@ import {btnGradientProps} from "../GlobalStyles";
 import { isIphoneX } from "react-native-iphone-x-helper";
 import { HEIGHT, DefaultBtnHeight } from '../globalconfig';
 
+import {
+    AccessToken,
+    GraphRequest,
+    GraphRequestManager,
+    LoginManager,
+  } from 'react-native-fbsdk-next';
+  
+  import { appleAuth } from '@invertase/react-native-apple-authentication';
+
+  
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -113,6 +123,90 @@ export default class LoginPage extends ValidationComponent {
           }
         }
       };
+
+
+    getInfoFromToken = token => {
+        const PROFILE_REQUEST_PARAMS = {
+          fields: {
+            string: 'id,name,first_name,last_name',
+          },
+        };
+        const profileRequest = new GraphRequest(
+          '/me',
+          {token, parameters: PROFILE_REQUEST_PARAMS},
+          (error, user) => {
+            if (error) {
+              console.log('login info has error: ' + error);
+            } else {
+              this.setState({userInfo: user});
+              console.log('result:', user);
+            }
+          },
+        );
+        // new GraphRequestManager().addRequest(profileRequest).start();
+      };
+    
+      _loginWithFacebook1 = () => {
+        // Attempt a login using the Facebook login dialog asking for default permissions.
+        LoginManager.logInWithPermissions(['public_profile']).then(
+          login => {
+            if (login.isCancelled) {
+              console.log('Login cancelled');
+            } else {
+              AccessToken.getCurrentAccessToken().then(data => {
+                const accessToken = data.accessToken.toString();
+                
+                this.getInfoFromToken(accessToken);
+              });
+            }
+          },
+          error => {
+            console.log('Login fail with error: ' + error);
+          },
+        );
+      };
+
+  _loginWithFacebook = async() => {
+    // Attempt login with permissions
+    const result = await LoginManager.logInWithPermissions(['public_profile', 'email']);
+
+    if (result.isCancelled) {
+        throw 'User cancelled the login process';
+    }
+
+    // Once signed in, get the users AccesToken
+    const data = await AccessToken.getCurrentAccessToken();
+
+    if (!data) {
+        throw 'Something went wrong obtaining access token';
+    }
+
+    console.log(data);
+
+    // // Create a Firebase credential with the AccessToken
+    // const facebookCredential = auth.FacebookAuthProvider.credential(data.accessToken);
+
+    // // Sign-in the user with the credential
+    // return auth().signInWithCredential(facebookCredential);
+}
+
+_loginWithApple = async() =>  {
+    // performs login request
+    const appleAuthRequestResponse = await appleAuth.performRequest({
+      requestedOperation: appleAuth.Operation.LOGIN,
+      requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
+    });
+  
+    // get current authentication state for user
+    // /!\ This method must be tested on a real device. On the iOS simulator it always throws an error.
+    const credentialState = await appleAuth.getCredentialStateForUser(appleAuthRequestResponse.user);
+  
+    // use credentialState response to ensure the user is authenticated
+    if (credentialState === appleAuth.State.AUTHORIZED) {
+      // user is authenticated
+      console.log(appleAuthRequestResponse.user);
+    }
+  }
 
     saveSocialUser = async (params) =>{
         var res = await saveSocialUser(params);
@@ -258,9 +352,9 @@ export default class LoginPage extends ValidationComponent {
                     <Text>Connect with Google</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity
+                {isIphoneX() &&<TouchableOpacity
                     style={[{backgroundColor:'black'}, styles.touchableBtn]}
-                    onPress={() => {}}
+                    onPress={() => {this._loginWithApple()}}
                 >
                     <Icon style={{
                             position:'absolute',
@@ -271,11 +365,11 @@ export default class LoginPage extends ValidationComponent {
                             color="white"
                         />
                     <Text style={{color:'white'}}>Connect with Apple</Text>
-                </TouchableOpacity>
+                </TouchableOpacity> }
 
                 <TouchableOpacity
                     style={[{backgroundColor:'#39559f'}, styles.touchableBtn]}                        
-                    onPress={() => {}}
+                    onPress={() => {this._loginWithFacebook()}}
                 >
                     <Icon style={{
                             position:'absolute',

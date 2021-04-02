@@ -779,6 +779,11 @@
   dependencies:
     "@hapi/hoek" "^8.3.0"
 
+"@invertase/react-native-apple-authentication@^2.1.1":
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/@invertase/react-native-apple-authentication/-/react-native-apple-authentication-2.1.1.tgz#30e15068aa4d8bc19f9dab551a259cfd22f27f15"
+  integrity sha512-gf89UrqvOsB2m8IDs8b5vhXjTasH6sEPOszMVjkV2Qpi/vqsUSNxjWFEhyYXEPNoNK1W61KHkSc/pyBULpy6lA==
+
 "@istanbuljs/load-nyc-config@^1.0.0":
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@istanbuljs/load-nyc-config/-/load-nyc-config-1.1.0.tgz#fd3db1d59ecf7cf121e80650bb86712f9b55eced"
@@ -6324,6 +6329,11 @@ react-native-elements@^3.1.0:
     prop-types "^15.7.2"
     react-native-ratings "^7.3.0"
     react-native-size-matters "^0.3.1"
+
+react-native-fbsdk-next@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/react-native-fbsdk-next/-/react-native-fbsdk-next-4.0.0.tgz#b88f207d76c67db39cffda6e9b7c716cb6f92877"
+  integrity sha512-ql5Pbbxpp1kN2IK2AsYVoh2BJ7cMc4fT6oU7U04GLufikYuiul/rcwe4SXuEJzdzsce8idZ9oYcmPt1yHyZm1g==
 
 react-native-flash-message@^0.1.23:
   version "0.1.23"
