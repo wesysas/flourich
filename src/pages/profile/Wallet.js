@@ -73,9 +73,9 @@ export default class Studio extends Component {
                         }
                     }}
                 >
-                    <ScrollView tabLabel='Ballence' style={styles.innerTab}>
+                    <ScrollView tabLabel='Balance' style={styles.innerTab}>
                         <View style={{ alignItems:'center', marginHorizontal:20, marginVertical:40, borderColor:'lightgrey', borderWidth:1, borderRadius:10, paddingVertical:20, paddingHorizontal:5 }}>
-                            <Text style={{fontSize:25, marginTop:40}}>Your ballence</Text>
+                            <Text style={{fontSize:25, marginTop:40}}>Your Balance</Text>
                             <Text style={{fontSize:50}}>£ {this.state.ballence}</Text>
                             <Button
                                 buttonStyle={{ marginVertical: 70, borderRadius: 8, width:200, height:50, alignSelf:'center' }}
@@ -93,7 +93,7 @@ export default class Studio extends Component {
                             <View style={{flexDirection:'row', width:'100%', justifyContent:'space-between'}}>
                                 <View>
                                 <Text style={{color:'grey'}}>Date</Text>
-                                <Text style={styles.subTitle}>{Moment().format("DD, MM, YYYY")}</Text>
+                                <Text style={styles.subTitle}>{Moment().format("D MMM YYYY")}</Text>
                                 </View>
 
                                 <View>

@@ -59,7 +59,7 @@ export default class Index extends Component {
                 if(userid != null) {
                     getStorage(local.token).then(token => {
                         if(token != null) {
-                          // this._getMe();
+                           this._getMe();
                         }
                     }).catch(err => {
     
@@ -74,7 +74,7 @@ export default class Index extends Component {
     _getMe = () => {
         this.setState({spinner: true});
         getMe(this.state).then( data => {
-            console.log(data);
+            
             this.setState({spinner: false});
             if(data != null ){
                 var confirm_approved = data.confirm_approved;
@@ -88,6 +88,7 @@ export default class Index extends Component {
                 }).catch(err => {
 
                 });
+                console.log("--------auto login-----------", global.user.first_name);
                 if(confirm_approved == 1) {
                     this.props.navigation.navigate("Home");
                 }else if( approved == 1){

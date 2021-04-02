@@ -2,15 +2,20 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { View, Text, Dimensions, TouchableOpacity, ImageBackground } from 'react-native'
 import _ from 'lodash'
+import { Overlay, Button } from 'react-native-elements';
 import ImageLoad from 'react-native-image-placeholder'
-
-const { width } = Dimensions.get('window')
+import { Modal } from 'react-native';
+import ImageViewer from 'react-native-image-zoom-viewer';
+const { width, height } = Dimensions.get('window')
+import Icon from 'react-native-vector-icons/FontAwesome5';
 
 class PhotoGrid extends Component {
   constructor(props) {
     super(props)
     this.state = {
       lastImageClicked: false,
+      showZoomimg:false,
+      index:0
     }
   }
 
@@ -57,6 +62,8 @@ class PhotoGrid extends Component {
               onPress={() => {
                 if (index == 2 && showmore_flag){
                   this.setState({lastImageClicked:true});
+                } else {
+                  this.setState({showZoomimg: true, index: this.props.source.indexOf(image)})
                 }
               }}>
               {index == 2 && showmore_flag ? (
@@ -89,7 +96,8 @@ class PhotoGrid extends Component {
                   flex: 1,
                   borderRadius: 10,
                 }}
-                  onPress={() => {}}>
+                  onPress={() => {
+                    this.setState({showZoomimg: true, index: this.props.source.indexOf(image)})}}>
                   <ImageLoad
 
                     borderRadius={10}
@@ -134,6 +142,8 @@ class PhotoGrid extends Component {
     var index = 0;
     var extraNum = sourceLen > 9 ? sourceLen - 9 : 0;
 
+    var imgurl = [];
+
     _.each(this.props.source, (img, callback) => {
       if (sourceLen <= 3) {
         firstRow.push(img);
@@ -152,7 +162,8 @@ class PhotoGrid extends Component {
           thirdRow.push(img);
         }
       }
-      index++
+      imgurl.push({url: img})
+      index++;
     })
 
     return (
@@ -165,6 +176,23 @@ class PhotoGrid extends Component {
             this._renderExtraImages()
           ):null
         }
+
+          <Modal visible={this.state.showZoomimg} transparent={true} onRequestClose={()=>{this.setState({showZoomimg:false})}}>
+              
+                <ImageViewer 
+                  imageUrls={imgurl} 
+                  index={this.state.index} 
+                  enableImageZoom={true} 
+                  backgroundColor="transparent"
+                  imageStyle={{width:width, resizeMode:'cover', height:height}}
+                  />
+                <Button
+                    icon={<Icon name="times" size={30} color="black" />}
+                    containerStyle={styles.btnStyle}
+                    buttonStyle={{borderWidth:0}}
+                    onPress={()=>{this.setState({showZoomimg:false})}}
+                />
+          </Modal>
       </View>
     )
   }
