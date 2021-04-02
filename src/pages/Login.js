@@ -5,9 +5,9 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import LinearGradient from 'react-native-linear-gradient/index';
 import BackButton from "../components/BackButton";
 import { GoogleSignin, statusCodes } from 'react-native-google-signin';
-import { loginWithGoogle, loginWithEmail} from '../shared/service/auth';
+import { loginWithGoogle, loginWithEmail, saveSocialUser} from '../shared/service/auth';
 import { getMe } from '../shared/service/api';
-import { saveStorage } from '../shared/service/storage';
+import { saveStorage, getStorage } from '../shared/service/storage';
 import ValidationComponent from 'react-native-form-validator';
 import { local } from '../shared/const/local';
 import Spinner from 'react-native-loading-spinner-overlay';
@@ -77,91 +77,65 @@ export default class LoginPage extends ValidationComponent {
         // const [value, onChangeText] = useState('');
     }
     componentDidMount() {
-        // GoogleSignin.configure({
-        //     webClientId: googleConfig.clientID,
-        //     offlineAccess: false,
-        // });
+        GoogleSignin.configure({
+            webClientId: '978751469400-c303fj6md5lksgp776k57ov17v7fen02.apps.googleusercontent.com',
+            offlineAccess: false,
+        });
     };
     
     componentWillUnmount() {
         // Remove event listener
     };
 
-    _loginWithGoogle = async()=> {
-        try{
+    _loginWithGoogle = async () => {
+        try {
+            this.setState({spinner: true});
             await GoogleSignin.hasPlayServices();
-            const userInfo = await GoogleSignin.signIn();
-            //console.log(userInfo);
-            // {
-            //     idToken: string,
-            //     serverAuthCode: string,
-            //     scopes: Array<string>, // on iOS this is empty array if no additional scopes are defined
-            //     user: {
-            //       email: string,
-            //       id: string,
-            //       givenName: string,
-            //       familyName: string,
-            //       photo: string, // url
-            //       name: string // full name
-            //     }
-            //   }
-            var res = await loginWithGoogle({"googletoken":userinfo.idToken});
-            if(res != null) {
-                // go next page
-                await saveStorage(local.isLogin, 'true');
-                await saveStorage(local.token, res.token);
-                await saveStorage(local.user, JSON.stringify(res.user));
-                global.user = JSON.stringify(res.user);
-                this.props.navigation.navigate('Home');
+            const {user, idToken} = await GoogleSignin.signIn();
+            var params = {
+                email: user.email,
+                first_name: user.givenName,
+                last_name: user.familyName,
+                avatar: user.photo,
+                login_type: 'google'
             }
-        }catch(error) {
-            if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-                // when user cancels sign in process,
-                var res = await loginWithGoogle({"googletoken":'userinfo.idToken'});
-                if(res != null) {
-                    // go next page
-                    await saveStorage(local.isLogin, 'true');
-                    await saveStorage(local.token, res.token);
-                    await saveStorage(local.user, JSON.stringify(res.user));
-                    this.props.navigation.navigate('Home');
-                }
-                alert('Process Cancelled');
-            } else if (error.code === statusCodes.IN_PROGRESS) {
-              // when in progress already
-              alert('Process in progress');
-            } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-              // when play services not available
-              alert('Play services are not available');
-            } else {
-              // some other error
-              alert('Something else went wrong... ', error.toString());
-            //   setError(error);
-            }
+            this.saveSocialUser(params);
+        } catch (error) {
+            this.setState({spinner: false});
+          if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+            alert('Cancel');
+          } else if (error.code === statusCodes.IN_PROGRESS) {
+            alert('Signin in progress');
+          } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+            alert('PLAY_SERVICES_NOT_AVAILABLE');
+          } else {
+            alert('unknown error')
+          }
+        }
+      };
+
+    saveSocialUser = async (params) =>{
+        var res = await saveSocialUser(params);
+        this.setState({spinner: false});
+        if(res != null) {
+            this.processLoginUser(res, params.login_type);
         }
     }
 
-    // need to check
-    // _loginWithFacebook = async() => {
-    //     LoginManager.logInWithPermissions(["public_profile"]).then(
-    //         function(result) {
-    //           if (result.isCancelled) {
-    //             console.log("Login cancelled");
-    //             alert('login cancelled')
-    //           } else {
-    //             console.log(
-    //               "Login success with permissions: " +
-    //                 result.grantedPermissions.toString()
-    //             );
-    //             AccessToken.getCurrentAccessToken().then(accessToken =>
-    //                 console.log(accessToken),
-    //                );
-    //           }
-    //         },
-    //         function(error) {
-    //           console.log("Login fail with error: " + error);
-    //         }
-    //     );
-    // }
+    processLoginUser = async (datafromserver, login_type='email') =>{
+        // go next page
+        await saveStorage(local.isLogin, 'true');
+        await saveStorage(local.token, datafromserver.token);
+        await saveStorage(local.user, JSON.stringify(datafromserver.user));
+        await saveStorage('login_type', login_type);
+        global.user = datafromserver.user;
+        var userid = datafromserver.user.cid;
+        // this._getMe(userid);
+        console.log("----trying to login----");
+
+        this.props.navigation.navigate("Home");
+    }
+
     _loginWithEmail = async() => {
         var validate = this.validate({
             email: {required:true, email: true},
@@ -173,14 +147,7 @@ export default class LoginPage extends ValidationComponent {
             var res = await loginWithEmail(this.state);
             this.setState({spinner: false});
             if(res != null) {
-                // go next page
-                await saveStorage(local.isLogin, 'true');
-                await saveStorage(local.token, res.token);
-                await saveStorage(local.user, JSON.stringify(res.user));
-                global.user = res.user;
-                var userid = res.user.cid;
-                this._getMe(userid);
-                console.log("----trying to login----");
+                this.processLoginUser(res);
             }
         }
     }

@@ -51,56 +51,55 @@ export default class Index extends Component {
         }
     }
     componentDidMount() {
-        LogBox.ignoreLogs(['Warning: `componentWillReceiveProps`']);
+        // LogBox.ignoreLogs(['Warning: `componentWillReceiveProps`']);
 
-        getUserId().then( userid => {
-            if(userid != null) {
-                this.setState({'userid': userid});
-                if(userid != null) {
-                    getStorage(local.token).then(token => {
-                        if(token != null) {
-                           this._getMe();
-                        }
-                    }).catch(err => {
+        // getUserId().then( userid => {
+        //     if(userid != null) {
+        //         this.setState({'userid': userid});
+        //         if(userid != null) {
+        //             getStorage(local.token).then(token => {
+        //                 if(token != null) {
+        //                   // this._getMe();
+        //                 }
+        //             }).catch(err => {
     
-                    })
-                }
-            }
-        }).catch(err => {
+        //             })
+        //         }
+        //     }
+        // }).catch(err => {
 
-        })
+        // })
     }
 
-    _getMe = () => {
-        this.setState({spinner: true});
-        getMe(this.state).then( data => {
-            
-            this.setState({spinner: false});
-            if(data != null ){
-                var confirm_approved = data.confirm_approved;
-                var approved = data.approved;
-                var finish_setup = data.finish_setup;
+    // _getMe = () => {
+    //     this.setState({spinner: true});
+    //     getMe(this.state).then( data => {
+    //         console.log(data);
+    //         this.setState({spinner: false});
+    //         if(data != null ){
+    //             var confirm_approved = data.confirm_approved;
+    //             var approved = data.approved;
+    //             var finish_setup = data.finish_setup;
 
-                getStorage(local.user).then(user => {
-                    if(user != null) {
-                        global.user=JSON.parse(user);
-                    }
-                }).catch(err => {
+    //             getStorage(local.user).then(user => {
+    //                 if(user != null) {
+    //                     global.user=JSON.parse(user);
+    //                 }
+    //             }).catch(err => {
 
-                });
-                console.log("--------auto login-----------", global.user.first_name);
-                if(confirm_approved == 1) {
-                    this.props.navigation.navigate("Home");
-                }else if( approved == 1){
-                    // get verify code
-                    this.props.navigation.navigate("Verify");
-                }else if(finish_setup == 1){
-                    // else get finish, go to pending
-                    this.props.navigation.navigate("SignUpStacks", {screen: "PendingAccount"});
-                }
-            }
-        })
-    }
+    //             });
+    //             if(confirm_approved == 1) {
+    //                 this.props.navigation.navigate("Home");
+    //             }else if( approved == 1){
+    //                 // get verify code
+    //                 this.props.navigation.navigate("Verify");
+    //             }else if(finish_setup == 1){
+    //                 // else get finish, go to pending
+    //                 this.props.navigation.navigate("SignUpStacks", {screen: "PendingAccount"});
+    //             }
+    //         }
+    //     })
+    // }
 
     render() {
         return (
@@ -115,10 +114,15 @@ export default class Index extends Component {
                         buttonStyle={[styles.btn, {borderColor:'black'}]}
                         titleStyle={styles.btnText}
                         title="Log In"
-                        onPress={() => {
-                            // currentUser ? navigation.navigate('Home') :
+                        onPress={async () => {
+
+                            var userid = await getUserId();
+                            console.log(userid)
+                            if (userid) {
+                                this.props.navigation.navigate('Home');
+                            } else {
                                 this.props.navigation.navigate('Login');
-                                // this.props.navigation.navigate("SignUpStacks", {screen: "PendingAccount"});
+                            }
                         }}
                     />
                     <Button

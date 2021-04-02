@@ -13,9 +13,14 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import { getCreatorMediaData, getMe, uploadPortfolio, uploadStory, getReviews, getCreatorService} from '../../shared/service/api';
 import { SERVER_URL, WIDTH } from '../../globalconfig';
 import BackButton from '../../components/BackButton';
+import { btnBackgroundColor, ios_red_color, btnGradientProps } from "../../GlobalStyles";
 import PhotoGrid from './PhotoGrid'
 import _ from 'lodash'
 import { ImageStore } from 'react-native';
+import { GoogleSignin, statusCodes } from 'react-native-google-signin';
+import { saveStorage, getStorage } from '../../shared/service/storage';
+import LinearGradient from 'react-native-linear-gradient/index';
+import { local } from '../../shared/const/local';
 
 const styles = StyleSheet.create({
     container: {
@@ -286,6 +291,23 @@ export default class Profile extends Component {
         this.RBSheetR.close()
         this.props.navigation.navigate('ProfileAdd');
     }  
+
+    logOut = async () => {
+        await saveStorage(local.isLogin, 'false');
+        await saveStorage(local.token, '');
+        await saveStorage(local.user, '');
+
+        var login_type = await getStorage('login_type');
+        console.log(login_type);
+        if (login_type == 'google') {
+            await GoogleSignin.revokeAccess();
+            await GoogleSignin.signOut();
+        }
+
+        await saveStorage('login_type', '');
+
+        this.props.navigation.navigate("Index");
+    }    
    
     render () {
         return (
@@ -398,6 +420,18 @@ export default class Profile extends Component {
                         title={"See all "+global.user.rating_count+" reviews"}
                         onPress={() => this.props.navigation.navigate('AllReview')}
                     />}
+
+
+                    <Button
+                        buttonStyle={{ marginVertical: 20, borderRadius: 8, height: 50 }}
+                        ViewComponent={LinearGradient}
+                        titleStyle={styles.btnTitle}
+                        linearGradientProps={btnGradientProps}
+                        title="Log Out"
+                        onPress={() => {
+                            this.logOut()
+                        }}
+                    />
     
                 </View>
                 <RBSheet

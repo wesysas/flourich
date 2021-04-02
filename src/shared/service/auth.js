@@ -64,3 +64,14 @@ export const registerWithEmail = async (data) => {
     }
 }
 
+export const saveSocialUser = async (data) => {
+    try {
+        var resp = await _post('/v1/auth/savesocialuser', data);
+        return resp;
+    } catch (err) {
+        // Handle Error Here
+        _handleError(err);
+        return null;
+    }
+}
+
