@@ -15,7 +15,7 @@ import { SERVER_URL, WIDTH } from '../../globalconfig';
 import BackButton from '../../components/BackButton';
 import { btnBackgroundColor, ios_red_color, btnGradientProps } from "../../GlobalStyles";
 import PhotoGrid from './PhotoGrid'
-import _ from 'lodash'
+import _, { rest } from 'lodash'
 import DocumentPicker from 'react-native-document-picker';
 import { GoogleSignin, statusCodes } from 'react-native-google-signin';
 import { saveStorage, getStorage } from '../../shared/service/storage';
@@ -158,11 +158,11 @@ export default class Profile extends Component {
         this.setState({user});
         this.setState({reviews});
         this.setState({story: result.story});
-        var portfolio = [];
-        _.each(result.portfolio, (item, callback) => {
-            portfolio.push(SERVER_URL + item.media_url)
-        });
-        this.setState({portfolio});
+        // var portfolio = [];
+        // _.each(result.portfolio, (item, callback) => {
+        //     portfolio.push(SERVER_URL + item.media_url)
+        // });
+        this.setState({portfolio: result.portfolio});
         this.setState({service});
         console.log("-----service------", service);
 
@@ -314,7 +314,15 @@ export default class Profile extends Component {
 
         this.setState({spinner:false})
         this.props.navigation.navigate("Index");
-    }    
+    }  
+
+    deletePortfolio = (id) =>{
+
+        var new_prot = this.state.portfolio.filter((item) =>{
+            if(item.id != id)  return item;
+        })
+        this.setState({portfolio: new_prot});
+    }
    
     render () {
         return (
@@ -385,7 +393,7 @@ export default class Profile extends Component {
                     </View>
                     {/* image mozaic part */}
                     <SafeAreaView style={{ flex: 1, marginTop:40 }}>
-                        <PhotoGrid source={this.state.portfolio} />
+                        <PhotoGrid source={this.state.portfolio} callbackFrom={(id)=>{this.deletePortfolio(id)}}/>
                     </SafeAreaView>
 
                     {global.user.rating_point && 

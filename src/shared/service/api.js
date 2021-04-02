@@ -210,6 +210,18 @@ export const verifyCode = async (data) => {
     }
 }
 
+/** remove portfolio */
+export const removePortfolio = async (data) => {
+    try {
+        var res = await _post('/v1/profile/removeportfolio', data);
+        return res;
+    } catch (err) {
+        // Handle Error Here
+        _handleError(err);
+        return null;
+    }
+}
+
  /**
   * upload story
   */
