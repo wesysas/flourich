@@ -186,13 +186,27 @@ export const verifyCode = async (data) => {
   * upload portfolio image
   */
  export const uploadPortfolio = async (data) => {
+    
     try {
-        var resp = await _post('/v1/profile/uploadportfolio', data);
-        return resp;
-    } catch (err) {
-        // Handle Error Here
-        _handleError(err);
-        return null;
+        const token = await getStorage('@token');
+
+        const  options =
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: data,
+            };
+
+        let response = await fetch(
+            API_URL + '/v1/profile/uploadportfolio',options
+        );
+        return response;
+    } catch (error) {
+        console.error(error);
+        _handleError(error);
     }
 }
 

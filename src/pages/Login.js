@@ -97,6 +97,7 @@ export default class LoginPage extends ValidationComponent {
                 first_name: user.givenName,
                 last_name: user.familyName,
                 avatar: user.photo,
+                _token: idToken,
                 login_type: 'google'
             }
             this.saveSocialUser(params);

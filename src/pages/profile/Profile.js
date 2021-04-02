@@ -16,7 +16,7 @@ import BackButton from '../../components/BackButton';
 import { btnBackgroundColor, ios_red_color, btnGradientProps } from "../../GlobalStyles";
 import PhotoGrid from './PhotoGrid'
 import _ from 'lodash'
-import { ImageStore } from 'react-native';
+import DocumentPicker from 'react-native-document-picker';
 import { GoogleSignin, statusCodes } from 'react-native-google-signin';
 import { saveStorage, getStorage } from '../../shared/service/storage';
 import LinearGradient from 'react-native-linear-gradient/index';
@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
 });
 const _renderCarouselItem = ({ item, index }) => {
     return (
-        <View style={{justifyContent:'center'}}>
+        <View style={{justifyContent:'center', alignItems:'center'}}>
             <Avatar
                 rounded
                 size="large"
@@ -89,7 +89,7 @@ const _renderCarouselItem = ({ item, index }) => {
                 }}
                 source={{uri: SERVER_URL+item.media_url }}
             />
-            {/* <Text style={{fontSize: 30}}>{item.title}</Text> */}
+            {item.featured==1 && <Text style={{marginTop:-15, width:55, fontSize: 8, backgroundColor:ios_red_color, borderRadius:10, color:'white', textAlign:'center', padding:3}}>FEATURED</Text>}
             <Text style={{textAlign:'center'}}>Story {index+1}</Text>
         </View>
     );
@@ -104,6 +104,7 @@ export default class Profile extends Component {
             spinner: false,
             story:[],
             portfolio: [],
+            featured: 0,
             user: global.user,
             min: 100,
             max: 100,
@@ -116,17 +117,19 @@ export default class Profile extends Component {
         this.bottomSheetList = [           
             {
                 title: 'Portfolio Post',
-                onPress: () => {this.openPortfolioPicker() }
+                onPress: () => {this.uploadPortfolio() }
             },
             {
                 title: 'Story',
                 onPress: () => {
+                    this.setState({featured:0});
                     this.openStoryPicker();
                 }
             },
             {
                 title: 'Story highlight',
                 onPress: () => {
+                    this.setState({featured:1});
                     this.openStoryPicker();
                 }
             },
@@ -183,42 +186,43 @@ export default class Profile extends Component {
     /**
      *  open image picker for portfolio
      */
-    openPortfolioPicker = () => {
-        
-        ImagePicker.openPicker({         
-            multiple: true,
-            includeBase64:true,
-          }).then(images => {
-            console.log(images.length);
-            if (images.length>0){
-                this.uploadPortfolioImage(images);
+     async uploadPortfolio() {
+
+        // Pick a single file
+        try {
+            const res = await DocumentPicker.pick({
+                type: [DocumentPicker.types.allFiles],
+            });
+            console.log(
+                res.uri,
+                res.type, // mime type
+                res.name,
+                res.size
+            );
+
+            const data = new FormData();
+            data.append("media", {
+                name: res.name,
+                type: res.type,
+                uri: res.uri
+            });
+
+            data.append("userid", global.user.cid);
+            data.append("media_type", res.type);
+
+            this.setState({spinner: true});
+            var response = await uploadPortfolio(data);
+
+        } catch (err) {
+            if (DocumentPicker.isCancel(err)) {
+                // User cancelled the picker, exit any dialogs or menus and move on
+            } else {
+                throw err;
             }
-            this.RBSheetR.close();
-          }).catch(err => {
-            console.log(err);
-            this.RBSheetR.close();
-        });
-        
-    }
-    /**
-     * 
-     * @param {*} image 
-     * upload portfolio to user portfolio
-     */
-    uploadPortfolioImage = async (images) => {
-        var userid = await getUserId();
-        this.setState({"userid": userid});
-      
-        this.setState({spinner: true});
-        var params = {
-            userid: userid,
-            images: images,
         }
-        var res = await uploadPortfolio(params);
         this.setState({spinner: false});
-        if(res != null) {
-            this.refreshScreen();
-        }
+        this.RBSheetR.close();
+        this.refreshScreen();
     }
 
     /**
@@ -228,7 +232,7 @@ export default class Profile extends Component {
         this.RBSheetR.close();
 
         ImagePicker.openCamera({
-            cropping: true,
+            // cropping: true,
             // includeBase64:true,
             showCropGuidelines:false,
           }).then(image => {
@@ -265,6 +269,7 @@ export default class Profile extends Component {
           });
         data.append("userid", userid);
         data.append("media_type", media_type);
+        data.append("featured", this.state.featured);
 
         console.log(data);
         var res = await uploadStory(data);
