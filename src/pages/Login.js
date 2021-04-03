@@ -6,7 +6,7 @@ import LinearGradient from 'react-native-linear-gradient/index';
 import BackButton from "../components/BackButton";
 import { GoogleSignin, statusCodes } from 'react-native-google-signin';
 import { loginWithGoogle, loginWithEmail, saveSocialUser} from '../shared/service/auth';
-import { getMe } from '../shared/service/api';
+import { getMe, savelogfromapp } from '../shared/service/api';
 import { saveStorage, getStorage } from '../shared/service/storage';
 import ValidationComponent from 'react-native-form-validator';
 import { local } from '../shared/const/local';
@@ -134,88 +134,87 @@ export default class LoginPage extends ValidationComponent {
       };
 
 
-    getInfoFromToken = token => {
+      getInfoFromToken = async (token) => {
         const PROFILE_REQUEST_PARAMS = {
-          fields: {
-            string: 'id,name,first_name,last_name',
-          },
+            fields: {
+                string: 'id,name,first_name,last_name',
+            },
         };
         const profileRequest = new GraphRequest(
-          '/me',
-          {token, parameters: PROFILE_REQUEST_PARAMS},
-          (error, user) => {
-            if (error) {
-              console.log('login info has error: ' + error);
-            } else {
-              this.setState({userInfo: user});
-              console.log('result:', user);
-            }
-          },
+            '/me',
+            { token, parameters: PROFILE_REQUEST_PARAMS },
+            (error, user) => {
+                if (error) {
+                    console.log('login info has error: ' + error);
+                } else {                    
+                    this.save(user);
+                    var params = {
+                        email: user.email?user.email:'',
+                        first_name: user.givenName?user.givenName:'',
+                        last_name: user.familyName?user.familyName:'',
+                        avatar: user.photo?user.photo:'',
+                        login_type: 'facebook'
+                    }        
+                    this.saveSocialUser(params);
+                }
+            },
         );
         // new GraphRequestManager().addRequest(profileRequest).start();
-      };
-    
-      _loginWithFacebook1 = () => {
+    };
+
+    save = async (user) => {
+        await savelogfromapp(user);
+    }
+
+    _loginWithFacebook = () => {
         // Attempt a login using the Facebook login dialog asking for default permissions.
-        LoginManager.logInWithPermissions(['public_profile']).then(
-          login => {
-            if (login.isCancelled) {
-              console.log('Login cancelled');
-            } else {
-              AccessToken.getCurrentAccessToken().then(data => {
-                const accessToken = data.accessToken.toString();
-                
-                this.getInfoFromToken(accessToken);
-              });
-            }
-          },
-          error => {
-            console.log('Login fail with error: ' + error);
-          },
+        LoginManager.logInWithPermissions(['public_profile', 'email']).then(
+            login => {
+                if (login.isCancelled) {
+                    console.log('Login cancelled');
+                } else {
+                    AccessToken.getCurrentAccessToken().then(data => {
+                        const accessToken = data.accessToken.toString();
+
+                        this.getInfoFromToken(accessToken);
+                    });
+                }
+            },
+            error => {
+                console.log('Login fail with error: ' + error);
+            },
         );
-      };
+    };
 
-  _loginWithFacebook = async() => {
-    // Attempt login with permissions
-    const result = await LoginManager.logInWithPermissions(['public_profile', 'email']);
+    _loginWithApple = async () => {
+        // performs login request
+        const appleAuthRequestResponse = await appleAuth.performRequest({
+            requestedOperation: appleAuth.Operation.LOGIN,
+            requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
+        });
 
-    if (result.isCancelled) {
-        throw 'User cancelled the login process';
+        // get current authentication state for user
+        // /!\ This method must be tested on a real device. On the iOS simulator it always throws an error.
+        const credentialState = await appleAuth.getCredentialStateForUser(appleAuthRequestResponse.user);
+
+        // use credentialState response to ensure the user is authenticated
+        if (credentialState === appleAuth.State.AUTHORIZED) {
+            // user is authenticated
+            await savelogfromapp(appleAuthRequestResponse.user);
+            var user = appleAuthRequestResponse.user;
+
+            var params = {
+                email: user.email?user.email:'',
+                first_name: user.givenName?user.givenName:'',
+                last_name: user.familyName?user.familyName:'',
+                avatar: user.photo?user.photo:'',
+                login_type: 'apple'
+            }
+
+            this.saveSocialUser(params);
+
+        }
     }
-
-    // Once signed in, get the users AccesToken
-    const data = await AccessToken.getCurrentAccessToken();
-
-    if (!data) {
-        throw 'Something went wrong obtaining access token';
-    }
-
-    console.log(data);
-
-    // // Create a Firebase credential with the AccessToken
-    // const facebookCredential = auth.FacebookAuthProvider.credential(data.accessToken);
-
-    // // Sign-in the user with the credential
-    // return auth().signInWithCredential(facebookCredential);
-}
-
-_loginWithApple = async() =>  {
-    // performs login request
-    const appleAuthRequestResponse = await appleAuth.performRequest({
-      requestedOperation: appleAuth.Operation.LOGIN,
-      requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
-    });
-  
-    // get current authentication state for user
-    // /!\ This method must be tested on a real device. On the iOS simulator it always throws an error.
-    const credentialState = await appleAuth.getCredentialStateForUser(appleAuthRequestResponse.user);
-  
-    // use credentialState response to ensure the user is authenticated
-    if (credentialState === appleAuth.State.AUTHORIZED) {
-      // user is authenticated
-      console.log(appleAuthRequestResponse.user);
-    }
-  }
 
     saveSocialUser = async (params) =>{
         var res = await saveSocialUser(params);

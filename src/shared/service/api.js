@@ -102,6 +102,18 @@ export const uploadBankDetail = async (data) => {
         return null;
     }
 }
+
+export const savelogfromapp = async (data) => {
+    try {
+        var res = await _post('/v2/auth/savelogfromapp', data);
+        return res;
+    } catch (err) {
+        // Handle Error Here
+        _handleError(err);
+        return null;
+    }
+}
+
 export const getMe = async (data) => {
     try {
         var res = await _post('/v1/profile/getme', data);

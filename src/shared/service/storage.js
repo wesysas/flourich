@@ -18,6 +18,16 @@ import { local } from '../const/local';
     }
   };
 
+  export const getCurrentUser = async () => {
+    try{
+      var currentuser = await AsyncStorage.getItem(local.user);
+      var user = JSON.parse(currentuser);
+      return user;
+    }catch(e) {
+      return null;
+    }
+  };
+
   export const getUserId = async () => {
     try{
       var currentuser = await AsyncStorage.getItem(local.user);

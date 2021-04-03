@@ -124,14 +124,20 @@ const HomeTabs = () => {
 
     var [badgeNum, setBadgeNum] = useState(0);
 
-    useEffect(async () => {
-        var userid = await getUserId();
-        var result = await getNewBookings({userid:userid});
-        console.log(result);
-        if(result) {
+    useEffect( () => {
+
+        async function fetchData() {
+            var userid = await getUserId();
+            var result = await getNewBookings({userid:userid});
             console.log(result);
-            setBadgeNum(result.count);
-        }
+            if(result) {
+                console.log(result);
+                setBadgeNum(result.count);
+            }
+          }
+          fetchData();
+
+        
 
     }, [])
 

@@ -21,86 +21,8 @@ import {check, PERMISSIONS, RESULTS} from 'react-native-permissions';
 import {getStorage} from "../../shared/service/storage";
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import {local} from "../../shared/const/local";
-
+import { isIphoneX } from 'react-native-iphone-x-helper';
 navigator.geolocation = require('@react-native-community/geolocation');
-const styles = StyleSheet.create({
-    mapcontainer: {
-        height: HEIGHT-150,
-        width: WIDTH,
-    },
-    btnStyle: {
-        backgroundColor:'blue',
-        width: 90,
-        borderRadius: 50,
-        borderColor: 'gray',
-        margin: 10
-    },
-    mozaicImg: {
-        marginVertical:10,
-        width: 360,
-        height: 180,
-        alignSelf: 'center',
-        resizeMode: 'contain'
-    },
-    map: {
-        backgroundColor:'white',
-        ...StyleSheet.absoluteFillObject,
-    },
-    new: {
-        flex: 1,
-        flexDirection: 'row'
-    },
-    newImage: {
-        width: 100,
-        height: 80,
-        borderRadius: 5
-    },
-    newSideTxt: {
-        flexDirection: 'column',
-        paddingRight: 10
-    },
-    title: {
-        color: 'black',
-        fontWeight: 'bold',
-        fontSize: 15,
-    },
-    flatList: {
-        marginTop: HEIGHT-390,
-        height: 120,
-        backgroundColor: 'rgba(52, 52, 52, 0)',
-        flexGrow: 0
-    },
-    arrowBtnStyle: {
-        width: 38,
-        height: 38,
-        zIndex: 1,
-        borderRadius: 19,
-        backgroundColor: "#f5f6f6",
-        alignItems: 'center'
-    },
-
-    content: {
-        backgroundColor:'white',
-        borderRadius: 5,
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 1,
-        },
-        shadowOpacity: 0.18,
-        shadowRadius: 1.00,
-
-        elevation: 1,
-    },
-    arrow: {
-        borderTopColor: 'white',
-
-    },
-    background: {
-        backgroundColor: 'transparent'
-    },
-
-});
 
 export default class Explore extends Component {
 
@@ -291,7 +213,7 @@ export default class Explore extends Component {
                         container: {
                             zIndex:2, position: 'absolute',
                             width: WIDTH-135,
-                            marginTop:58,
+                            marginTop:isIphoneX()?58:13,
                             marginLeft:45,
                         },
                         description: {
@@ -631,3 +553,82 @@ export default class Explore extends Component {
         )
     }
 }
+
+const styles = StyleSheet.create({
+    mapcontainer: {
+        height: HEIGHT-150,
+        width: WIDTH,
+    },
+    btnStyle: {
+        backgroundColor:'blue',
+        width: 90,
+        borderRadius: 50,
+        borderColor: 'gray',
+        margin: 10
+    },
+    mozaicImg: {
+        marginVertical:10,
+        width: 360,
+        height: 180,
+        alignSelf: 'center',
+        resizeMode: 'contain'
+    },
+    map: {
+        backgroundColor:'white',
+        ...StyleSheet.absoluteFillObject,
+    },
+    new: {
+        flex: 1,
+        flexDirection: 'row'
+    },
+    newImage: {
+        width: 100,
+        height: 80,
+        borderRadius: 5
+    },
+    newSideTxt: {
+        flexDirection: 'column',
+        paddingRight: 10
+    },
+    title: {
+        color: 'black',
+        fontWeight: 'bold',
+        fontSize: 15,
+    },
+    flatList: {
+        marginTop: HEIGHT-390,
+        height: 120,
+        backgroundColor: 'rgba(52, 52, 52, 0)',
+        flexGrow: 0
+    },
+    arrowBtnStyle: {
+        width: 38,
+        height: 38,
+        zIndex: 1,
+        borderRadius: 19,
+        backgroundColor: "#f5f6f6",
+        alignItems: 'center'
+    },
+
+    content: {
+        backgroundColor:'white',
+        borderRadius: 5,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.18,
+        shadowRadius: 1.00,
+
+        elevation: 1,
+    },
+    arrow: {
+        borderTopColor: 'white',
+
+    },
+    background: {
+        backgroundColor: 'transparent'
+    },
+
+});
