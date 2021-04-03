@@ -5,7 +5,7 @@ import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-vi
 import EntypoIcon from 'react-native-vector-icons/Entypo';
 import Moment from "moment";
 import {SERVER_URL} from "../../globalconfig";
-import {getMessage} from "../../shared/service/api";
+import {lastMessage} from "../../shared/service/api";
 
 export default class Inbox extends Component {
 
@@ -21,7 +21,7 @@ export default class Inbox extends Component {
 
     async componentDidMount() {
         this._unsubscribe = this.props.navigation.addListener('focus', async () => {
-            var bookings = await getMessage({creator_id:global.user.cid, status:[2,3,4,5,6,7,8,9]});
+            var bookings = await lastMessage({creator_id:global.user.cid, status:[2,3,4,5,6,7,8,9]});
             this.setState({bookings});
         });
     }

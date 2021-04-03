@@ -372,3 +372,14 @@ export const getMessage = async (data) => {
         return [];
     }
 };
+
+export const lastMessage = async (data) => {
+    try {
+        var res = await _post('/v1/booking/last_message', data);
+        return res;
+    } catch (err) {
+        // Handle Error Here
+        _handleError(err);
+        return [];
+    }
+};

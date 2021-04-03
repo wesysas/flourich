@@ -6,6 +6,7 @@ import Icon from "react-native-vector-icons/FontAwesome";
 import {Avatar} from "react-native-elements";
 import {SERVER_URL} from "../../globalconfig";
 import BackButton from "../../components/BackButton";
+import {getMessage} from "../../shared/service/api";
 
 export default class ChatBox extends Component {
 
@@ -54,6 +55,20 @@ export default class ChatBox extends Component {
         this.socket.emit('messages',mes)
     }
 
+    async componentDidMount() {
+        var message_result = await getMessage({booking_id:booking.id});
+        if (message_result && message_result.length>0){
+            var stored_messages = JSON.parse('[' + message_result[0].text.substring(1) + ']');
+            var messages = stored_messages.map((m, key) => { 
+                console.log(m.user._id,'  ', m.to,'  ',  global.user.cid);
+                if (m.to == global.user.cid) m.user._id = this.state.userId;
+                if (m.from == global.user.cid) m.user._id = this.state.userId;
+                return m;
+            });
+            this.setState({messages});
+        }
+    }
+    
     render() {
         return (
             <SafeAreaView style={{height:'100%'}}>
