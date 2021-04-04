@@ -37,7 +37,7 @@ export default class ChatBox extends Component {
 
     onReceivedMessage(mes){
         const arrMes = [{...mes.messages}];
-        let filterMsg = arrMes.filter((msg, key) => msg.from == global.user.cid || msg.to == global.user.cid);
+        let filterMsg = arrMes.filter((msg, key) => msg.booking_id == global.booking.bid);
 
         this.setState((previousState) => ({
             messages: GiftedChat.append(previousState.messages, filterMsg),
@@ -49,22 +49,21 @@ export default class ChatBox extends Component {
         const { username, avatar } = this.state;
         mes['username'] = username;
         mes['avatar'] = avatar;
-        mes['from'] = global.user.cid;
-        mes['to'] = global.booking.customer_id;
-        mes['booking_id'] = global.booking.id;
+        mes['from'] = "creator"+global.user.cid;
+        mes['to'] = "customer"+global.booking.customer_id;
+        mes['booking_id'] = global.booking.bid;
         this.socket.emit('messages',mes)
     }
 
     async componentDidMount() {
-        var message_result = await getMessage({booking_id:booking.id});
+        var message_result = await getMessage({booking_id:global.booking.bid});
         if (message_result && message_result.length>0){
             var stored_messages = JSON.parse('[' + message_result[0].text.substring(1) + ']');
             var messages = stored_messages.map((m, key) => { 
-                console.log(m.user._id,'  ', m.to,'  ',  global.user.cid);
-                if (m.to == global.user.cid) m.user._id = this.state.userId;
-                if (m.from == global.user.cid) m.user._id = this.state.userId;
+                if (m.from == "creator"+global.user.cid) m.user._id = this.state.userId;
                 return m;
             });
+            messages.reverse();
             this.setState({messages});
         }
     }
