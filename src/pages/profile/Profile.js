@@ -6,7 +6,7 @@ import Carousel from 'react-native-snap-carousel';
 import ProfileAvatar from '../../components/ProfileAvatar';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import { getUserId } from '../../shared/service/storage';
-import { logout } from '../../shared/service/auth';
+import { logout } from '../../shared/service/api';
 import Moment from 'moment';
 import { LogBox, FlatList } from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
@@ -300,8 +300,7 @@ export default class Profile extends Component {
 
     logOut = async () => {
         this.setState({spinner:true});
-        console.log("---logout-----", global.user.cid);
-        //var user = await logout({ cid: global.user.cid });
+        await logout({ cid: global.user.cid });
         await saveStorage(local.isLogin, 'false');
         await saveStorage(local.token, '');
         await saveStorage(local.user, '');

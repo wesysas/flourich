@@ -36,6 +36,16 @@ const _handleError = (err) => {
     }
 }
 
+export const logout = async (data) => {
+    try {
+        var resp = await _post('/v1/profile/logout', data);
+        return resp;
+    } catch (err) {
+        // Handle Error Here
+        _handleError(err);
+        return null;
+    }
+}
 
 export const createProfile = async (data) => {
     try {
