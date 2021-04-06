@@ -53,6 +53,19 @@ export const loginWithEmail = async (data) => {
     }
 }
 
+export const logout = async (data) => {
+    console.log('----try----logout----------');
+    try {
+        var resp = await _post('/auth/logout', data);
+        return resp;
+    } catch (err) {
+        // Handle Error Here
+        console.log(err);
+        _handleError(err);
+        return null;
+    }
+}
+
 export const registerWithEmail = async (data) => {
     try {
         var res = await _post('/auth/register', data);

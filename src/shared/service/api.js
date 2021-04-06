@@ -135,6 +135,16 @@ export const getNewBookings = async (data) => {
         return null;
     }
 }
+export const unreadMessage = async (data) => {
+    try {
+        var res = await _post('/v1/booking/unread_message', data);
+        return res;
+    } catch (err) {
+        // Handle Error Here
+        _handleError(err);
+        return null;
+    }
+}
 
 export const getReviews = async (data) => {
     try {
@@ -377,6 +387,17 @@ export const getAssets = async (data) => {
 export const getMessage = async (data) => {
     try {
         var res = await _post('/v1/booking/get_message', data);
+        return res;
+    } catch (err) {
+        // Handle Error Here
+        _handleError(err);
+        return [];
+    }
+};
+
+export const leaveChat = async (data) => {
+    try {
+        var res = await _post('/v1/booking/leave_chat', data);
         return res;
     } catch (err) {
         // Handle Error Here

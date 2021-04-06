@@ -44,7 +44,7 @@ import Progress from "./src/pages/Session/Progress";
 
 import { SERVER_URL } from './src/globalconfig';
 import { getUserId } from './src/shared/service/storage';
-import { getNewBookings } from './src/shared/service/api'
+import { getNewBookings, unreadMessage } from './src/shared/service/api'
 import { ifIphoneX } from 'react-native-iphone-x-helper';
 
 const RootStack = createStackNavigator();
@@ -56,7 +56,7 @@ const Drawer = createDrawerNavigator();
 
 const Tab = createBottomTabNavigator();
 
-const socket = SocketIOClient(SERVER_URL);
+global.socket = SocketIOClient(SERVER_URL);
 
 const MyTheme = {
     ...DefaultTheme,
@@ -123,6 +123,7 @@ function getTabBarVisible(route) {
 const HomeTabs = () => {
 
     var [badgeNum, setBadgeNum] = useState(0);
+    var [message, setMessage] = useState(0);
 
     useEffect( () => {
 
@@ -134,21 +135,32 @@ const HomeTabs = () => {
                 console.log(result);
                 setBadgeNum(result.count);
             }
+            var unread = await unreadMessage({cid:userid});
+            console.log(unread);
+            if(unread) {
+                setMessage(unread.unread);
+            }
           }
           fetchData();
-
-        
 
     }, [])
 
 
 
-    socket.on('new-bookings', async (mes) => {
+    global.socket.on('new-bookings', async (mes) => {
         var userid = await getUserId();
         if(userid == mes.creator_id){
             badgeNum++;
         }
         setBadgeNum(badgeNum)
+    });
+
+    global.socket.on('new-message', async (mes) => {
+       console.log('----------new message on creator--------', mes);
+        if(mes.to == 'creator'+global.user.cid){
+            message++;
+            setMessage(message);
+        }
     });
 
     // const {routeName} = navigation.state;
@@ -180,17 +192,20 @@ const HomeTabs = () => {
                     {
                     tabBarBadge: badgeNum > 0 ? badgeNum : null,
                     
-                    // tabBarBadgeStyle:{top:-8},
                     tabBarIcon: ({ color }) => (
                         <Icon name="calendar-blank" color={color} size={25} />
                     ),
                 })} />
             <Tab.Screen name="Inbox" component={InboxStacks}
-                options={{
+                options={({ navigation }) => (
+                    navigation.isFocused()?setMessage(0):null,
+                    {
+                    tabBarBadge: message > 0 ? message : null,
+                    
                     tabBarIcon: ({ color }) => (
                         <Icon name="comment-outline" color={color} size={25} />
                     ),
-                }} />
+                })} />
 
             <Tab.Screen name="Studio" component={Studio}
                 options={{
