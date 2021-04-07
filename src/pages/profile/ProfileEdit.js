@@ -20,6 +20,7 @@ import { local } from '../../shared/const/local';
 import PhoneInput from "react-native-phone-number-input";
 import RBSheet from "react-native-raw-bottom-sheet";
 import {multiBtnGroupStyle, ios_red_color, ios_green_color, btnGradientProps} from "../../GlobalStyles";
+import Toast from 'react-native-simple-toast';
 
 const styles = StyleSheet.create({
     container: {
@@ -105,7 +106,16 @@ export default class SetupDetail extends ValidationComponent {
         this.setState({default_service});
         this.setState({categories});
         var service = await getCreatorService({ userid: global.user.cid });
+        var service = service.map((s) => {
+            s.categories = s.categories.split(',');
+            return s;
+        });
         this.setState({service});
+
+        var selected_service_type = service.map((s) => {
+            return s.title;
+        });
+        this.setState({selected_service_type: [...new Set(selected_service_type)]});
 
     }
     _singleTapMultipleSelectedButtons = (interest) =>{
@@ -145,7 +155,8 @@ export default class SetupDetail extends ValidationComponent {
 
         this.setState({spinner:true});        
         var user = this.state.user;
-        user.birthday = this.state.date;
+        user.service = this.state.service;
+        console.log('----', user.service);
         var res = await updateProfile(user);
         this.setState({spinner:false});
         if(res != null) {            
@@ -196,7 +207,7 @@ export default class SetupDetail extends ValidationComponent {
                             />
                             {this.isFieldInError('lastname') && this.getErrorsInField('lastname').map(errorMessage => <Text key="lastname" style={{ color:'red', textAlign: 'center'}}>{errorMessage}</Text>) }
                             
-                            <Text>Date of Birth</Text>
+                            {/* <Text>Date of Birth</Text>
                             <Button 
                                 buttonStyle={{
                                     borderWidth: 0,
@@ -229,16 +240,16 @@ export default class SetupDetail extends ValidationComponent {
                                   }}
                             />
                             
-                            {this.isFieldInError('birthday') && this.getErrorsInField('birthday').map(errorMessage => <Text key="birthday" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
+                            {this.isFieldInError('birthday') && this.getErrorsInField('birthday').map(errorMessage => <Text key="birthday" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) } */}
 
                             <Text>Phone Number</Text>
-                            <View style={{ marginTop:-10,flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <View style={{ marginTop:-5,flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                                 <Text style={{fontSize:12, color:'gray'}}>For notifications, reminders and help logging in</Text>
-                                <Button
+                                {/* <Button
                                     type="clear"
                                     title="add"
                                     titleStyle={{ textDecorationLine: 'underline' }}
-                                />
+                                /> */}
                             </View>
                             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth:1, borderColor:'grey'}}>
                                 <PhoneInput
@@ -251,7 +262,6 @@ export default class SetupDetail extends ValidationComponent {
                                     flagButtonStyle={{paddingVertical:10}}
                                     textContainerStyle={{paddingVertical:0, backgroundColor:'white'}}
                                     onChangeText={(text) => {
-                                        this.setState({phone:text});
                                         this.state.user.phone = text;
                                         this.setState({user:this.state.user});
 
@@ -267,7 +277,14 @@ export default class SetupDetail extends ValidationComponent {
                                     <Icon name="check-circle" size={30} />
                                 )}
                                 {!this.state.valid && (
-                                    <Icon name="times-circle" size={30} />
+                                    <TouchableOpacity 
+                                        onPress={() => {
+                                        this.state.user.phone = '';
+                                        this.setState({user:this.state.user});
+                                    }}>
+                                       <Icon name="times-circle" size={30} />
+                                   </TouchableOpacity>
+                                    
                                 )}
                             </View>
                             {this.isFieldInError('phone') && this.getErrorsInField('phone').map(errorMessage => <Text key="phone" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
@@ -332,7 +349,7 @@ export default class SetupDetail extends ValidationComponent {
                                                 />
                                                 <Text style={{marginLeft:10}}>{service.item}</Text>
                                             </View>
-                                            <Text>£{service.price}</Text>
+                                            <Text style={{marginTop:3}}>£{service.price}</Text>
                                         </View>
                                     );
                                 })}
@@ -490,9 +507,10 @@ export default class SetupDetail extends ValidationComponent {
                                 <View style={{flex:1}}>
                                     <Text>City</Text>
                                     <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder=''
-                                        value={this.state.city}
+                                        value={this.state.user.city}
                                         onChangeText={ value => {
-                                            this.setState({"city":value})
+                                            this.state.user.city = value;
+                                            this.setState({user:this.state.user});
                                         }}
                                     />  
                                     {this.isFieldInError('street') && this.getErrorsInField('street').map(errorMessage => <Text key="street" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
@@ -511,13 +529,13 @@ export default class SetupDetail extends ValidationComponent {
                         <CollapseBody style={{ margin: 10 }}>
                         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                                 <ToggleSwitch
-                                    isOn={this.state.user.notification}
+                                    isOn={this.state.user.notification?true:false}
                                     onColor="lightgrey"
                                     offColor={ios_red_color}
                                     // label="Turn On/Off"
                                     onToggle={isOn => {
                                         this.state.user.notification = isOn;
-                                        this.setState({user});
+                                        this.setState({user:this.state.user});
                                     }}
                                 />
                                     {this.state.user.notification ? <Text>Enabled</Text> : <Text>Disabled</Text>}
@@ -654,12 +672,16 @@ export default class SetupDetail extends ValidationComponent {
                                 linearGradientProps={btnGradientProps}
                                 title="ADD"
                                 onPress={() => {
-                                    this.state.selected_service.categories = this.state.selected_categories;
-                                    this.state.service.push(this.state.selected_service);
-                                    this.setState({selected_categories:[]});
-                                    this.setState({service: [...new Set(this.state.service)]});
-                                    this.setState({serviceAddSheetVisible:false});
-                                    this.serviceSheet.close();
+                                    if (this.state.selected_categories.length){
+                                        this.state.selected_service.categories = this.state.selected_categories;
+                                        this.state.service.push(this.state.selected_service);
+                                        this.setState({selected_categories:[]});
+                                        this.setState({service: [...new Set(this.state.service)]});
+                                        this.setState({serviceAddSheetVisible:false});
+                                        this.serviceSheet.close();
+                                    }else{
+                                        Toast.show('Please select an option', Toast.SHORT);
+                                    }
                                 }}
                             />
                         </View>
