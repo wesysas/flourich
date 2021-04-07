@@ -64,6 +64,28 @@ export const registerWithEmail = async (data) => {
     }
 }
 
+export const checkEmail = async (data) => {
+    try {
+        var res = await _post('/auth/checkemail', data);
+        return res;
+    } catch (err) {
+        // Handle Error Here
+        _handleError(err);
+        return null;
+    }
+}
+
+export const resetPassword = async (data) => {
+    try {
+        var res = await _post('/auth/resetpassword', data);
+        return res;
+    } catch (err) {
+        // Handle Error Here
+        _handleError(err);
+        return null;
+    }
+}
+
 export const saveSocialUser = async (data) => {
     try {
         var resp = await _post('/v1/auth/savesocialuser', data);

@@ -344,6 +344,21 @@ export default class LoginPage extends ValidationComponent {
                         }}
                     />
                 </View>
+                <View style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'space-evenly',
+                    }}>
+                        <Text
+                            style={{
+                                color: '#03489c',
+                            }}
+                            onPress={() => {
+                                this.props.navigation.navigate('ForgotPassword', { transition: 'vertical' })
+                            }}
+                        > Forgot Password?
+                        </Text>
+                </View>
                 <Text style={{ marginVertical:10, textAlign:'center'}}>Or</Text>
 
                 <TouchableOpacity
