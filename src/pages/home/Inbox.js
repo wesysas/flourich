@@ -64,13 +64,13 @@ export default class Inbox extends Component {
                                           <ListItem.Title>{item.first_name} {item.last_name}</ListItem.Title>
                                           <ListItem.Subtitle>{item.last_msg}</ListItem.Subtitle>
                                       </ListItem.Content>
-                                      {item.last_msg_time &&
+                                      
                                       <View style={{ position: 'absolute', right: 3, alignItems: 'center' }}>
-                                          <Text>{Moment(item.last_msg_time).format("D/M/YY")}</Text>
-                                          <View style={{ width: 20, height: 20, backgroundColor: 'red', borderRadius: 10, justifyContent:'center'}}>
-                                              <Text style={{color:'white', textAlign:'center'}}>1</Text>
-                                            </View>
-                                      </View>}
+                                        {item.last_at  && <Text>{Moment(item.last_at).format("D/M/YY")}</Text>}
+                                        {item.creator_unread >0 &&  <View style={{ width: 20, height: 20, backgroundColor: 'red', borderRadius: 10, justifyContent:'center'}}>
+                                              <Text style={{color:'white', textAlign:'center'}}>{item.creator_unread}</Text>
+                                            </View>}
+                                      </View>
                                   </TouchableOpacity>
                               }
                     />

@@ -6,6 +6,7 @@ import Carousel from 'react-native-snap-carousel';
 import ProfileAvatar from '../../components/ProfileAvatar';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import { getUserId } from '../../shared/service/storage';
+import { logout } from '../../shared/service/api';
 import Moment from 'moment';
 import { LogBox, FlatList } from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
@@ -21,6 +22,7 @@ import { GoogleSignin, statusCodes } from 'react-native-google-signin';
 import { saveStorage, getStorage } from '../../shared/service/storage';
 import LinearGradient from 'react-native-linear-gradient/index';
 import { local } from '../../shared/const/local';
+import Video from 'react-native-video';
 
 const styles = StyleSheet.create({
     container: {
@@ -44,11 +46,13 @@ const styles = StyleSheet.create({
     separate: {
         marginVertical: 20
     },
-    btnStyle: {
-        width: 90,
-        borderRadius: 50,
-        borderColor: 'gray',
-        margin: 10
+    
+    btnStyle:{
+        alignItems: 'center',
+        paddingVertical:10,
+        marginHorizontal:20,
+        fontSize:16,
+        textAlign:'center'
     },
     mozaicImg: {
         borderRadius: 10,
@@ -77,6 +81,27 @@ const styles = StyleSheet.create({
 const _renderCarouselItem = ({ item, index }) => {
     return (
         <View style={{justifyContent:'center', alignItems:'center'}}>
+            {item.media_type == 'video' &&
+            <View style={{
+                width:80,
+                height:80,
+                borderRadius:40,
+                borderColor: 'red',
+                borderWidth: 2,
+                padding: 5,
+                borderStyle: 'dotted'
+            }}>
+            <Video 
+                source={{ uri: SERVER_URL + item.media_url }}
+                keyExtractor={item => item.id}
+                style={{
+                    width:68,
+                    height:68,
+                    alignSelf:'center',
+                    borderRadius:34,
+                }}
+            /></View>}
+            {item.media_type == 'photo' &&
             <Avatar
                 rounded
                 size="large"
@@ -88,7 +113,7 @@ const _renderCarouselItem = ({ item, index }) => {
                     borderStyle: 'dotted'
                 }}
                 source={{uri: SERVER_URL+item.media_url }}
-            />
+            />}
             {item.featured==1 && <Text style={{marginTop:-15, width:55, fontSize: 8, backgroundColor:ios_red_color, borderRadius:10, color:'white', textAlign:'center', padding:3}}>FEATURED</Text>}
             <Text style={{textAlign:'center'}}>Story {index+1}</Text>
         </View>
@@ -102,6 +127,7 @@ export default class Profile extends Component {
         this.state = {
             userid: '',
             spinner: false,
+            service:[],
             story:[],
             portfolio: [],
             featured: 0,
@@ -114,6 +140,7 @@ export default class Profile extends Component {
 
         this.user = null;
         this.RBSheetR = null;
+        this.RBSheetType = null;
         this.bottomSheetList = [           
             {
                 title: 'Portfolio Post',
@@ -123,14 +150,30 @@ export default class Profile extends Component {
                 title: 'Story',
                 onPress: () => {
                     this.setState({featured:0});
-                    this.openStoryPicker();
+                    this.RBSheetR.close();
+                    this.RBSheetType.open();
                 }
             },
             {
                 title: 'Story highlight',
                 onPress: () => {
                     this.setState({featured:1});
+                    this.RBSheetR.close();
+                    this.RBSheetType.open();
+                }
+            },
+        ];
+        this.bottomTypeSheetList = [   
+            {
+                title: 'Image',
+                onPress: () => {
                     this.openStoryPicker();
+                }
+            },
+            {
+                title: 'Video',
+                onPress: () => {
+                    this.openStoryVideoPicker();
                 }
             },
         ];
@@ -164,7 +207,6 @@ export default class Profile extends Component {
         // });
         this.setState({portfolio: result.portfolio});
         this.setState({service});
-        console.log("-----service------", service);
 
         if (service.length>0)
         {
@@ -229,7 +271,7 @@ export default class Profile extends Component {
      * open image camera for story
      */
     openStoryPicker = () => {
-        this.RBSheetR.close();
+        this.RBSheetType.close();
 
         ImagePicker.openCamera({
             // cropping: true,
@@ -279,7 +321,7 @@ export default class Profile extends Component {
         }
     }
     openStoryVideoPicker = () => {
-        this.RBSheetR.close();
+        this.RBSheetType.close();
 
         ImagePicker.openCamera({
             includeBase64:true,
@@ -298,7 +340,8 @@ export default class Profile extends Component {
     }  
 
     logOut = async () => {
-        this.setState({spinner:true})
+        this.setState({spinner:true});
+        await logout({ cid: global.user.cid });
         await saveStorage(local.isLogin, 'false');
         await saveStorage(local.token, '');
         await saveStorage(local.user, '');
@@ -312,7 +355,7 @@ export default class Profile extends Component {
 
         await saveStorage('login_type', '');
 
-        this.setState({spinner:false})
+        this.setState({spinner:false});
         this.props.navigation.navigate("Index");
     }  
 
@@ -342,8 +385,8 @@ export default class Profile extends Component {
                 }}>
                     <Text style={styles.headerTitle}>{this.state.user.first_name??''} {this.state.user.last_name}</Text>
                     <Text style={styles.bodyText}>{this.state.user.fulladdress}, {this.state.user.street}</Text>
-                    <Text style={styles.bodyText}>£ {this.state.min}~{this.state.max}</Text>
-                    <Text style={styles.bodyText}>{this.state.category}</Text>
+                    {this.state.service.length>0 &&<Text style={styles.bodyText}>£ {this.state.min}~{this.state.max}</Text>}
+                    {this.state.service.length>0 &&<Text style={styles.bodyText}>{this.state.category}</Text>}
                     <Text style={styles.bodyText}>{this.state.user.weburl}</Text>
     
                     {/* summary header */}
@@ -469,6 +512,32 @@ export default class Profile extends Component {
                     openDuration={250}
                 >
                     {this.bottomSheetList.map((l, i) => (
+                        <ListItem key={i} containerStyle={[styles.bottomSheetItem, l.containerStyle]} onPress={l.onPress}>
+                            <ListItem.Content style={{ alignItems: 'center' }}>
+                                <ListItem.Title style={l.titleStyle}>{l.title}</ListItem.Title>
+                            </ListItem.Content>
+                        </ListItem>
+                    ))}
+                </RBSheet>
+                <RBSheet
+                    ref={ref => {
+                        this.RBSheetType = ref;
+                    }}
+                    height={150}
+                    closeOnDragDown={true}
+                    closeOnPressMask={true}
+                    customStyles={{
+                        container: {
+                            borderTopRightRadius: 20,
+                            borderTopLeftRadius: 20
+                        },
+                        draggableIcon: {
+                            backgroundColor: "lightgrey",
+                            width:100
+                        }
+                    }}
+                >
+                    {this.bottomTypeSheetList.map((l, i) => (
                         <ListItem key={i} containerStyle={[styles.bottomSheetItem, l.containerStyle]} onPress={l.onPress}>
                             <ListItem.Content style={{ alignItems: 'center' }}>
                                 <ListItem.Title style={l.titleStyle}>{l.title}</ListItem.Title>

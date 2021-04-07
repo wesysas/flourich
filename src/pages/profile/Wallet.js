@@ -35,7 +35,7 @@ export default class Studio extends Component {
         super(props);
         this.state = {
             withdraw_amount: '',
-            ballence:2400,
+            ballance:0,
             spinner:false,
             transactions:[]
         };
@@ -43,8 +43,8 @@ export default class Studio extends Component {
     }   
 
     async componentDidMount() {
-        if (global.user.ballence>0)
-            this.setState({ballence:global.user.ballence});
+        if (global.user.ballance>0)
+            this.setState({ballance:global.user.ballance});
     }
 
     render() {
@@ -76,7 +76,7 @@ export default class Studio extends Component {
                     <ScrollView tabLabel='Balance' style={styles.innerTab}>
                         <View style={{ alignItems:'center', marginHorizontal:20, marginVertical:40, borderColor:'lightgrey', borderWidth:1, borderRadius:10, paddingVertical:20, paddingHorizontal:5 }}>
                             <Text style={{fontSize:25, marginTop:40}}>Your Balance</Text>
-                            <Text style={{fontSize:50}}>£ {this.state.ballence}</Text>
+                            <Text style={{fontSize:50}}>£ {this.state.ballance}</Text>
                             <Button
                                 buttonStyle={{ marginVertical: 70, borderRadius: 8, width:200, height:50, alignSelf:'center' }}
                                 ViewComponent={LinearGradient}
@@ -84,7 +84,7 @@ export default class Studio extends Component {
                                 linearGradientProps={btnGradientProps}
                                 title="Withdraw"
                                 onPress={() => {
-                                    if (this.state.ballence>0){
+                                    if (this.state.ballance>0){
                                         this.setState({withdraw_amount:''});
                                         this.RBSheetR.open();
                                     }
@@ -195,14 +195,14 @@ export default class Studio extends Component {
                         linearGradientProps={btnGradientProps}
                         title="Confirm"
                         onPress={async() => {
-                            if (this.state.ballence>this.state.withdraw_amount && this.state.withdraw_amount>0){
+                            if (this.state.ballance>this.state.withdraw_amount && this.state.withdraw_amount>0){
                                 this.setState({spinner:true});
                                 var result = await withdraw({cid:global.user.cid, account_number:global.user.account_number, amount:this.state.withdraw_amount});
                                 this.setState({spinner:false});
                               
                                 if(result != null) {
-                                    this.setState({ballence:this.state.ballence-this.state.withdraw_amount});
-                                    global.user.ballence = this.state.ballence;
+                                    this.setState({ballance:this.state.ballance-this.state.withdraw_amount});
+                                    global.user.ballance = this.state.ballance;
                                     this.refs.modal3.open();
                                     this.RBSheetR.close();
                                 }
