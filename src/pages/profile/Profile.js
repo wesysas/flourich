@@ -392,7 +392,7 @@ export default class Profile extends Component {
                     marginHorizontal: 20
                 }}>
                     <Text style={styles.headerTitle}>{this.state.user.first_name??''} {this.state.user.last_name}</Text>
-                    <Text style={styles.bodyText}>{this.state.user.fulladdress}, {this.state.user.street}</Text>
+                    <Text style={styles.bodyText}>{this.state.user.fulladdress} {this.state.user.street}</Text>
                     {this.state.service && <Text style={styles.bodyText}>£ {this.state.min}~{this.state.max}</Text>}
                     {this.state.service && <Text style={styles.bodyText}>{this.state.category}</Text>}
                     <Text style={styles.bodyText}>{this.state.user.weburl}</Text>
