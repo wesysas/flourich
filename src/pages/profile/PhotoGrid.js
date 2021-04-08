@@ -13,6 +13,7 @@ import Video from 'react-native-video';
 import VideoPlayer from 'react-native-video-player';
 import { removePortfolio } from '../../shared/service/api'
 import Spinner from 'react-native-loading-spinner-overlay';
+import FastImage from 'react-native-fast-image';
 
 class PhotoGrid extends Component {
   constructor(props) {
@@ -113,7 +114,7 @@ class PhotoGrid extends Component {
                 :
                 (image.media_type == 'photo' ?
 
-                  <ImageLoad
+                  <FastImage
 
                     borderRadius={10}
                     key={index}
@@ -155,7 +156,7 @@ class PhotoGrid extends Component {
                   {
                     image.media_type == 'photo' ?
 
-                      <ImageLoad
+                      <FastImage
 
                         borderRadius={10}
                         key={index}

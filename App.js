@@ -16,6 +16,7 @@ import SocketIOClient from 'socket.io-client';
 import Index from './src/pages/Index';
 import LoginPage from './src/pages/Login';
 import SignupPage from './src/pages/Signup';
+import ForgotPassword from './src/pages/ForgotPassword';
 
 import Payment from './src/pages/setup/Payment';
 import BankDetail from './src/pages/setup/BankDetail';
@@ -236,6 +237,7 @@ export default function App() {
                 <RootStack.Screen name="Index" component={Index} options={{ headerShown: false }} />
                 <RootStack.Screen name="Login" component={LoginPage} options={{ headerShown: false }} />
                 <RootStack.Screen name="Signup" component={SignupPage} options={{ headerShown: false }} />
+                <RootStack.Screen name="ForgotPassword" component={ForgotPassword} options={{ headerShown: false }} />
                 <RootStack.Screen name="Verify" component={Verify} options={{ headerShown: false }} />
                 <RootStack.Screen name="Home" component={HomeTabs} options={{ headerShown: false }} />
                 <RootStack.Screen name="SignUpStacks" component={SignUpStacks} options={{ headerShown: false }} />
