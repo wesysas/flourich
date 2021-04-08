@@ -23,6 +23,8 @@ import { saveStorage, getStorage } from '../../shared/service/storage';
 import LinearGradient from 'react-native-linear-gradient/index';
 import { local } from '../../shared/const/local';
 import Video from 'react-native-video';
+import BottomSheet from 'react-native-bottomsheet-reanimated';
+import Toast from 'react-native-simple-toast';
 
 const styles = StyleSheet.create({
     container: {
@@ -134,36 +136,44 @@ export default class Profile extends Component {
             user: global.user,
             min: 100,
             max: 100,
-            category: 'Food'
+            category: 'Food',
+            rbSheetVisible:true,
+            typeSheetVisible:false
         };
         this.activIndex = 3,
 
         this.user = null;
         this.RBSheetR = null;
-        this.RBSheetType = null;
         this.bottomSheetList = [           
             {
                 title: 'Portfolio Post',
-                onPress: () => {this.uploadPortfolio() }
+                onPress: () => {
+                    this.uploadPortfolio();
+                 }
             },
             {
                 title: 'Story',
                 onPress: () => {
                     this.setState({featured:0});
-                    this.RBSheetR.close();
-                    this.RBSheetType.open();
+                    this.setState({rbSheetVisible:false});
+                    this.setState({typeSheetVisible:true});
                 }
             },
             {
                 title: 'Story highlight',
                 onPress: () => {
                     this.setState({featured:1});
-                    this.RBSheetR.close();
-                    this.RBSheetType.open();
+                    this.setState({rbSheetVisible:false});
+                    this.setState({typeSheetVisible:true});
                 }
             },
         ];
-        this.bottomTypeSheetList = [   
+        this.bottomTypeSheetList = [  
+            {
+                title: 'Please select a type',
+                onPress: () => {
+                }
+            }, 
             {
                 title: 'Image',
                 onPress: () => {
@@ -192,6 +202,7 @@ export default class Profile extends Component {
 
    async refreshScreen() {
         console.log("refreshed");
+        this.RBSheetR.close();
         var user = await getMe({ userid: global.user.cid });
         var reviews = await getReviews({ userid: global.user.cid, limit: 2 });
         var result = await getCreatorMediaData({ userid: global.user.cid });
@@ -263,7 +274,6 @@ export default class Profile extends Component {
             }
         }
         this.setState({spinner: false});
-        this.RBSheetR.close();
         this.refreshScreen();
     }
 
@@ -271,7 +281,6 @@ export default class Profile extends Component {
      * open image camera for story
      */
     openStoryPicker = () => {
-        this.RBSheetType.close();
 
         ImagePicker.openCamera({
             // cropping: true,
@@ -279,8 +288,10 @@ export default class Profile extends Component {
             showCropGuidelines:false,
           }).then(image => {
             this._uploadStory(image, "photo");
+            this.refreshScreen();
           }).catch(err => {
               console.log(err);
+              Toast.show(err.message);
           });
     }
 
@@ -321,7 +332,6 @@ export default class Profile extends Component {
         }
     }
     openStoryVideoPicker = () => {
-        this.RBSheetType.close();
 
         ImagePicker.openCamera({
             includeBase64:true,
@@ -329,15 +339,13 @@ export default class Profile extends Component {
             mediaType: 'video',
           }).then(video => {
             this._uploadStory(video, 'video');
+            this.refreshScreen();
           }).catch(err => {
               console.log(err);
+              Toast.show(err.message);
+
           });
     }
-
-    goPortfolioPost = () => {
-        this.RBSheetR.close()
-        this.props.navigation.navigate('ProfileAdd');
-    }  
 
     logOut = async () => {
         this.setState({spinner:true});
@@ -385,8 +393,8 @@ export default class Profile extends Component {
                 }}>
                     <Text style={styles.headerTitle}>{this.state.user.first_name??''} {this.state.user.last_name}</Text>
                     <Text style={styles.bodyText}>{this.state.user.fulladdress}, {this.state.user.street}</Text>
-                    {this.state.service.length>0 &&<Text style={styles.bodyText}>£ {this.state.min}~{this.state.max}</Text>}
-                    {this.state.service.length>0 &&<Text style={styles.bodyText}>{this.state.category}</Text>}
+                    {this.state.service && <Text style={styles.bodyText}>£ {this.state.min}~{this.state.max}</Text>}
+                    {this.state.service && <Text style={styles.bodyText}>{this.state.category}</Text>}
                     <Text style={styles.bodyText}>{this.state.user.weburl}</Text>
     
                     {/* summary header */}
@@ -404,6 +412,8 @@ export default class Profile extends Component {
                             <Text style={{ fontSize: 18, textAlign:'center', color:'grey' }} >Edit Profile</Text>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => {
+                            this.setState({rbSheetVisible:true});
+                            this.setState({typeSheetVisible:false});
                             this.RBSheetR.open();
                         }}
                         style={{borderWidth:1,
@@ -511,38 +521,19 @@ export default class Profile extends Component {
                     height={200}
                     openDuration={250}
                 >
-                    {this.bottomSheetList.map((l, i) => (
+                    {this.state.rbSheetVisible && this.bottomSheetList.map((l, i) => (
                         <ListItem key={i} containerStyle={[styles.bottomSheetItem, l.containerStyle]} onPress={l.onPress}>
                             <ListItem.Content style={{ alignItems: 'center' }}>
                                 <ListItem.Title style={l.titleStyle}>{l.title}</ListItem.Title>
                             </ListItem.Content>
                         </ListItem>
                     ))}
-                </RBSheet>
-                <RBSheet
-                    ref={ref => {
-                        this.RBSheetType = ref;
-                    }}
-                    height={150}
-                    closeOnDragDown={true}
-                    closeOnPressMask={true}
-                    customStyles={{
-                        container: {
-                            borderTopRightRadius: 20,
-                            borderTopLeftRadius: 20
-                        },
-                        draggableIcon: {
-                            backgroundColor: "lightgrey",
-                            width:100
-                        }
-                    }}
-                >
-                    {this.bottomTypeSheetList.map((l, i) => (
-                        <ListItem key={i} containerStyle={[styles.bottomSheetItem, l.containerStyle]} onPress={l.onPress}>
-                            <ListItem.Content style={{ alignItems: 'center' }}>
-                                <ListItem.Title style={l.titleStyle}>{l.title}</ListItem.Title>
-                            </ListItem.Content>
-                        </ListItem>
+                    {this.state.typeSheetVisible && this.bottomTypeSheetList.map((l, i) => (
+                            <ListItem key={i} containerStyle={[styles.bottomSheetItem, l.containerStyle]} onPress={l.onPress}>
+                                <ListItem.Content style={{ alignItems: 'center' }}>
+                                    <ListItem.Title style={l.titleStyle}>{l.title}</ListItem.Title>
+                                </ListItem.Content>
+                            </ListItem>
                     ))}
                 </RBSheet>
             </ScrollView>

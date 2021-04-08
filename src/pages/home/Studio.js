@@ -85,6 +85,7 @@ export default class Studio extends Component {
         this.setState({spinner: false});
         global.upload_asset = false;
         this.loadFiles();
+        this.RBSheetR.close();
     }
 
     componentDidMount() {
@@ -176,7 +177,6 @@ export default class Studio extends Component {
                 >
                     <TouchableOpacity style={{marginTop:10}}
                                       onPress={async () => {
-                                          this.RBSheetR.close();
                                           this.uploadAsset();
                                       }}
                     >

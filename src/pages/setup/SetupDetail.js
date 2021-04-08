@@ -13,6 +13,7 @@ import { getUserId } from '../../shared/service/storage';
 import DropDownPicker from 'react-native-dropdown-picker';
 import RBSheet from "react-native-raw-bottom-sheet";
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import Toast from 'react-native-simple-toast';
 
 const styles = StyleSheet.create({
     container: {
@@ -430,13 +431,18 @@ export default class SetupDetail extends ValidationComponent {
                                 ViewComponent={LinearGradient}
                                 linearGradientProps={btnGradientProps}
                                 title="ADD"
-                                onPress={() => {
-                                    this.state.selected_service.categories = this.state.selected_categories;
-                                    this.state.service.push(this.state.selected_service);
-                                    this.setState({selected_categories:[]});
-                                    this.setState({service: [...new Set(this.state.service)]});
-                                    this.setState({serviceAddSheetVisible:false});
-                                    this.serviceSheet.close();
+                                onPress={() => {            
+                                    console.log('------', this.state.selected_categories);                        
+                                    if (this.state.selected_categories.length){
+                                        this.state.selected_service.categories = this.state.selected_categories;
+                                        this.state.service.push(this.state.selected_service);
+                                        this.setState({selected_categories:[]});
+                                        this.setState({service: [...new Set(this.state.service)]});
+                                        this.setState({serviceAddSheetVisible:false});
+                                        this.serviceSheet.close();
+                                    }else{
+                                        Toast.show('Please select an option', Toast.SHORT);
+                                    }
                                 }}
                             />
                         </View>
