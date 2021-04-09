@@ -22,6 +22,7 @@
 		88C2E938855614B8F49F74AE /* libPods-FlourichCreator-tvOSTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32AA5F268A88F62ABF354314 /* libPods-FlourichCreator-tvOSTests.a */; };
 		8C4D6C3E2615811200E05987 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8C4D6C3D2615811200E05987 /* GoogleService-Info.plist */; };
 		8CBF277B25F25478005D7A02 /* Fonts in Resources */ = {isa = PBXBuildFile; fileRef = 8CBF277A25F25478005D7A02 /* Fonts */; };
+		8CEAE226261DD8D00078ADDE /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8CEAE225261DD8D00078ADDE /* CloudKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -64,6 +65,7 @@
 		8C4D6C3D2615811200E05987 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		8C4D6C482615DB4100E05987 /* FlourichCreator.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = FlourichCreator.entitlements; path = FlourichCreator/FlourichCreator.entitlements; sourceTree = "<group>"; };
 		8CBF277A25F25478005D7A02 /* Fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Fonts; path = "../node_modules/react-native-vector-icons/Fonts"; sourceTree = "<group>"; };
+		8CEAE225261DD8D00078ADDE /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
 		8F6338F4346657516FB0E3E4 /* libPods-FlourichCreator.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-FlourichCreator.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9FAB68CFCA394B570FAFF73D /* Pods-FlourichCreator-tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FlourichCreator-tvOS.debug.xcconfig"; path = "Target Support Files/Pods-FlourichCreator-tvOS/Pods-FlourichCreator-tvOS.debug.xcconfig"; sourceTree = "<group>"; };
 		ABBE7281227F04D1C5A72EFA /* libPods-FlourichCreator-FlourichCreatorTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-FlourichCreator-FlourichCreatorTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -87,6 +89,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8656F19C297B4A08545357C5 /* libPods-FlourichCreator.a in Frameworks */,
+				8CEAE226261DD8D00078ADDE /* CloudKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -145,6 +148,7 @@
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				8CEAE225261DD8D00078ADDE /* CloudKit.framework */,
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				ED2971642150620600B7C4FE /* JavaScriptCore.framework */,
 				8F6338F4346657516FB0E3E4 /* libPods-FlourichCreator.a */,

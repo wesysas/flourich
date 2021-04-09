@@ -23,7 +23,6 @@ import { saveStorage, getStorage } from '../../shared/service/storage';
 import LinearGradient from 'react-native-linear-gradient/index';
 import { local } from '../../shared/const/local';
 import Video from 'react-native-video';
-import BottomSheet from 'react-native-bottomsheet-reanimated';
 import Toast from 'react-native-simple-toast';
 
 const styles = StyleSheet.create({
