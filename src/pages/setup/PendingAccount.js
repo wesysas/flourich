@@ -38,7 +38,7 @@ export default class PendingAccount extends Component {
                 if (progress > 1) {
                     progress = 1;
                     clearInterval(loading);
-                    this.props.navigation.navigate('Home');
+                    this.props.navigation.navigate('Welcome');
                 }
                 this.setState({ progress });
             }, 100);

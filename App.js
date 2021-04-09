@@ -22,7 +22,7 @@ import Payment from './src/pages/setup/Payment';
 import BankDetail from './src/pages/setup/BankDetail';
 import SetupDetail from './src/pages/setup/SetupDetail';
 import Identity from './src/pages/setup/Identity';
-import FaceScan from './src/pages/setup/FaceScan';
+import Welcome from './src/pages/setup/Welcome';
 import PendingAccount from './src/pages/setup/PendingAccount';
 import CustomCamera from './src/pages/setup/CustomCamera';
 
@@ -83,8 +83,6 @@ const SignUpStacks = () => {
             <RootStack.Screen name="Payment" component={Payment} options={{ headerShown: false }} />
             <RootStack.Screen name="BankDetail" component={BankDetail} options={{ headerShown: false }} />
             <RootStack.Screen name="PendingAccount" component={PendingAccount} options={{ headerShown: false }} />
-
-            <RootStack.Screen name="FaceScan" component={FaceScan} options={{ headerShown: false }} />
         </RootStack.Navigator>
     )
 };
@@ -243,6 +241,7 @@ export default function App() {
                 <RootStack.Screen name="SignUpStacks" component={SignUpStacks} options={{ headerShown: false }} />
                 <RootStack.Screen name="AllReview" component={AllReview} options={{ headerShown: false }} />
 
+                <RootStack.Screen name="Welcome" component={Welcome} options={{ headerShown: false }} />
                 <RootStack.Screen name="CustomCamera" component={CustomCamera} options={{ headerShown: false }} />
                 <RootStack.Screen name="ChatBox" component={ChatBox} options={{ headerShown: false }} />
                 <RootStack.Screen name="Start" component={Start} options={{ headerShown: false }} />

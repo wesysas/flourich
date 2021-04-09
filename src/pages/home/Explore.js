@@ -382,12 +382,12 @@ export default class Explore extends Component {
                         backgroundColor:'#fff',
                         borderRadius:100,
                     }}
-                    onPress={ async () => {
+                    onPress={ () => {
                         this.setState({isStatusBtnVisible:false});
                         global.user.status = global.user.status==0?1:0;
 
                     //    this.setState({spinner: true});
-                        var bookings = await changeCreatorStatus({creator_id:global.user.cid, status:global.user.status});
+                        var bookings = changeCreatorStatus({creator_id:global.user.cid, status:global.user.status});
                      //   this.setState({spinner: false});
                         showMessage({
                             message: global.user.status==0?"You are now offline.":"You are now online.",
@@ -461,13 +461,13 @@ export default class Explore extends Component {
                                                 </View>
                                             </View>
                                             <TouchableOpacity
-                                                  onPress={async () => {
+                                                  onPress={() => {
                                                       var favorite = item.favorite?false:true;
                                                       var bookings = this.state.bookings;
                                                       bookings[index].favorite = favorite;
                                                       this.setState({bookings});
                                                   //    this.setState({spinner: true});
-                                                      var bookings = await updateBooking({booking:bookings[index]});
+                                                      var bookings = updateBooking({booking:bookings[index]});
                                                    //   this.setState({spinner: false});
                                                   }}>
                                                 <Icon name='heart' color={item.favorite?'red':'grey'} size={30} />
@@ -514,7 +514,7 @@ export default class Explore extends Component {
                                                             }}>
                                                                 <Text style={{margin:5}}>Accept</Text>
                                                             </TouchableOpacity>
-                                                            <TouchableOpacity onPress={ async () => {
+                                                            <TouchableOpacity onPress={ () => {
                                                                 var bookings = this.state.bookings;
 
                                                                 var index = bookings.findIndex(function(c) {
@@ -524,7 +524,7 @@ export default class Explore extends Component {
                                                                 bookings[index].status_id = 10;
                                                                 this.setState({bookings});
                                                             //    this.setState({spinner: true});
-                                                                var bookings = await updateBooking({booking:bookings[index]});
+                                                                var bookings = updateBooking({booking:bookings[index]});
                                                              //   this.setState({spinner: false});
                                                                 closePopover();
                                                             }}>
