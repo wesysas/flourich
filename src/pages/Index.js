@@ -24,7 +24,7 @@ export default class Index extends Component {
         if (user) {
             global.user = user;
             Toast.show('Your Session is Existing Now.', Toast.SHORT);
-            this.props.navigation.navigate('Welcome');
+            this.props.navigation.navigate('Home');
         } else {
             Toast.show('There\'s no Session.', Toast.SHORT);
             this.props.navigation.navigate('Login');

@@ -5,7 +5,7 @@ import _ from 'lodash'
 import { Overlay, Button } from 'react-native-elements';
 import ImageLoad from 'react-native-image-placeholder'
 import { Modal } from 'react-native';
-import ImageViewer from 'react-native-image-zoom-viewer';
+import ImageZoom from 'react-native-image-pan-zoom';
 const { width, height } = Dimensions.get('window')
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import { SERVER_URL, WIDTH } from '../../globalconfig';
@@ -14,6 +14,7 @@ import VideoPlayer from 'react-native-video-player';
 import { removePortfolio } from '../../shared/service/api'
 import Spinner from 'react-native-loading-spinner-overlay';
 import FastImage from 'react-native-fast-image';
+import {isIphoneX} from 'react-native-iphone-x-helper';
 
 class PhotoGrid extends Component {
   constructor(props) {
@@ -257,45 +258,51 @@ class PhotoGrid extends Component {
             this._renderExtraImages()
           ) : null
         }
-
         <Modal visible={this.state.showZoomimg}
-          style={{ width: width, height: height }}
+          style={{ width: width, height: height, 
+            backgroundColor:"red" }}
           transparent={true}
           onRequestClose={() => { this.setState({ showZoomimg: false }) }}>
+            <View style={{backgroundColor:'#ffd5fe70', height: height,}}>
+
+            <Icon name="trash" size={30} color="red" 
+               style={{zIndex:9999, position:'absolute', left:50,
+               top:isIphoneX()?85:50}}
+               onPress={() => { this.deleteItem() }}/>
+
+            <Icon name="times" size={30} color="black" 
+               style={{zIndex:9999, position:'absolute', right:50,
+               top:isIphoneX()?85:50}}
+               onPress={() => { this.setState({ showZoomimg: false }) }}/>
 
           {
             this.state.selectedMedia && this.state.selectedMedia.media_type == 'photo' ?
-              <ImageViewer
-                imageUrls={[{ url: SERVER_URL + this.state.selectedMedia.media_url }]}
-                // index={0}
-                enableImageZoom={true}
-                backgroundColor="#b9b9b978"
-                imageStyle={{ width: width, resizeMode: 'cover', height: height }}
-              />
+            
+               <ImageZoom 
+                      cropWidth={width}
+                       cropHeight={isIphoneX()?height-40:height - 70}
+                       imageWidth={width}
+                       imageHeight={height}
+                        resizeMode="contain"
+                       >     
+                          
+                <FastImage
+                resizeMode="contain"
+                style={{ width: width, height: height}}
+                
+                       source={{uri:SERVER_URL + this.state.selectedMedia.media_url}}/>
+              
+              </ImageZoom>
               :
               this.state.selectedMedia &&
               <VideoPlayer
                 video={{ uri: SERVER_URL + this.state.selectedMedia.media_url }}
                 autoplay={true}
-                style={{ backgroundColor: '#b9b9b978', height: height - 70 }}
+                style={{ backgroundColor: '#b9b9b978', height: isIphoneX()?height-40:height - 70 }}
               />
           }
-          <View style={{ flexDirection: 'row' }} >
-            <Button
-              icon={<Icon name="times" size={30} color="black" />}
-              containerStyle={{ width: width / 2 }}
-              buttonStyle={{ borderWidth: 0 }}
-              onPress={() => { this.setState({ showZoomimg: false }) }}
-            />
-            <Button
-              icon={<Icon name="trash" size={30} color="black" />}
-              containerStyle={{ width: width / 2 }}
-              buttonStyle={{ borderWidth: 0 }}
-              onPress={() => { this.deleteItem() }}
-            />
           </View>
-
-        </Modal>
+        </Modal>        
       </View>
     )
   }
