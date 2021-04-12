@@ -426,3 +426,14 @@ export const lastMessage = async (data) => {
         return [];
     }
 };
+
+export const deleteContact = async (data) => {
+    try {
+        var res = await _post('/v1/booking/delete_contact', data);
+        return res;
+    } catch (err) {
+        // Handle Error Here
+        _handleError(err);
+        return [];
+    }
+};

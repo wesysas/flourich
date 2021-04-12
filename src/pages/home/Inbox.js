@@ -5,7 +5,10 @@ import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-vi
 import EntypoIcon from 'react-native-vector-icons/Entypo';
 import Moment from "moment";
 import {SERVER_URL} from "../../globalconfig";
-import {lastMessage} from "../../shared/service/api";
+import {lastMessage, deleteContact} from "../../shared/service/api";
+import Icon from 'react-native-vector-icons/FontAwesome';
+import Swipeout from 'react-native-swipeout';
+import _ from "lodash";
 
 export default class Inbox extends Component {
 
@@ -30,6 +33,13 @@ export default class Inbox extends Component {
         this._unsubscribe();
     }
 
+    deleteContact = async(item, index) => {
+        await deleteContact({booking_id: item.bid});
+        this.setState({
+            bookings: this.state.bookings.filter((_, i) => i !== index)
+        });
+    }
+
     render() {
         return (
             <SafeAreaView style={{
@@ -43,12 +53,40 @@ export default class Inbox extends Component {
                         <DefaultTabBar
                             backgroundColor='rgba(255, 255, 255, 0.7)'
                         />}
+                    locked={true}
                     tabBarPosition='overlayTop'
                 >
                     <FlatList tabLabel='Messages' style={styles.flatList}
                               data={this.state.bookings}
                               keyExtractor={(item,index)=>item.bid.toString()}
                               renderItem = {({item,index})=>
+                              <Swipeout
+                                    right={[
+                                        {
+                                            component: (
+                                                <View
+                                                    style={{
+                                                        flex: 1,
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        flexDirection: 'column',
+                                                    }}
+                                                >
+
+                                                    <Icon name="trash-o" size={30} color={'white'} />
+                                                </View>
+                                            ),
+                                            backgroundColor: '#eb3f55',
+                                            underlayColor: 'rgba(0, 0, 0, 1, 0.6)',
+                                            onPress: () => {
+                                                this.deleteContact(item, index);
+                                            },
+                                        },
+                                    ]}
+                                    autoClose="true"
+                                    backgroundColor="transparent"
+                                    key={index}
+                                >
                                   <TouchableOpacity key={item.bid.toString()} style={styles.rowStyle}
                                                     onPress={() => {
                                                         global.booking = item;
@@ -72,6 +110,7 @@ export default class Inbox extends Component {
                                             </View>}
                                       </View>
                                   </TouchableOpacity>
+                                </Swipeout>
                               }
                     />
 

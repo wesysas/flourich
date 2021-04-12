@@ -23,6 +23,114 @@ import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplet
 import {local} from "../../shared/const/local";
 import { isIphoneX } from 'react-native-iphone-x-helper';
 navigator.geolocation = require('@react-native-community/geolocation');
+import { CheckBox } from 'react-native-elements'
+
+const IconText = ({ iconName, size, txt }) => {
+    return (
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Icon name={iconName} size={size} />
+            <Text style={{ paddingLeft: 5, flex: 1, flexWrap: 'wrap'}}>{txt}</Text>
+        </View>
+    );
+};
+
+const CustomCheckBox = ({ title, checked, onPress }) => {
+    return (
+        <CheckBox
+            containerStyle ={{backgroundColor: 'transparent', borderWidth:0}}
+            textStyle={{fontWeight:'normal', color:checked?ios_green_color:'grey'}}
+            checkedColor={ios_green_color}
+            uncheckedColor={'grey'}
+            checkedIcon='check-square'
+            uncheckedIcon='square-o'
+            title={title} checked={checked}
+            onPress={onPress}
+        />
+    );
+};
+
+const CustomCard = ({item, parent}) => {
+    return (
+        <TouchableOpacity key={item.bid.toString()} style={styles.rowStyle}
+               onPress={() => {
+                   global.booking = item;
+                   if (item.status_id == 5)
+                       parent.props.navigation.navigate('Start');
+                   else if(item.status_id == 7 || item.status_id == 8)
+                       parent.props.navigation.navigate('Progress');
+               }}
+        >
+            
+            <TouchableOpacity style={styles.sideIcon}
+                              onPress={async () => {
+                                  var favorite = item.favorite?false:true;
+                                  var bookings = parent.state.bookings;
+
+                                  var index = bookings.findIndex(function(c) {
+                                      return c.bid == item.bid;
+                                  });
+
+                                  bookings[index].favorite = favorite;
+                                  parent.setState({bookings});
+                                  var newBooking = await updateBooking({booking:bookings[index]});
+                              }}>
+                <Icon name='heart' color={item.favorite?'red':'grey'} size={35}/>
+                {item.creator_read == 0?<Text style={{color:'red'}}>New</Text>:null}
+            </TouchableOpacity>
+            <View style={styles.new}>
+                <Image
+                    style={styles.newImage}
+                    resizeMode="cover"
+                    source={{uri: SERVER_URL+item.avatar}}
+                />
+                <View style={styles.newSideTxt}>
+                    <Text style={styles.name}>{item.first_name} {item.last_name}</Text>
+                    <IconText iconName="map-marker" size={20} txt={item.customer_location} />
+                    <Text style={styles.summaryTxt}>{Moment(item.start_at).format(("D MMM"))}  |  {Moment(item.start_at).format(("HH:mm"))}  |  £ {item.price}</Text>
+                </View>
+            </View>
+            <View>
+                <Text style={styles.title}>{item.item}</Text>
+                <Text style={styles.desc}>
+                    {item.content}
+                </Text>
+            </View>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
+                <CustomCheckBox title='Accept' checked={item.status_id==3?true:false}
+                                onPress={() => {
+                                    item.creator_read = 1;
+                                    parent.setState({booking:item});
+                                    parent.setState({check_type:'accept'});
+                                    parent.setState({ showPopover: true });
+                                }}
+                />
+                <CustomCheckBox title='Decline' checked={item.status_id==10?true:false}
+                                onPress={async () => {
+                                    var bookings = parent.state.bookings;
+
+                                    var index = bookings.findIndex(function(c) {
+                                        return c.bid == item.bid;
+                                    });
+
+                                    bookings[index].status_id = 10;
+                                    
+                                    bookings[index].creator_read = 1;
+                                    parent.setState({bookings});
+                                    var newBooking = await updateBooking({booking:bookings[index]});
+                                }}
+                />
+                <CustomCheckBox title='Postpone' checked={item.status_id==2?true:false}
+                                onPress={() => {
+                                    item.creator_read = 1;
+                                    parent.setState({booking:item});
+                                    parent.setState({check_type:'postpone'});
+                                    parent.setState({ showPopover: true });
+                                }}
+                />
+            </View>
+        </TouchableOpacity>
+    );
+};
 
 export default class Explore extends Component {
 
@@ -437,113 +545,7 @@ export default class Explore extends Component {
                                 data={this.state.bookings}
                                 keyExtractor={(item,index)=>item.bid.toString()}
                                 renderItem = {({item,index})=>
-                                    <View
-                                        style={{borderRadius:10,padding:20,margin:10,
-                                            justifyContent:'flex-start',
-                                            borderColor:'lightgrey',
-                                            borderWidth:1,
-                                            shadowColor: "#000",
-                                            shadowOffset: {
-                                                width: 0,
-                                                height: 1,
-                                            },
-                                            shadowOpacity: 0.20,
-                                            shadowRadius: 1.41,
-
-                                            elevation: 2,
-                                        }}>
-                                        <View style={{ flexDirection: 'row', justifyContent:'space-between'}}>
-                                            <View style={styles.newSideTxt}>
-                                                <Text style={{fontWeight: 'bold',fontSize: 20,}}>{ item.first_name } {item.last_name}</Text>
-                                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                                    <Icon name="map-marker" size={15} />
-                                                    <Text style={{ paddingLeft: 5 }}>{item.customer_location}</Text>
-                                                </View>
-                                            </View>
-                                            <TouchableOpacity
-                                                  onPress={() => {
-                                                      var favorite = item.favorite?false:true;
-                                                      var bookings = this.state.bookings;
-                                                      bookings[index].favorite = favorite;
-                                                      this.setState({bookings});
-                                                  //    this.setState({spinner: true});
-                                                      var bookings = updateBooking({booking:bookings[index]});
-                                                   //   this.setState({spinner: false});
-                                                  }}>
-                                                <Icon name='heart' color={item.favorite?'red':'grey'} size={30} />
-                                            </TouchableOpacity>
-                                        </View>
-                                        <Text style={{color:'red', textAlign:'right'}}>Offer Expires in {Moment(item.start_at).diff(Moment(new Date()), 'hours')} hrs</Text>
-
-                                        {/*{item.portfolios && (*/}
-                                            {/*<FlatList data={Array.from(new Set(item.portfolios.split(',')))}*/}
-                                                      {/*style={{height:200}}*/}
-                                                      {/*horizontal={true}*/}
-                                                      {/*keyExtractor={(item,index)=>index.toString()}*/}
-                                                      {/*renderItem={({ item }) => <Image style={styles.mozaicImg} source={{uri: SERVER_URL+item }} />}*/}
-                                            {/*/>*/}
-                                        {/*)}*/}
-                                        <Image style={styles.mozaicImg} source={{uri: SERVER_URL+item.avatar }} />
-
-                                        <View style={{ flexDirection: 'row', alignItems:'flex-end', justifyContent:'space-between'}}>
-                                            <View>
-                                                <Text style={styles.title}>{item.service_type ? item.service_type.replace(",", " - "):''}</Text>
-                                                <Text style={{}}>{Moment(item.start_at).format(("D MMM"))}  |  {Moment(item.start_at).format(("HH:mm"))}  |  £ {item.price}</Text>
-                                            </View>
-                                            <PopoverController>
-                                                {({ openPopover, closePopover, popoverVisible, setPopoverAnchor, popoverAnchorRect }) => (
-                                                    <React.Fragment>
-                                                        <TouchableOpacity ref={setPopoverAnchor} onPress={openPopover}>
-                                                            <EntypoIcon name="dots-three-vertical" size={20}/>
-                                                        </TouchableOpacity>
-                                                        <Popover
-                                                            contentStyle={styles.content}
-                                                            arrowStyle={styles.arrow}
-                                                            backgroundStyle={styles.background}
-                                                            visible={popoverVisible}
-                                                            onClose={closePopover}
-                                                            fromRect={popoverAnchorRect}
-                                                            supportedOrientations={['portrait', 'landscape']}
-                                                        >
-
-                                                            <TouchableOpacity onPress={ () => {
-                                                                this.setState({booking:item});
-                                                                this.setState({check_type:'accept'});
-                                                                this.setState({ showPopover: true });
-                                                                closePopover();
-                                                            }}>
-                                                                <Text style={{margin:5}}>Accept</Text>
-                                                            </TouchableOpacity>
-                                                            <TouchableOpacity onPress={ () => {
-                                                                var bookings = this.state.bookings;
-
-                                                                var index = bookings.findIndex(function(c) {
-                                                                    return c.bid == item.bid;
-                                                                });
-
-                                                                bookings[index].status_id = 10;
-                                                                this.setState({bookings});
-                                                            //    this.setState({spinner: true});
-                                                                var bookings = updateBooking({booking:bookings[index]});
-                                                             //   this.setState({spinner: false});
-                                                                closePopover();
-                                                            }}>
-                                                                <Text style={{margin:5}}>Decline</Text>
-                                                            </TouchableOpacity>
-                                                            <TouchableOpacity onPress={ () => {
-                                                                this.setState({booking:item});
-                                                                this.setState({check_type:'postpone'});
-                                                                this.setState({ showPopover: true });
-                                                                closePopover();
-                                                            }}>
-                                                                <Text style={{margin:5}}>Postpone</Text>
-                                                            </TouchableOpacity>
-                                                        </Popover>
-                                                    </React.Fragment>
-                                                )}
-                                            </PopoverController>
-                                        </View>
-                                    </View>
+                                    <CustomCard item={item} parent={this}/>
                                 }
                             />
                         </View>
@@ -629,6 +631,23 @@ const styles = StyleSheet.create({
     },
     background: {
         backgroundColor: 'transparent'
+    },
+    rowStyle: {
+        justifyContent: 'space-between',
+        marginHorizontal:20,
+        marginVertical:10,
+        padding:10,
+        borderRadius:10,
+        borderColor:'lightgrey',
+        borderWidth:1,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.18,
+        shadowRadius: 1.00,
+        elevation: 1,
     },
 
 });
