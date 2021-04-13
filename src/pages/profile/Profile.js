@@ -11,7 +11,7 @@ import Moment from 'moment';
 import { LogBox, FlatList } from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
 import Spinner from 'react-native-loading-spinner-overlay';
-import { getCreatorMediaData, getMe, uploadPortfolio, uploadStory, getReviews, getCreatorService} from '../../shared/service/api';
+import { getCreatorMediaData, getMe, uploadPortfolio, uploadStory, getReviews, getCreatorService, getCreatorProfile} from '../../shared/service/api';
 import { SERVER_URL, WIDTH } from '../../globalconfig';
 import BackButton from '../../components/BackButton';
 import { btnBackgroundColor, ios_red_color, btnGradientProps } from "../../GlobalStyles";
@@ -79,47 +79,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20
     }
 });
-const _renderCarouselItem = ({ item, index }) => {
-    return (
-        <View style={{justifyContent:'center', alignItems:'center'}}>
-            {item.media_type == 'video' &&
-            <View style={{
-                width:80,
-                height:80,
-                borderRadius:40,
-                borderColor: 'red',
-                borderWidth: 2,
-                padding: 5,
-                borderStyle: 'dotted'
-            }}>
-            <Video 
-                source={{ uri: SERVER_URL + item.media_url }}
-                keyExtractor={item => item.id}
-                style={{
-                    width:68,
-                    height:68,
-                    alignSelf:'center',
-                    borderRadius:34,
-                }}
-            /></View>}
-            {item.media_type == 'photo' &&
-            <Avatar
-                rounded
-                size="large"
-                containerStyle={{
-                    alignSelf:'center',
-                    borderColor: 'red',
-                    borderWidth: 2,
-                    padding: 5,
-                    borderStyle: 'dotted'
-                }}
-                source={{uri: SERVER_URL+item.media_url }}
-            />}
-            {item.featured==1 && <Text style={{marginTop:-15, width:55, fontSize: 8, backgroundColor:ios_red_color, borderRadius:10, color:'white', textAlign:'center', padding:3}}>FEATURED</Text>}
-            <Text style={{textAlign:'center'}}>Story {index+1}</Text>
-        </View>
-    );
-}
 
 export default class Profile extends Component {
 
@@ -137,7 +96,9 @@ export default class Profile extends Component {
             max: 100,
             category: 'Food',
             rbSheetVisible:true,
-            typeSheetVisible:false
+            typeSheetVisible:false,
+            gallarySheetVisible:false,
+            image_video:'',
         };
         this.activIndex = 3,
 
@@ -176,13 +137,40 @@ export default class Profile extends Component {
             {
                 title: 'Image',
                 onPress: () => {
-                    this.openStoryPicker();
+                    this.setState({
+                        image_video:'image',
+                        typeSheetVisible:false,
+                        gallarySheetVisible:true
+                    });
                 }
             },
             {
                 title: 'Video',
                 onPress: () => {
-                    this.openStoryVideoPicker();
+                    this.setState({
+                        image_video:'video',
+                        typeSheetVisible:false,
+                        gallarySheetVisible:true
+                    });
+                }
+            },
+        ];
+        this.bottomGallarySheetList = [  
+            {
+                title: 'Please select option',
+                onPress: () => {
+                }
+            }, 
+            {
+                title: 'Gallary',
+                onPress: () => {
+                    this.openGallaryPicker();
+                }
+            },
+            {
+                title: 'Camera',
+                onPress: () => {
+                    this.openCameraPicker();
                 }
             },
         ];
@@ -199,13 +187,61 @@ export default class Profile extends Component {
       this._unsubscribe();
     }
 
+    _renderCarouselItem = ({ item, index }) => {
+        return (
+            <TouchableOpacity style={{justifyContent:'center', alignItems:'center'}}
+            onPress={()=>{this.props.navigation.navigate('StoryView', {story: item})}}
+            >
+                {item.media_type == 'video' &&
+                <View style={{
+                    width:80,
+                    height:80,
+                    borderRadius:40,
+                    borderColor: 'red',
+                    borderWidth: 2,
+                    padding: 5,
+                    borderStyle: 'dotted'
+                }}>
+                <Video 
+                    source={{ uri: SERVER_URL + item.media_url }}
+                    keyExtractor={item => item.id}
+                    style={{
+                        width:68,
+                        height:68,
+                        alignSelf:'center',
+                        borderRadius:34,
+                    }}
+                /></View>}
+                {item.media_type == 'photo' &&
+                <Avatar
+                    rounded
+                    size="large"
+                    containerStyle={{
+                        alignSelf:'center',
+                        borderColor: 'red',
+                        borderWidth: 2,
+                        padding: 5,
+                        borderStyle: 'dotted'
+                    }}
+                    source={{uri: SERVER_URL+item.media_url }}
+                />}
+                {item.featured==1 && <Text style={{marginTop:-15, width:55, fontSize: 8, backgroundColor:ios_red_color, borderRadius:10, color:'white', textAlign:'center', padding:3}}>FEATURED</Text>}
+                <Text style={{textAlign:'center'}}>Story {index+1}</Text>
+            </TouchableOpacity>
+        );
+    }
+
    async refreshScreen() {
         console.log("refreshed");
         this.RBSheetR.close();
-        var user = await getMe({ userid: global.user.cid });
-        var reviews = await getReviews({ userid: global.user.cid, limit: 2 });
-        var result = await getCreatorMediaData({ userid: global.user.cid });
-        var service = await getCreatorService({ userid: global.user.cid });
+        var data = await getCreatorProfile({
+            userid: global.user.cid,
+            limit: 2,            
+        })
+        var user = data.user;//await getMe({ userid: global.user.cid });
+        var reviews = data.reviews;//await getReviews({ userid: global.user.cid, limit: 2 });
+        var result = data.result;//await getCreatorMediaData({ userid: global.user.cid });
+        var service = data.service;//await getCreatorService({ userid: global.user.cid });
 
         global.user = user;
         this.setState({user});
@@ -276,12 +312,48 @@ export default class Profile extends Component {
         this.refreshScreen();
     }
 
+    openCameraPicker = () => {
+        if(this.state.image_video == 'video') {
+            this.openStoryVideoPicker();
+        }
+        if(this.state.image_video == 'image') {
+            this.openStoryPicker();
+        }
+    }
+
+    openGallaryPicker = () => {
+        if(this.state.image_video == 'video') {
+            this.openStoryVideoPickerFromGallary();
+        }
+        if(this.state.image_video == 'image') {
+            this.openStoryPickerFromGallary();
+        }
+    }
+
     /**
      * open image camera for story
      */
     openStoryPicker = () => {
 
         ImagePicker.openCamera({
+            // cropping: true,
+            // includeBase64:true,
+            showCropGuidelines:false,
+          }).then(image => {
+            this._uploadStory(image, "photo");
+            this.refreshScreen();
+          }).catch(err => {
+              console.log(err);
+              Toast.show(err.message);
+          });
+    }
+
+    /**
+     * open image gallary for story
+     */
+     openStoryPickerFromGallary = () => {
+
+        ImagePicker.openPicker({
             // cropping: true,
             // includeBase64:true,
             showCropGuidelines:false,
@@ -333,6 +405,23 @@ export default class Profile extends Component {
     openStoryVideoPicker = () => {
 
         ImagePicker.openCamera({
+            includeBase64:true,
+            showCropGuidelines:false,
+            mediaType: 'video',
+          }).then(video => {
+            this._uploadStory(video, 'video');
+            this.refreshScreen();
+          }).catch(err => {
+              console.log(err);
+              Toast.show(err.message);
+
+          });
+    }
+
+
+    openStoryVideoPickerFromGallary = () => {
+
+        ImagePicker.openPicker({
             includeBase64:true,
             showCropGuidelines:false,
             mediaType: 'video',
@@ -437,7 +526,7 @@ export default class Profile extends Component {
                             data={this.state.story}
                             sliderWidth={300}
                             itemWidth={100}
-                            renderItem={_renderCarouselItem}
+                            renderItem={(item, index)=>this._renderCarouselItem(item, index)}
                             firstItem={1}
                             onSnapToItem={index => {
                                 this.activIndex = index;
@@ -528,6 +617,13 @@ export default class Profile extends Component {
                         </ListItem>
                     ))}
                     {this.state.typeSheetVisible && this.bottomTypeSheetList.map((l, i) => (
+                            <ListItem key={i} containerStyle={[styles.bottomSheetItem, l.containerStyle]} onPress={l.onPress}>
+                                <ListItem.Content style={{ alignItems: 'center' }}>
+                                    <ListItem.Title style={l.titleStyle}>{l.title}</ListItem.Title>
+                                </ListItem.Content>
+                            </ListItem>
+                    ))}
+                    {this.state.gallarySheetVisible && this.bottomGallarySheetList.map((l, i) => (
                             <ListItem key={i} containerStyle={[styles.bottomSheetItem, l.containerStyle]} onPress={l.onPress}>
                                 <ListItem.Content style={{ alignItems: 'center' }}>
                                     <ListItem.Title style={l.titleStyle}>{l.title}</ListItem.Title>

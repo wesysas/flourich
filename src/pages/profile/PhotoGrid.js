@@ -97,7 +97,7 @@ class PhotoGrid extends Component {
                       source={{ uri: SERVER_URL + image.media_url }}
                       keyExtractor={image => image.id}
                       resizeMode={"cover"}
-                      style={[styles.image, {
+                      style={[styles.videostyle, {
                         width: firstImageWidth,
                         height: firstImageHeight
                       }]}
@@ -127,7 +127,7 @@ class PhotoGrid extends Component {
                       source={{ uri: SERVER_URL + image.media_url }}
                       keyExtractor={image.id}
                       resizeMode={"cover"}
-                      style={[styles.image, {
+                      style={[styles.videostyle, {
                         width: firstImageWidth,
                         height: firstImageHeight
                       }]}
@@ -169,7 +169,7 @@ class PhotoGrid extends Component {
                           source={{ uri: SERVER_URL + image.media_url }}
                           keyExtractor={image.id}
                           resizeMode={"cover"}
-                          style={[styles.image, { width: secondImageWidth, height: secondImageHeight }, this.props.imageStyle]}
+                          style={[styles.videostyle, { width: secondImageWidth, height: secondImageHeight }, this.props.imageStyle]}
                          
                         />
                         <Icon name="play" size={25} color="lightgray" style={styles.videoPlayer}> </Icon>
@@ -329,6 +329,11 @@ PhotoGrid.defaultProps = {
 const styles = {
   image: {
     resizeMode: 'cover',
+    borderWidth: 5,
+    borderColor: '#fff',
+    borderRadius: 10
+  },
+  videostyle:{
     borderWidth: 5,
     borderColor: '#fff',
     borderRadius: 10

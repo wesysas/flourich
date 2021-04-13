@@ -38,6 +38,7 @@ import ProfileEdit from './src/pages/profile/ProfileEdit';
 import AllReview from './src/pages/profile/AllReview';
 import Wallet from './src/pages/profile/Wallet';
 import Report from './src/pages/profile/Report';
+import StoryView from './src/pages/profile/StoryView';
 //session
 import Start from "./src/pages/Session/Start";
 import Complete from "./src/pages/Session/Complete";
@@ -242,6 +243,7 @@ export default function App() {
                 <RootStack.Screen name="AllReview" component={AllReview} options={{ headerShown: false }} />
 
                 
+                <RootStack.Screen name="StoryView" component={StoryView} options={{ headerShown: false }} />
                 <RootStack.Screen name="CustomCamera" component={CustomCamera} options={{ headerShown: false }} />
                 <RootStack.Screen name="ChatBox" component={ChatBox} options={{ headerShown: false }} />
                 <RootStack.Screen name="Start" component={Start} options={{ headerShown: false }} />

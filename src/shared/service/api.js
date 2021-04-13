@@ -135,6 +135,17 @@ export const getMe = async (data) => {
     }
 }
 
+export const getCreatorProfile = async (data) => {
+    try {
+        var res = await _post('/v1/profile/getcreatorprofile', data);
+        return res;
+    } catch (err) {
+        // Handle Error Here
+        _handleError(err);
+        return null;
+    }
+}
+
 export const getNewBookings = async (data) => {
     try {
         var res = await _post('/v1/booking/get-new-bookings', data);
