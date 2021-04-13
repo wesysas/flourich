@@ -141,9 +141,20 @@ export default class Booking extends Component {
             this.setState({bookings});
             
         });
+        this._unsubscribe = this.props.navigation.addListener('focus', async () => {
+            var bookings = await getBookings({creator_id:global.user.cid, status:[1,2,3,4,5,6,7,8,10], date_filter:365});
+            this.setState({bookings});
+        });
     }
 
     async componentDidMount() {
+        var bookings = await getBookings({creator_id:global.user.cid, status:[1,2,3,4,5,6,7,8,10], date_filter:365});
+        this.setState({bookings});
+        
+    }
+
+    componentWillUnmount() {
+        this._unsubscribe();
     }
 
     render() {

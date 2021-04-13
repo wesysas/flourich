@@ -521,7 +521,7 @@ export default class Explore extends Component {
                         <View
                             style={{
                                 backgroundColor: 'white',
-                                padding: 16,
+                                // padding: 16,
                                 height: '100%',
                                 zIndex:0
                             }}
@@ -544,6 +544,7 @@ export default class Explore extends Component {
                             <FlatList
                                 data={this.state.bookings}
                                 keyExtractor={(item,index)=>item.bid.toString()}
+                                style={styles.flatList}
                                 renderItem = {({item,index})=>
                                     <CustomCard item={item} parent={this}/>
                                 }
@@ -633,13 +634,16 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent'
     },
     rowStyle: {
+
         justifyContent: 'space-between',
         marginHorizontal:20,
         marginVertical:10,
         padding:10,
         borderRadius:10,
+
         borderColor:'lightgrey',
         borderWidth:1,
+
         shadowColor: "#000",
         shadowOffset: {
             width: 0,
@@ -647,7 +651,44 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: 0.18,
         shadowRadius: 1.00,
+
         elevation: 1,
+    },
+    newImage: {
+        width: 100,
+        height: 100,
+        borderRadius: 5
+    },
+    newSideTxt: {
+        flexDirection: 'column',
+        paddingLeft: 20
+    },
+    sideIcon: {
+        position: 'absolute',
+        right: 5,
+        top: 5
+    },
+
+    name: {
+        fontSize: 18,
+        marginVertical: 10
+    },
+    title: {
+        fontSize: 15,
+        marginVertical: 10
+    },
+    locTxt: {
+        fontSize: 14
+    },
+    summaryTxt: {
+        fontSize: 13
+    },
+    desc: {
+        fontSize: 12,
+        color:'grey'
+    },
+    flatList: {
+        marginTop: 50
     },
 
 });
