@@ -162,7 +162,7 @@ export default class Profile extends Component {
                 }
             }, 
             {
-                title: 'Gallary',
+                title: 'Gallery',
                 onPress: () => {
                     this.openGallaryPicker();
                 }

@@ -11,6 +11,7 @@ import { Button, Input, ListItem } from 'react-native-elements';
 import LinearGradient from 'react-native-linear-gradient/index';
 import {multiBtnGroupStyle, ios_red_color, ios_green_color, btnGradientProps} from "../../GlobalStyles";
 import { WIDTH } from '../../globalconfig';
+import storage from "@react-native-firebase/storage";
 
 const AssetFolder = ({ iconSize, fileName }) => {
     return (
@@ -62,6 +63,9 @@ export default class Studio extends Component {
                 res.size
             );
 
+            this._uploadFile(res);
+            return;
+
             const data = new FormData();
             data.append("media", {
                 name: res.name,
@@ -73,6 +77,7 @@ export default class Studio extends Component {
             data.append("media_type", res.type);
 
             this.setState({spinner: true});
+
             var response = await uploadAsset(data);
 
         } catch (err) {
@@ -87,6 +92,53 @@ export default class Studio extends Component {
         this.loadFiles();
         this.RBSheetR.close();
     }
+
+    _uploadFile = async (filePath) => {
+        try {
+          // Check if file selected
+          if (Object.keys(filePath).length == 0)
+            return alert("Please Select any File");
+          setLoading(true);
+    
+          // Create Reference
+          console.log(filePath.uri.replace("file://", ""));
+          console.log(filePath.name);
+          const reference = storage().ref(
+            `/myfiles/${filePath.name}`
+          );
+    
+          // Put File
+          const task = reference.putFile(
+            filePath.uri.replace("file://", "")
+          );
+          // You can do different operation with task
+          // task.pause();
+          // task.resume();
+          // task.cancel();
+    
+          task.on("state_changed", (taskSnapshot) => {
+            setProcess(
+              `${taskSnapshot.bytesTransferred} transferred 
+               out of ${taskSnapshot.totalBytes}`
+            );
+            console.log(
+              `${taskSnapshot.bytesTransferred} transferred 
+               out of ${taskSnapshot.totalBytes}`
+            );
+          });
+          task.then(() => {
+            // alert("Image uploaded to the bucket!");
+            const url = await reference.getDownloadURL()
+            alert(url)
+            // setProcess("");
+          });
+        //   setFilePath({});
+        } catch (error) {
+          console.log("Error->", error);
+          alert(`Error-> ${error}`);
+        }
+        // setLoading(false);
+      };
 
     componentDidMount() {
         this._unsubscribe = this.props.navigation.addListener('focus', async () => {
