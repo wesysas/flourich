@@ -12,6 +12,7 @@ import LinearGradient from 'react-native-linear-gradient/index';
 import {multiBtnGroupStyle, ios_red_color, ios_green_color, btnGradientProps} from "../../GlobalStyles";
 import { WIDTH } from '../../globalconfig';
 import storage from "@react-native-firebase/storage";
+import { getUserId } from '../../shared/service/storage';
 
 const AssetFolder = ({ iconSize, fileName }) => {
     return (
@@ -59,10 +60,11 @@ export default class Studio extends Component {
             iconSize: null,
             image_files:[],
             video_files:[],
-            explorer:[],
-            explorerIndex: 0,
-            // files: [],
-            // folders:[],
+            // explorer:[],
+            // explorerIndex: 0,
+            files: [],
+            folders:[],
+            folderView: true,
         };
         this.RBSheetR = null;
     }
@@ -165,17 +167,17 @@ export default class Studio extends Component {
         }
         // setLoading(false);
       };
-
-        
-
         
 
     async componentDidMount() {
         this._unsubscribe = this.props.navigation.addListener('focus', async () => {
             //this.RBSheetR.open();
+            console.log('focust')
             this.loadFiles();
         });
-        this.getFolderAndFiles('myfiles');
+        // this.getFolderAndFiles('myfiles');
+        // this.getAsset()
+        this.loadFiles();
     }
 
     getFolderAndFiles = async (refName) =>{
@@ -213,17 +215,42 @@ export default class Studio extends Component {
         this.setState({spinner: false});
     }
 
+    _renderAssetFolder = ( folder ) => {
+        return (
+            <View>
+                <TouchableOpacity 
+                    onPress={()=>{this.setState({files: folder.folder_files, folderView:false})}}
+                >
+                    <Icon name="folder" size={(WIDTH-45)/3} color="#011f6f"/>
+                    {/* <Icon name="check-circle" size={25} color="green" style={{ position: 'absolute', top: 17, left: 8 }} /> */}
+                    <Text style={{ alignSelf: 'center', bottom: 0, position: 'absolute' }}>{folder.folder_name}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={{ alignSelf: 'center', borderRadius: 15, padding: 2, width: 30, height: 30, alignItems: 'center', borderWidth: 1, borderColor: 'gray' }}>
+                    <EntypoIcon name="dots-three-vertical" size={24} />
+                </TouchableOpacity>
+            </View>
+        )
+    };
+    _renderAssetFile = ( file ) => {
+        return (
+            <View>
+                <TouchableOpacity >
+                    <Icon name="file" size={(WIDTH-45)/3} color="#011f6f"/>
+                    {/* <Icon name="check-circle" size={25} color="green" style={{ position: 'absolute', top: 17, left: 8 }} /> */}
+                    <Text style={{ alignSelf: 'center', bottom: 0, position: 'absolute' }}>{file.file_name}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={{ alignSelf: 'center', borderRadius: 15, padding: 2, width: 30, height: 30, alignItems: 'center', borderWidth: 1, borderColor: 'gray' }}>
+                    <EntypoIcon name="dots-three-vertical" size={24} />
+                </TouchableOpacity>
+            </View>
+        )
+    };
+
     async loadFiles(){
-        var files = await getAssets({creator_id:global.user.cid});
-
-        if (files){
-            var image_files = files.filter((file) => file.media_type == 0);
-            var video_files = files.filter((file) => file.media_type == 1);
-
-            this.setState({image_files});
-            this.setState({video_files});
-        }
+        var folders = await getAssets({creator_id:global.user.cid});
+        this.setState({folders});
     }
+
     componentWillUnmount() {
         this._unsubscribe();
     }
@@ -247,28 +274,32 @@ export default class Studio extends Component {
                         resizeMode="contain"
                         source={require('../../assets/img/upload-icon.png')} />
                 </TouchableOpacity>
+
+                    <Text onPress={()=>{this.setState({folderView: !this.state.folderView})}}>Back</Text>
                
-                    <ScrollView tabLabel='Image files' style={styles.innerTab}>
+                    {this.state.folderView && <ScrollView style={styles.innerTab}>
                         <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignContent: 'stretch' }}>
-                            {this.state.explorer.length > 0 && this.state.explorer[this.state.explorerIndex].folders.map((folder, i) => {
+                            {this.state.folders.length > 0 && this.state.folders.map((folder, i) => {
                                 return (
-                                    <View>
-                                        <Icon name="heart" size={50}/>
-                                        <Text>{folder.name}</Text>
-                                    </View>
-                                    // <AssetFolder key={i} iconSize={this.state.iconSize} fileName={file.media_url.replace(/^.*[\\\/]/, '').replace(/^.*[_]/, '')} />
+                                    <>
+                                    {this._renderAssetFolder(folder)}
+                                    </>
+                                );
+                            })} 
+                        </View>                        
+                    </ScrollView>}
+
+                    {!this.state.folderView && <ScrollView style={styles.innerTab}>
+                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignContent: 'stretch' }}>                           
+                            {this.state.files.length > 0 && this.state.files.map((file, i) => {
+                                return (
+                                    <>
+                                    {this._renderAssetFile(file)}
+                                    </>
                                 );
                             })}  
-                            {this.state.explorer.length > 0 && this.state.explorer[this.state.explorerIndex].files.map((file, i)=>{
-                                return (
-                                    <View>
-                                        <Icon name="heart" size={50}/>
-                                        <Text>{file.name}</Text>
-                                    </View>
-                                );
-                            })}
                         </View>                        
-                    </ScrollView>
+                    </ScrollView>}
                     
 
                 <RBSheet
@@ -309,7 +340,7 @@ const styles = StyleSheet.create({
     },
     innerTab: {
         marginTop:50,
-        marginHorizontal: 20
+        marginHorizontal: 20,
     },
     btnStyle:{
         alignItems: 'center',
