@@ -28,6 +28,29 @@ const AssetFolder = ({ iconSize, fileName }) => {
     )
 };
 
+function listFilesAndDirectories  (reference, pageToken)  {
+    return reference.list({ pageToken }).then(result => {
+        // Loop over each item
+        result.items.forEach(ref => {
+        console.log('file', ref.fullPath);
+        });
+
+        if (result.nextPageToken) {
+        return listFilesAndDirectories(reference, result.nextPageToken);
+        }
+
+        if (result.prefixes) {
+            result.prefixes.forEach(ref => {
+                const reference1 = storage().ref(ref.path);
+                return listFilesAndDirectories(reference1, result.nextPageToken);
+                });
+            // return listFilesAndDirectories(reference, result.nextPageToken);
+        }
+
+        return Promise.resolve();
+    });
+    }
+
 export default class Studio extends Component {
 
     constructor(props) {
@@ -35,7 +58,11 @@ export default class Studio extends Component {
         this.state = {
             iconSize: null,
             image_files:[],
-            video_files:[]
+            video_files:[],
+            explorer:[],
+            explorerIndex: 0,
+            // files: [],
+            // folders:[],
         };
         this.RBSheetR = null;
     }
@@ -98,7 +125,7 @@ export default class Studio extends Component {
           // Check if file selected
           if (Object.keys(filePath).length == 0)
             return alert("Please Select any File");
-          setLoading(true);
+        //   setLoading(true);
     
           // Create Reference
           console.log(filePath.uri.replace("file://", ""));
@@ -126,12 +153,11 @@ export default class Studio extends Component {
                out of ${taskSnapshot.totalBytes}`
             );
           });
-          task.then(() => {
-            // alert("Image uploaded to the bucket!");
-            const url = await reference.getDownloadURL()
-            alert(url)
-            // setProcess("");
-          });
+
+          await task
+
+          const url = await reference.getDownloadURL()
+          alert(url)
         //   setFilePath({});
         } catch (error) {
           console.log("Error->", error);
@@ -140,12 +166,53 @@ export default class Studio extends Component {
         // setLoading(false);
       };
 
-    componentDidMount() {
+        
+
+        
+
+    async componentDidMount() {
         this._unsubscribe = this.props.navigation.addListener('focus', async () => {
             //this.RBSheetR.open();
             this.loadFiles();
         });
+        this.getFolderAndFiles('myfiles');
     }
+
+    getFolderAndFiles = async (refName) =>{
+        const reference = storage().ref(refName);
+        
+        // const ref = firebase.storage().ref('/');
+        this.setState({spinner: true});
+        const result = await reference.listAll();
+        console.log('result', result);
+
+        explorer = this.state.explorer;
+
+        var files = [];
+        result.items.forEach(ref => {
+            console.log('file', ref.fullPath);
+            var filenameArr = ref.fullPath.split('/');
+            var filename = filenameArr[filenameArr.length-1];
+            files.push({name: filename, path: ref.fullPath});
+        });
+
+        var folders = [];
+        if (result.prefixes) {
+            result.prefixes.forEach(ref => {
+                console.log('folder', ref.fullPath);
+                var foldernameArr = ref.fullPath.split('/');
+                var foldername = foldernameArr[foldernameArr.length-1];
+                folders.push({name: foldername, path: ref.fullPath});
+            });
+        }
+        explorer.push({files: files, folders: folders})
+        this.setState({explorer});
+
+        console.log(this.state.explorer);
+        // this.setState({folders});
+        this.setState({spinner: false});
+    }
+
     async loadFiles(){
         var files = await getAssets({creator_id:global.user.cid});
 
@@ -180,34 +247,29 @@ export default class Studio extends Component {
                         resizeMode="contain"
                         source={require('../../assets/img/upload-icon.png')} />
                 </TouchableOpacity>
-                <ScrollableTabView
-                    style={styles.container}
-                    renderTabBar={() =>
-                        <DefaultTabBar
-                            backgroundColor='rgba(255, 255, 255, 0.7)'
-                        // tabStyle={{ width: 100 }}
-                        />}
-                    tabBarPosition='overlayTop'
-                >
+               
                     <ScrollView tabLabel='Image files' style={styles.innerTab}>
                         <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignContent: 'stretch' }}>
-                            {this.state.image_files.map((file, i) => {
+                            {this.state.explorer.length > 0 && this.state.explorer[this.state.explorerIndex].folders.map((folder, i) => {
                                 return (
-                                    <AssetFolder key={i} iconSize={this.state.iconSize} fileName={file.media_url.replace(/^.*[\\\/]/, '').replace(/^.*[_]/, '')} />
+                                    <View>
+                                        <Icon name="heart" size={50}/>
+                                        <Text>{folder.name}</Text>
+                                    </View>
+                                    // <AssetFolder key={i} iconSize={this.state.iconSize} fileName={file.media_url.replace(/^.*[\\\/]/, '').replace(/^.*[_]/, '')} />
                                 );
-                            })}                            
-                        </View>                        
-                    </ScrollView>
-                    <ScrollView tabLabel='Video files' style={styles.innerTab}>
-                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignContent: 'stretch' }}>
-                            {this.state.video_files.map((file, i) => {
+                            })}  
+                            {this.state.explorer.length > 0 && this.state.explorer[this.state.explorerIndex].files.map((file, i)=>{
                                 return (
-                                    <AssetFolder key={i} iconSize={this.state.iconSize}  fileName={file.media_url.replace(/^.*[\\\/]/, '').replace(/^.*[_]/, '')} />
+                                    <View>
+                                        <Icon name="heart" size={50}/>
+                                        <Text>{file.name}</Text>
+                                    </View>
                                 );
                             })}
-                        </View>
+                        </View>                        
                     </ScrollView>
-                </ScrollableTabView>
+                    
 
                 <RBSheet
                     ref={ref => {
