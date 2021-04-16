@@ -405,6 +405,28 @@ export const saveStudioData = async (data) => {
     }
 };
 
+export const finishJob = async (data) => {
+    try {
+        var res = await _post('/v1/booking/studio_finish_job', data);
+        return res;
+    } catch (err) {
+        // Handle Error Here
+        _handleError(err);
+        return [];
+    }
+};
+
+export const shareToCustomer = async (data) => {
+    try {
+        var res = await _post('/v1/booking/studio_share_to_customer', data);
+        return res;
+    } catch (err) {
+        // Handle Error Here
+        _handleError(err);
+        return [];
+    }
+};
+
 export const getAssets = async (data) => {
     try {
         var res = await _post('/v1/booking/get_assets', data);

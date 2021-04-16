@@ -6,13 +6,14 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import EntypoIcon from 'react-native-vector-icons/Entypo';
 import Spinner from "react-native-loading-spinner-overlay";
 import RBSheet from "react-native-raw-bottom-sheet";
-import { getAssets, uploadAsset, saveStudioData } from "../../shared/service/api";
+import { getAssets, uploadAsset, saveStudioData, shareToCustomer, finishJob } from "../../shared/service/api";
 import { Button, Input, ListItem } from 'react-native-elements';
 import LinearGradient from 'react-native-linear-gradient/index';
 import { multiBtnGroupStyle, ios_red_color, ios_green_color, btnGradientProps } from "../../GlobalStyles";
 import { WIDTH } from '../../globalconfig';
 import storage from "@react-native-firebase/storage";
 import { getUserId } from '../../shared/service/storage';
+import { Popover, PopoverController } from 'react-native-modal-popover';
 
 const AssetFolder = ({ iconSize, fileName }) => {
     return (
@@ -67,12 +68,13 @@ export default class Studio extends Component {
             folderView: true,
             selectedFolder: 'Home',
             selectedFolderId: '',
-            asset_name:'',
-            refPath:'',
+            asset_name: '',
+            refPath: '',
         };
         this.RBSheetR = null;
     }
-    UNSAFE_componentWillMount() {
+
+    async componentDidMount() {
         var _height = Dimensions.get('window').height;
         var _width = Dimensions.get('window').width;
         if (_width > _height) {
@@ -80,40 +82,21 @@ export default class Studio extends Component {
         } else {
             this.setState({ iconSize: Math.round(_width / 3 - 15) })
         }
+        this._unsubscribe = this.props.navigation.addListener('focus', async () => {
+            this.loadFiles();
+        });
+        this.loadFiles(); // PLEASE REMOVE WHEN BUILDING
     }
 
     async uploadAsset(storagePath) {
-
-        console.log(storagePath);
-        return;
         // Pick a single file
         try {
             const res = await DocumentPicker.pick({
                 type: [DocumentPicker.types.allFiles],
             });
-            console.log(
-                res.uri,
-                res.type, // mime type
-                res.name,
-                res.size
-            );
+
 
             this._uploadFile(res, storagePath);
-            return;
-
-            const data = new FormData();
-            data.append("media", {
-                name: res.name,
-                type: res.type,
-                uri: res.uri
-            });
-
-            data.append("booking_id", global.user.cid);
-            data.append("media_type", res.type);
-
-            this.setState({ spinner: true });
-
-            var response = await uploadAsset(data, storagePath);
 
         } catch (err) {
             if (DocumentPicker.isCancel(err)) {
@@ -122,7 +105,6 @@ export default class Studio extends Component {
                 throw err;
             }
         }
-        this.setState({ spinner: false });
         global.upload_asset = false;
         this.loadFiles();
         this.RBSheetR.close();
@@ -136,8 +118,6 @@ export default class Studio extends Component {
             //   setLoading(true);
 
             // Create Reference
-            console.log(filePath.uri.replace("file://", ""));
-            console.log(filePath.name);
 
             const reference = storage().ref(
                 storagePath.refPath + `/${filePath.name}`
@@ -163,20 +143,25 @@ export default class Studio extends Component {
                 );
             });
 
+            this.setState({ spinner: true })
+
             await task
 
             const url = await reference.getDownloadURL()
 
             var params = {
+                creator_id: global.user.cid,
                 url: url,
                 file_name: filePath.name,
                 folder_id: storagePath.folder_id,
                 file_type: filePath.type
             }
-            await saveStudioData(params);
+            var folders = await saveStudioData(params);
 
-            alert(url)
-            //   setFilePath({});
+            this.setState({ spinner: false })
+
+            this.setState({ folders });
+
         } catch (error) {
             console.log("Error->", error);
             alert(`Error-> ${error}`);
@@ -184,60 +169,16 @@ export default class Studio extends Component {
         // setLoading(false);
     };
 
-
-    async componentDidMount() {
-        this._unsubscribe = this.props.navigation.addListener('focus', async () => {
-            this.loadFiles();
-        });
-        // this.loadFiles();
-    }
-
-    getFolderAndFiles = async (refName) => {
-        const reference = storage().ref(refName);
-
-        // const ref = firebase.storage().ref('/');
-        this.setState({ spinner: true });
-        const result = await reference.listAll();
-        console.log('result', result);
-
-        explorer = this.state.explorer;
-
-        var files = [];
-        result.items.forEach(ref => {
-            console.log('file', ref.fullPath);
-            var filenameArr = ref.fullPath.split('/');
-            var filename = filenameArr[filenameArr.length - 1];
-            files.push({ name: filename, path: ref.fullPath });
-        });
-
-        var folders = [];
-        if (result.prefixes) {
-            result.prefixes.forEach(ref => {
-                console.log('folder', ref.fullPath);
-                var foldernameArr = ref.fullPath.split('/');
-                var foldername = foldernameArr[foldernameArr.length - 1];
-                folders.push({ name: foldername, path: ref.fullPath });
-            });
-        }
-        explorer.push({ files: files, folders: folders })
-        this.setState({ explorer });
-
-        console.log(this.state.explorer);
-        // this.setState({folders});
-        this.setState({ spinner: false });
-    }
-
     _renderAssetFolder = (folder, index) => {
         return (
             <View>
-                    <Text>{index}</Text>
                 <TouchableOpacity
                     onPress={() => {
                         this.setState({
                             files: folder.folder_files,
                             folderView: false,
                             selectedFolder: folder.folder_name,
-                            selectedFolderId:folder.f_id
+                            selectedFolderId: folder.f_id
                         })
                     }}
                 >
@@ -245,9 +186,47 @@ export default class Studio extends Component {
                     {/* <Icon name="check-circle" size={25} color="green" style={{ position: 'absolute', top: 17, left: 8 }} /> */}
                     <Text style={{ alignSelf: 'center', bottom: 0, position: 'absolute' }}>{folder.folder_name}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={{ alignSelf: 'center', borderRadius: 15, padding: 2, width: 30, height: 30, alignItems: 'center', borderWidth: 1, borderColor: 'gray' }}>
-                    <EntypoIcon name="dots-three-vertical" size={24} />
-                </TouchableOpacity>
+                <PopoverController>
+                    {({ openPopover, closePopover, popoverVisible, setPopoverAnchor, popoverAnchorRect }) => (
+                        <React.Fragment>
+                            <TouchableOpacity
+                                ref={setPopoverAnchor} onPress={openPopover}
+                                style={{ alignSelf: 'center', borderRadius: 15, padding: 2, width: 30, height: 30, alignItems: 'center', borderWidth: 1, borderColor: 'gray' }}>
+                                <EntypoIcon name="dots-three-vertical" size={24} />
+                            </TouchableOpacity>
+                            <Popover
+                                contentStyle={styles.popovercontent}
+                                arrowStyle={styles.arrow}
+                                backgroundStyle={styles.background}
+                                visible={popoverVisible}
+                                onClose={closePopover}
+                                fromRect={popoverAnchorRect}
+                                supportedOrientations={['portrait', 'landscape']}
+                            >
+                                
+                                <TouchableOpacity 
+                                style={{ flexDirection: 'row', margin: 5, alignItems: 'center' }} 
+                                onPress={() => {
+                                    this.shareToCustomer(folder)
+                                    closePopover();
+                                }}>
+                                        <Text style={{ color: this.date_filter == 1 ? 'black' : 'grey', paddingLeft: 10, fontSize: 16 }}>Share to Customer</Text>
+                                    
+                                </TouchableOpacity>
+                                <TouchableOpacity 
+                                style={{ flexDirection: 'row', margin: 5, alignItems: 'center' }} 
+                                onPress={() => {
+                                    this.finishJob(folder)
+                                    closePopover();
+                                }}>
+                                    <Text style={{ color: this.date_filter == 2 ? 'black' : 'grey', paddingLeft: 10, fontSize: 16 }}>Finish Job</Text>
+                                    
+                                </TouchableOpacity>
+                            </Popover>
+                        </React.Fragment>
+                    )}
+                </PopoverController>
+
             </View>
         )
     };
@@ -259,7 +238,7 @@ export default class Studio extends Component {
                     {/* <Icon name="check-circle" size={25} color="green" style={{ position: 'absolute', top: 17, left: 8 }} /> */}
                     <Text style={{ alignSelf: 'center', bottom: -8, position: 'absolute' }}>{file.file_name}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={{ alignSelf: 'center', borderRadius: 15, padding: 2, width: 30, height: 30, alignItems: 'center', borderWidth: 1, borderColor: 'gray', marginTop:10 }}>
+                <TouchableOpacity style={{ alignSelf: 'center', borderRadius: 15, padding: 2, width: 30, height: 30, alignItems: 'center', borderWidth: 1, borderColor: 'gray', marginTop: 10 }}>
                     <EntypoIcon name="dots-three-vertical" size={24} />
                 </TouchableOpacity>
             </View>
@@ -274,10 +253,21 @@ export default class Studio extends Component {
                 selectedFolder: folders[0].asset_name
             });
         }
-
-        console.log(folders[0]);
-
         this.setState({ folders });
+    }
+
+    shareToCustomer = async (folder) => {
+        this.setState({spinner: true});
+        await shareToCustomer({asset_id: folder.asset_id});
+        this.setState({spinner: false});
+
+        console.log(folder);
+    }
+
+    finishJob = async (folder) => {
+        this.setState({spinner: true});
+        await finishJob({asset_id: folder.asset_id});
+        this.setState({spinner: false});
     }
 
     componentWillUnmount() {
@@ -295,9 +285,14 @@ export default class Studio extends Component {
                 {/* <BackButton navigation={this.props.navigation} /> */}
                 <Text style={{ fontSize: 25, fontWeight: 'bold', color: 'black', textAlign: 'center', marginTop: 20 }}>Studio</Text>
 
-                <TouchableOpacity style={{ position: 'absolute', left: WIDTH / 2 - 40, bottom: 20, height: 80, zIndex: 5 }}
+                <TouchableOpacity
+                    style={{ position: 'absolute', left: WIDTH / 2 - 40, bottom: 20, height: 80, zIndex: 5 }}
                     onPress={() => {
-                        if(this.state.folderView) {
+                        if (this.state.folders.length == 0) {
+                            alert('You can\'t upload to Studio');
+                            return;
+                        }
+                        if (this.state.folderView) {
                             this.RBSheetR.open();
                         } else {
                             var params = {
@@ -319,10 +314,12 @@ export default class Studio extends Component {
                     {!this.state.folderView &&
                         <View style={{ flexDirection: 'row', alignItems: 'center', position: 'absolute', left: 20 }}>
                             <Icon name="home" size={25} />
-                            <Text onPress={() => { this.setState({ 
-                                folderView: !this.state.folderView,
-                                selectedFolder:this.state.asset_name?this.state.asset_name:'Home' 
-                                }) }}>Back</Text>
+                            <Text onPress={() => {
+                                this.setState({
+                                    folderView: !this.state.folderView,
+                                    selectedFolder: this.state.asset_name ? this.state.asset_name : 'Home'
+                                })
+                            }}>Back</Text>
                         </View>
                     }
                     <Text style={{ fontSize: 20 }}>{this.state.selectedFolder}</Text>
@@ -373,22 +370,22 @@ export default class Studio extends Component {
                     }}
                 >
                     {this.state.folderView && this.state.folders.length > 0 && this.state.folders.map((folder, i) => {
-                                return (
-                                    <TouchableOpacity 
-                                        key={folder.folder_name}
-                                        style={{ marginTop: 10 }}
-                                        onPress={async () => {
-                                            var params = {
-                                                refPath: this.state.asset_name + '/' + folder.folder_name,
-                                                folder_id: folder.f_id
-                                            }
-                                            this.uploadAsset(params);
-                                        }}
-                                    >
-                                        <Text style={styles.btnStyle}>{folder.folder_name}</Text>
-                                    </TouchableOpacity>
-                                );
-                            })}
+                        return (
+                            <TouchableOpacity
+                                key={folder.folder_name}
+                                style={{ marginTop: 10 }}
+                                onPress={async () => {
+                                    var params = {
+                                        refPath: this.state.asset_name + '/' + folder.folder_name,
+                                        folder_id: folder.f_id
+                                    }
+                                    this.uploadAsset(params);
+                                }}
+                            >
+                                <Text style={styles.btnStyle}>{folder.folder_name}</Text>
+                            </TouchableOpacity>
+                        );
+                    })}
                 </RBSheet>
             </SafeAreaView>
         );
@@ -422,5 +419,18 @@ const styles = StyleSheet.create({
 
         elevation: 1,
         textAlign: 'center'
-    }
+    },
+    popovercontent: {
+        backgroundColor:'white',
+        borderRadius: 5,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.18,
+        shadowRadius: 1.00,
+
+        elevation: 1,
+    },
 });
