@@ -85,7 +85,7 @@ export default class Studio extends Component {
         this._unsubscribe = this.props.navigation.addListener('focus', async () => {
             this.loadFiles();
         });
-        this.loadFiles(); // PLEASE REMOVE WHEN BUILDING
+        // this.loadFiles(); // PLEASE REMOVE WHEN BUILDING
     }
 
     async uploadAsset(storagePath) {
@@ -94,7 +94,6 @@ export default class Studio extends Component {
             const res = await DocumentPicker.pick({
                 type: [DocumentPicker.types.allFiles],
             });
-
 
             this._uploadFile(res, storagePath);
 
@@ -106,7 +105,6 @@ export default class Studio extends Component {
             }
         }
         global.upload_asset = false;
-        this.loadFiles();
         this.RBSheetR.close();
     }
 
@@ -356,10 +354,7 @@ export default class Studio extends Component {
                         source={require('../../assets/img/upload-icon.png')} />
                 </TouchableOpacity>
 
-
-
-
-                <View style={{ flexDirection: 'row', justifyContent: 'center', borderBottomColor: 'gray', borderBottomWidth: 1 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'flex-end', paddingRight:5, borderBottomColor: 'gray', borderBottomWidth: 1 }}>
                     {!this.state.folderView &&
                         <View style={{ flexDirection: 'row', alignItems: 'center', position: 'absolute', left: 20 }}>
                             <Icon name="home" size={25} />
