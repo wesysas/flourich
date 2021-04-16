@@ -156,11 +156,27 @@ export default class Studio extends Component {
                 folder_id: storagePath.folder_id,
                 file_type: filePath.type
             }
-            var folders = await saveStudioData(params);
+            var result = await saveStudioData(params);
 
             this.setState({ spinner: false })
+            if (result) {
+                var folders = [];
+                this.state.folders.forEach((item) => {
+                    if (item.f_id == params.folder_id) {
+                        var folder = item;
+                        folder.folder_files.push({
+                            file_name: params.file_name,
+                            file_type: params.file_type,
+                            url: params.url
+                        })
+                        folders.push(folder);
+                    } else {
+                        folders.push(item)
+                    }                    
+                })
+                this.setState({ folders });
+            }
 
-            this.setState({ folders });
 
         } catch (error) {
             console.log("Error->", error);
@@ -183,7 +199,8 @@ export default class Studio extends Component {
                     }}
                 >
                     <Icon name="folder" size={(WIDTH - 45) / 3} color="#011f6f" />
-                    {/* <Icon name="check-circle" size={25} color="green" style={{ position: 'absolute', top: 17, left: 8 }} /> */}
+                    {!folder.finished_flag && folder.shared_flag ? <Icon name="share" size={25} color="green" style={{ position: 'absolute', top: 17, left: 8 }} />: null }
+                    {folder.finished_flag ? <Icon name="check-circle" size={25} color="green" style={{ position: 'absolute', top: 17, left: 8 }} />: null }
                     <Text style={{ alignSelf: 'center', bottom: 0, position: 'absolute' }}>{folder.folder_name}</Text>
                 </TouchableOpacity>
                 <PopoverController>
@@ -207,7 +224,15 @@ export default class Studio extends Component {
                                 <TouchableOpacity 
                                 style={{ flexDirection: 'row', margin: 5, alignItems: 'center' }} 
                                 onPress={() => {
-                                    this.shareToCustomer(folder)
+                                    if (folder.shared_flag == 0) {
+                                        if (folder.finished_flag == 0) {
+                                            this.shareToCustomer(folder)
+                                        } else {
+                                            alert('already finished');
+                                        }
+                                    } else {
+                                        alert('already shared');
+                                    }
                                     closePopover();
                                 }}>
                                         <Text style={{ color: this.date_filter == 1 ? 'black' : 'grey', paddingLeft: 10, fontSize: 16 }}>Share to Customer</Text>
@@ -216,7 +241,11 @@ export default class Studio extends Component {
                                 <TouchableOpacity 
                                 style={{ flexDirection: 'row', margin: 5, alignItems: 'center' }} 
                                 onPress={() => {
-                                    this.finishJob(folder)
+                                    if (folder.finished_flag == 0) {
+                                        this.finishJob(folder)
+                                    } else {
+                                        alert('already finished');
+                                    }                                    
                                     closePopover();
                                 }}>
                                     <Text style={{ color: this.date_filter == 2 ? 'black' : 'grey', paddingLeft: 10, fontSize: 16 }}>Finish Job</Text>
@@ -253,20 +282,40 @@ export default class Studio extends Component {
                 selectedFolder: folders[0].asset_name
             });
         }
-        this.setState({ folders });
+        this.setState({ folders });        
     }
 
     shareToCustomer = async (folder) => {
         this.setState({spinner: true});
         await shareToCustomer({asset_id: folder.asset_id});
+        var folders = [];
+        this.state.folders.forEach((item) => {
+            if (item.asset_id == folder.asset_id) {
+                var folderitem = item;
+                folderitem.shared_flag = 1
+                folders.push(folderitem);
+            } else {
+                folders.push(item)
+            }                    
+        })
+        this.setState({ folders });
         this.setState({spinner: false});
-
-        console.log(folder);
     }
 
     finishJob = async (folder) => {
         this.setState({spinner: true});
         await finishJob({asset_id: folder.asset_id});
+        var folders = [];
+        this.state.folders.forEach((item) => {
+            if (item.asset_id == folder.asset_id) {
+                var folderitem = item;
+                folderitem.finished_flag = 1
+                folders.push(folderitem);
+            } else {
+                folders.push(item)
+            }                    
+        })
+        this.setState({ folders });
         this.setState({spinner: false});
     }
 
@@ -355,7 +404,7 @@ export default class Studio extends Component {
                     ref={ref => {
                         this.RBSheetR = ref;
                     }}
-                    // height={100}
+                    height={200}
                     closeOnDragDown={true}
                     closeOnPressMask={true}
                     customStyles={{
@@ -369,6 +418,7 @@ export default class Studio extends Component {
                         }
                     }}
                 >
+                    <ScrollView>
                     {this.state.folderView && this.state.folders.length > 0 && this.state.folders.map((folder, i) => {
                         return (
                             <TouchableOpacity
@@ -386,6 +436,7 @@ export default class Studio extends Component {
                             </TouchableOpacity>
                         );
                     })}
+                    </ScrollView>
                 </RBSheet>
             </SafeAreaView>
         );
