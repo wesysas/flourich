@@ -90,7 +90,9 @@ export default class Profile extends Component {
             service:[],
             story:[],
             portfolio: [],
+
             featured: 0,
+            portfolio_flag:1,
             user: global.user,
             min: 100,
             max: 100,
@@ -108,12 +110,16 @@ export default class Profile extends Component {
             {
                 title: 'Portfolio Post',
                 onPress: () => {
-                    this.uploadPortfolio();
+                    this.setState({portfolio_flag:1});
+                    this.setState({rbSheetVisible:false});
+                    this.setState({typeSheetVisible:true});
+                    // this.uploadPortfolio();
                  }
             },
             {
                 title: 'Story',
                 onPress: () => {
+                    this.setState({portfolio_flag:0});
                     this.setState({featured:0});
                     this.setState({rbSheetVisible:false});
                     this.setState({typeSheetVisible:true});
@@ -122,6 +128,7 @@ export default class Profile extends Component {
             {
                 title: 'Story highlight',
                 onPress: () => {
+                    this.setState({portfolio_flag:1});
                     this.setState({featured:1});
                     this.setState({rbSheetVisible:false});
                     this.setState({typeSheetVisible:true});
@@ -232,7 +239,6 @@ export default class Profile extends Component {
     }
 
    async refreshScreen() {
-        console.log("refreshed");
         this.RBSheetR.close();
         var data = await getCreatorProfile({
             userid: global.user.cid,
@@ -247,10 +253,6 @@ export default class Profile extends Component {
         this.setState({user});
         this.setState({reviews});
         this.setState({story: result.story});
-        // var portfolio = [];
-        // _.each(result.portfolio, (item, callback) => {
-        //     portfolio.push(SERVER_URL + item.media_url)
-        // });
         this.setState({portfolio: result.portfolio});
         this.setState({service});
 
@@ -396,7 +398,13 @@ export default class Profile extends Component {
         data.append("featured", this.state.featured);
 
         console.log(data);
-        var res = await uploadStory(data);
+
+        if(this.state.portfolio_flag == 1) {
+            var res = await uploadPortfolio(data);
+        } else {
+            var res = await uploadStory(data);
+        }
+
         this.setState({spinner: false});
         if(res != null) {
             this.refreshScreen();
