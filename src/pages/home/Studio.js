@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Dimensions, SafeAreaView, Image } from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
 import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view';
@@ -6,7 +6,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import EntypoIcon from 'react-native-vector-icons/Entypo';
 import Spinner from "react-native-loading-spinner-overlay";
 import RBSheet from "react-native-raw-bottom-sheet";
-import { getAssets, uploadAsset } from "../../shared/service/api";
+import { getAssets, uploadAsset, saveStudioData } from "../../shared/service/api";
 import { Button, Input, ListItem } from 'react-native-elements';
 import LinearGradient from 'react-native-linear-gradient/index';
 import { multiBtnGroupStyle, ios_red_color, ios_green_color, btnGradientProps } from "../../GlobalStyles";
@@ -66,7 +66,9 @@ export default class Studio extends Component {
             folders: [],
             folderView: true,
             selectedFolder: 'Home',
-            asset_name:''
+            selectedFolderId: '',
+            asset_name:'',
+            refPath:'',
         };
         this.RBSheetR = null;
     }
@@ -80,8 +82,10 @@ export default class Studio extends Component {
         }
     }
 
-    async uploadAsset() {
+    async uploadAsset(storagePath) {
 
+        console.log(storagePath);
+        return;
         // Pick a single file
         try {
             const res = await DocumentPicker.pick({
@@ -94,7 +98,7 @@ export default class Studio extends Component {
                 res.size
             );
 
-            this._uploadFile(res);
+            this._uploadFile(res, storagePath);
             return;
 
             const data = new FormData();
@@ -109,7 +113,7 @@ export default class Studio extends Component {
 
             this.setState({ spinner: true });
 
-            var response = await uploadAsset(data);
+            var response = await uploadAsset(data, storagePath);
 
         } catch (err) {
             if (DocumentPicker.isCancel(err)) {
@@ -124,7 +128,7 @@ export default class Studio extends Component {
         this.RBSheetR.close();
     }
 
-    _uploadFile = async (filePath) => {
+    _uploadFile = async (filePath, storagePath) => {
         try {
             // Check if file selected
             if (Object.keys(filePath).length == 0)
@@ -134,8 +138,9 @@ export default class Studio extends Component {
             // Create Reference
             console.log(filePath.uri.replace("file://", ""));
             console.log(filePath.name);
+
             const reference = storage().ref(
-                `/myfiles/${filePath.name}`
+                storagePath.refPath + `/${filePath.name}`
             );
 
             // Put File
@@ -161,6 +166,15 @@ export default class Studio extends Component {
             await task
 
             const url = await reference.getDownloadURL()
+
+            var params = {
+                url: url,
+                file_name: filePath.name,
+                folder_id: storagePath.folder_id,
+                file_type: filePath.type
+            }
+            await saveStudioData(params);
+
             alert(url)
             //   setFilePath({});
         } catch (error) {
@@ -173,13 +187,9 @@ export default class Studio extends Component {
 
     async componentDidMount() {
         this._unsubscribe = this.props.navigation.addListener('focus', async () => {
-            //this.RBSheetR.open();
-            console.log('focust')
             this.loadFiles();
         });
-        // this.getFolderAndFiles('myfiles');
-        // this.getAsset()
-        this.loadFiles();
+        // this.loadFiles();
     }
 
     getFolderAndFiles = async (refName) => {
@@ -217,15 +227,17 @@ export default class Studio extends Component {
         this.setState({ spinner: false });
     }
 
-    _renderAssetFolder = (folder) => {
+    _renderAssetFolder = (folder, index) => {
         return (
-            <View key={folder.folder_name}>
+            <View>
+                    <Text>{index}</Text>
                 <TouchableOpacity
                     onPress={() => {
                         this.setState({
                             files: folder.folder_files,
                             folderView: false,
-                            selectedFolder: folder.folder_name
+                            selectedFolder: folder.folder_name,
+                            selectedFolderId:folder.f_id
                         })
                     }}
                 >
@@ -241,7 +253,7 @@ export default class Studio extends Component {
     };
     _renderAssetFile = (file) => {
         return (
-            <View>
+            <View key={file.file_name}>
                 <TouchableOpacity >
                     <Icon name="file" size={(WIDTH - 45) / 3} color="#011f6f" />
                     {/* <Icon name="check-circle" size={25} color="green" style={{ position: 'absolute', top: 17, left: 8 }} /> */}
@@ -257,10 +269,13 @@ export default class Studio extends Component {
     async loadFiles() {
         var folders = await getAssets({ creator_id: global.user.cid });
         if (folders.length > 0) {
-            this.setState({asset_name: folders[0].asset_name,
+            this.setState({
+                asset_name: folders[0].asset_name,
                 selectedFolder: folders[0].asset_name
             });
         }
+
+        console.log(folders[0]);
 
         this.setState({ folders });
     }
@@ -282,7 +297,15 @@ export default class Studio extends Component {
 
                 <TouchableOpacity style={{ position: 'absolute', left: WIDTH / 2 - 40, bottom: 20, height: 80, zIndex: 5 }}
                     onPress={() => {
-                        this.RBSheetR.open();
+                        if(this.state.folderView) {
+                            this.RBSheetR.open();
+                        } else {
+                            var params = {
+                                refPath: this.state.asset_name + '/' + this.state.selectedFolder,
+                                folder_id: this.state.selectedFolderId
+                            }
+                            this.uploadAsset(params);
+                        }
                     }}>
                     <Image style={{ width: 80, height: 80 }}
                         resizeMode="contain"
@@ -310,9 +333,9 @@ export default class Studio extends Component {
                     <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignContent: 'stretch' }}>
                         {this.state.folders.length > 0 && this.state.folders.map((folder, i) => {
                             return (
-                                <>
+                                <View key={i}>
                                     {this._renderAssetFolder(folder)}
-                                </>
+                                </View>
                             );
                         })}
                     </View>
@@ -322,9 +345,9 @@ export default class Studio extends Component {
                     <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignContent: 'stretch' }}>
                         {this.state.files.length > 0 && this.state.files.map((file, i) => {
                             return (
-                                <>
+                                <View key={i}>
                                     {this._renderAssetFile(file)}
-                                </>
+                                </View>
                             );
                         })}
                     </View>
@@ -351,23 +374,21 @@ export default class Studio extends Component {
                 >
                     {this.state.folderView && this.state.folders.length > 0 && this.state.folders.map((folder, i) => {
                                 return (
-                                    <TouchableOpacity style={{ marginTop: 10 }}
+                                    <TouchableOpacity 
+                                        key={folder.folder_name}
+                                        style={{ marginTop: 10 }}
                                         onPress={async () => {
-                                            this.uploadAsset();
+                                            var params = {
+                                                refPath: this.state.asset_name + '/' + folder.folder_name,
+                                                folder_id: folder.f_id
+                                            }
+                                            this.uploadAsset(params);
                                         }}
                                     >
                                         <Text style={styles.btnStyle}>{folder.folder_name}</Text>
                                     </TouchableOpacity>
                                 );
                             })}
-
-                    <TouchableOpacity style={{ marginTop: 10 }}
-                        onPress={async () => {
-                            this.uploadAsset();
-                        }}
-                    >
-                        <Text style={styles.btnStyle}>Upload assets</Text>
-                    </TouchableOpacity>
                 </RBSheet>
             </SafeAreaView>
         );

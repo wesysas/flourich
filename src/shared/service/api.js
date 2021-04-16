@@ -394,6 +394,17 @@ export const uploadAsset = async (data) => {
     }
 };
 
+export const saveStudioData = async (data) => {
+    try {
+        var res = await _post('/v1/booking/save_studio_data', data);
+        return res;
+    } catch (err) {
+        // Handle Error Here
+        _handleError(err);
+        return [];
+    }
+};
+
 export const getAssets = async (data) => {
     try {
         var res = await _post('/v1/booking/get_assets', data);
