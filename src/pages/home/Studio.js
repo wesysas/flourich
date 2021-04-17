@@ -3,6 +3,8 @@ import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Dimensions, SafeA
 import DocumentPicker from 'react-native-document-picker';
 import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Ionicon from 'react-native-vector-icons/Ionicons';
+
 import EntypoIcon from 'react-native-vector-icons/Entypo';
 import Spinner from "react-native-loading-spinner-overlay";
 import RBSheet from "react-native-raw-bottom-sheet";
@@ -23,7 +25,7 @@ const AssetFolder = ({ iconSize, fileName }) => {
                 <Icon name="check-circle" size={25} color="green" style={{ position: 'absolute', top: 17, left: 8 }} />
                 <Text style={{ alignSelf: 'center', bottom: 0, position: 'absolute' }}>{fileName}</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={{ alignSelf: 'center', borderRadius: 15, padding: 2, width: 30, height: 30, alignItems: 'center', borderWidth: 1, borderColor: 'gray' }}>
+            <TouchableOpacity style={{ alignSelf: 'center', width: 30, height: 30, alignItems: 'center', borderWidth: 1, borderColor: 'gray' }}>
                 <EntypoIcon name="dots-three-vertical" size={24} />
             </TouchableOpacity>
         </View>
@@ -85,7 +87,7 @@ export default class Studio extends Component {
         this._unsubscribe = this.props.navigation.addListener('focus', async () => {
             this.loadFiles();
         });
-        // this.loadFiles(); // PLEASE REMOVE WHEN BUILDING
+        this.loadFiles(); // PLEASE REMOVE WHEN BUILDING
     }
 
     async uploadAsset(storagePath) {
@@ -197,63 +199,13 @@ export default class Studio extends Component {
                     }}
                 >
                     <Icon name="folder" size={(WIDTH - 45) / 3} color="#011f6f" />
-                    {!folder.finished_flag && folder.shared_flag ? <Icon name="share" size={25} color="green" style={{ position: 'absolute', top: 17, left: 8 }} />: null }
-                    {folder.finished_flag ? <Icon name="check-circle" size={25} color="green" style={{ position: 'absolute', top: 17, left: 8 }} />: null }
+                    {folder.finished_flag || folder.shared_flag ? <Icon name="check-circle" size={25} color="#3ddb48" style={{ position: 'absolute', top: 17, left: 8 }} />: null }                    
                     <Text style={{ alignSelf: 'center', bottom: 0, position: 'absolute' }}>{folder.folder_name}</Text>
                 </TouchableOpacity>
-                <PopoverController>
-                    {({ openPopover, closePopover, popoverVisible, setPopoverAnchor, popoverAnchorRect }) => (
-                        <React.Fragment>
-                            <TouchableOpacity
-                                ref={setPopoverAnchor} onPress={openPopover}
-                                style={{ alignSelf: 'center', borderRadius: 15, padding: 2, width: 30, height: 30, alignItems: 'center', borderWidth: 1, borderColor: 'gray' }}>
-                                <EntypoIcon name="dots-three-vertical" size={24} />
-                            </TouchableOpacity>
-                            <Popover
-                                contentStyle={styles.popovercontent}
-                                arrowStyle={styles.arrow}
-                                backgroundStyle={styles.background}
-                                visible={popoverVisible}
-                                onClose={closePopover}
-                                fromRect={popoverAnchorRect}
-                                supportedOrientations={['portrait', 'landscape']}
-                            >
-                                
-                                <TouchableOpacity 
-                                style={{ flexDirection: 'row', margin: 5, alignItems: 'center' }} 
-                                onPress={() => {
-                                    if (folder.shared_flag == 0) {
-                                        if (folder.finished_flag == 0) {
-                                            this.shareToCustomer(folder)
-                                        } else {
-                                            alert('already finished');
-                                        }
-                                    } else {
-                                        alert('already shared');
-                                    }
-                                    closePopover();
-                                }}>
-                                        <Text style={{ color: this.date_filter == 1 ? 'black' : 'grey', paddingLeft: 10, fontSize: 16 }}>Share to Customer</Text>
-                                    
-                                </TouchableOpacity>
-                                <TouchableOpacity 
-                                style={{ flexDirection: 'row', margin: 5, alignItems: 'center' }} 
-                                onPress={() => {
-                                    if (folder.finished_flag == 0) {
-                                        this.finishJob(folder)
-                                    } else {
-                                        alert('already finished');
-                                    }                                    
-                                    closePopover();
-                                }}>
-                                    <Text style={{ color: this.date_filter == 2 ? 'black' : 'grey', paddingLeft: 10, fontSize: 16 }}>Finish Job</Text>
-                                    
-                                </TouchableOpacity>
-                            </Popover>
-                        </React.Fragment>
-                    )}
-                </PopoverController>
-
+                <TouchableOpacity
+                    style={{ alignSelf: 'center', padding: 2, width: 30, height: 30, alignItems: 'center', }}>
+                    <Ionicon name="ellipsis-horizontal" size={24} />
+                </TouchableOpacity>
             </View>
         )
     };
@@ -332,7 +284,7 @@ export default class Studio extends Component {
                 {/* <BackButton navigation={this.props.navigation} /> */}
                 <Text style={{ fontSize: 25, fontWeight: 'bold', color: 'black', textAlign: 'center', marginTop: 20 }}>Studio</Text>
 
-                <TouchableOpacity
+                {!this.state.folderView && <TouchableOpacity
                     style={{ position: 'absolute', left: WIDTH / 2 - 40, bottom: 20, height: 80, zIndex: 5 }}
                     onPress={() => {
                         if (this.state.folders.length == 0) {
@@ -352,7 +304,7 @@ export default class Studio extends Component {
                     <Image style={{ width: 80, height: 80 }}
                         resizeMode="contain"
                         source={require('../../assets/img/upload-icon.png')} />
-                </TouchableOpacity>
+                </TouchableOpacity>}
 
                 <View style={{ flexDirection: 'row', justifyContent: 'flex-end', paddingRight:5, borderBottomColor: 'gray', borderBottomWidth: 1 }}>
                     {!this.state.folderView &&
