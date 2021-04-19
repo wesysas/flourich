@@ -11,8 +11,7 @@ import {
     getAssets, uploadAsset, saveStudioData, shareToCustomer, finishJob,
     renameFolderAndFile,
     deleteFolderAndFile,
-    shareToStory,
-    addToPortfolio
+    shareToStoryAndPortfolio,
 } from "../../shared/service/api";
 import { Button, Input, ListItem, Overlay } from 'react-native-elements';
 import LinearGradient from 'react-native-linear-gradient/index';
@@ -23,6 +22,8 @@ import { getUserId } from '../../shared/service/storage';
 import { Popover, PopoverController } from 'react-native-modal-popover';
 import FastImage from 'react-native-fast-image';
 import Video from 'react-native-video';
+import Toast from 'react-native-simple-toast';
+
 const width = (WIDTH - 45) / 3;
 const height = width;
 
@@ -146,15 +147,32 @@ export default class Studio extends Component {
         // setLoading(false);
     };
 
-    shareToStory = async () => {
-        var params;
-        await shareToStory (params);
+    shareToStoryAndPortfolio = async (flag) => {
+        var file = this.state.files.filter(item=>{
+            if(item.file_id == this.state.selectedFileId) return item;
+        })[0];        
+        var params = {
+            flag:flag,
+            creator_id: global.user.cid,
+            featured: 0,
+            media_type: file.file_type.indexOf('image') > -1?'photo': 'video',
+            media_url: file.url
+        }
+        this.setState({spinner: true});
+        var res = await shareToStoryAndPortfolio(params);
+        this.setState({spinner: false});
+        this.RBSheetR.close()
+        if (res && res.code == 'already') {
+            alert('Already Shared');
+        }
+        if (res && res.code == 'success') {
+            alert('Successfully Shared');
+        }
+        if(!res) {
+            alert('Error Happens');
+        }
     }
 
-    addToPortfoilo = async () => {
-        var params;
-        await addToPortfolio(params);
-    }
     rename = async () => {
         if (this.state.folderView) {
             var params = {
@@ -176,7 +194,23 @@ export default class Studio extends Component {
             this.setState({folders, spinner:false});
 
         } else {
-
+            var params = {
+                file_id: this.state.selectedFileId,
+                rename: this.state.rename
+            }
+            this.setState({spinner:true});
+            await renameFolderAndFile(params);
+            var files = [];
+            this.state.files.forEach((item) => {
+                if (item.file_id == params.file_id) {
+                    var fileItem = item;
+                    fileItem.file_d_name = params.rename
+                    files.push(fileItem);
+                } else {
+                    files.push(item)
+                }
+            })
+            this.setState({files, spinner:false});
         }
 
         this.setState({visibleRenameOverlay:false, rename:''});
@@ -200,7 +234,18 @@ export default class Studio extends Component {
             this.setState({folders, spinner:false});
 
         } else {
-
+            var params = {
+                file_id: this.state.selectedFileId,
+            }
+            this.setState({spinner:true});
+            await deleteFolderAndFile(params);
+            var files = [];
+            this.state.files.forEach((item) => {
+                if (item.file_id != params.file_id) {                    
+                    files.push(item)
+                }
+            })
+            this.setState({files, spinner:false});
         }
 
         this.setState({visibleRenameOverlay:false, rename:''});
@@ -316,7 +361,7 @@ export default class Studio extends Component {
                             />
                             <Icon name="play" size={25} color="lightgray" style={styles.videoPlayer}> </Icon>
                         </View>}
-                    <Text style={{ textAlign: 'center', width: width - 10 }}>{file.file_name}</Text>
+                    <Text style={{ textAlign: 'center', width: width - 10 }}>{file.file_d_name?file.file_d_name: file.file_name}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity 
                     onPress={()=>{
@@ -454,7 +499,7 @@ export default class Studio extends Component {
 
                         <TouchableOpacity
                             style={{ marginTop: 10 }}
-                            onPress={() => {this.shareToStory();}}
+                            onPress={() => {this.shareToStoryAndPortfolio('story');}}
                         >
                             <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems:'center' }}>
                                 <Icon name="share-variant" size={20} />
@@ -463,7 +508,7 @@ export default class Studio extends Component {
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={{ marginTop: 10 }}
-                            onPress={() => {this.addToPortfoilo();}}
+                            onPress={() => {this.shareToStoryAndPortfolio('portfolio');}}
                         >
                             <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems:'center' }}>
                                 <Ionicon name="image-outline" size={20} />
