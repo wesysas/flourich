@@ -1,10 +1,8 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Dimensions, SafeAreaView, Image } from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
-import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicon from 'react-native-vector-icons/Ionicons';
-import EntypoIcon from 'react-native-vector-icons/Entypo';
 import Spinner from "react-native-loading-spinner-overlay";
 import RBSheet from "react-native-raw-bottom-sheet";
 import {
@@ -15,14 +13,11 @@ import {
 } from "../../shared/service/api";
 import { Button, Input, ListItem, Overlay } from 'react-native-elements';
 import LinearGradient from 'react-native-linear-gradient/index';
-import { multiBtnGroupStyle, ios_red_color, ios_green_color, btnGradientProps } from "../../GlobalStyles";
 import { WIDTH } from '../../globalconfig';
+import {btnGradientProps} from '../../GlobalStyles';
 import storage from "@react-native-firebase/storage";
-import { getUserId } from '../../shared/service/storage';
-import { Popover, PopoverController } from 'react-native-modal-popover';
 import FastImage from 'react-native-fast-image';
 import Video from 'react-native-video';
-import Toast from 'react-native-simple-toast';
 
 const width = (WIDTH - 45) / 3;
 const height = width;
@@ -544,7 +539,11 @@ export default class Studio extends Component {
                                 this.setState({ rename: value })
                             }} />
                         {!this.state.rename && <Text style={{ padding: 3, color: 'red' }}>this is required</Text>}
+                        
                         <Button
+                            buttonStyle={{ marginTop: 20, borderRadius: 8, height: 40 }}
+                            ViewComponent={LinearGradient}
+                            linearGradientProps={btnGradientProps}
                             title="Rename"
                             onPress={() =>
                                 this.rename()}
