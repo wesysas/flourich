@@ -4,86 +4,48 @@ import DocumentPicker from 'react-native-document-picker';
 import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicon from 'react-native-vector-icons/Ionicons';
-
 import EntypoIcon from 'react-native-vector-icons/Entypo';
 import Spinner from "react-native-loading-spinner-overlay";
 import RBSheet from "react-native-raw-bottom-sheet";
-import { getAssets, uploadAsset, saveStudioData, shareToCustomer, finishJob } from "../../shared/service/api";
-import { Button, Input, ListItem } from 'react-native-elements';
+import {
+    getAssets, uploadAsset, saveStudioData, shareToCustomer, finishJob,
+    renameFolderAndFile,
+    deleteFolderAndFile
+} from "../../shared/service/api";
+import { Button, Input, ListItem, Overlay } from 'react-native-elements';
 import LinearGradient from 'react-native-linear-gradient/index';
 import { multiBtnGroupStyle, ios_red_color, ios_green_color, btnGradientProps } from "../../GlobalStyles";
 import { WIDTH } from '../../globalconfig';
 import storage from "@react-native-firebase/storage";
 import { getUserId } from '../../shared/service/storage';
 import { Popover, PopoverController } from 'react-native-modal-popover';
-
-const AssetFolder = ({ iconSize, fileName }) => {
-    return (
-        <View>
-            <TouchableOpacity >
-                <Icon name="folder" size={iconSize} color="#011f6f" />
-                <Icon name="check-circle" size={25} color="green" style={{ position: 'absolute', top: 17, left: 8 }} />
-                <Text style={{ alignSelf: 'center', bottom: 0, position: 'absolute' }}>{fileName}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={{ alignSelf: 'center', width: 30, height: 30, alignItems: 'center', borderWidth: 1, borderColor: 'gray' }}>
-                <EntypoIcon name="dots-three-vertical" size={24} />
-            </TouchableOpacity>
-        </View>
-    )
-};
-
-function listFilesAndDirectories(reference, pageToken) {
-    return reference.list({ pageToken }).then(result => {
-        // Loop over each item
-        result.items.forEach(ref => {
-            console.log('file', ref.fullPath);
-        });
-
-        if (result.nextPageToken) {
-            return listFilesAndDirectories(reference, result.nextPageToken);
-        }
-
-        if (result.prefixes) {
-            result.prefixes.forEach(ref => {
-                const reference1 = storage().ref(ref.path);
-                return listFilesAndDirectories(reference1, result.nextPageToken);
-            });
-            // return listFilesAndDirectories(reference, result.nextPageToken);
-        }
-
-        return Promise.resolve();
-    });
-}
+import FastImage from 'react-native-fast-image';
+import Video from 'react-native-video';
+const width = (WIDTH - 45) / 3;
+const height = width;
 
 export default class Studio extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            iconSize: null,
-            image_files: [],
-            video_files: [],
-            // explorer:[],
-            // explorerIndex: 0,
             files: [],
             folders: [],
             folderView: true,
             selectedFolder: 'Home',
             selectedFolderId: '',
+            bottomSheetTitle: '',
             asset_name: '',
             refPath: '',
+            folder_d_name: '',
+            file_d_name: '',
+            visibleRenameOverlay: false,
+            rename: '',
         };
         this.RBSheetR = null;
     }
 
     async componentDidMount() {
-        var _height = Dimensions.get('window').height;
-        var _width = Dimensions.get('window').width;
-        if (_width > _height) {
-            this.setState({ iconSize: Math.round(_height / 3 - 15) })
-        } else {
-            this.setState({ iconSize: Math.round(_width / 3 - 15) })
-        }
         this._unsubscribe = this.props.navigation.addListener('focus', async () => {
             this.loadFiles();
         });
@@ -132,16 +94,12 @@ export default class Studio extends Component {
             // task.resume();
             // task.cancel();
 
-            task.on("state_changed", (taskSnapshot) => {
-                setProcess(
-                    `${taskSnapshot.bytesTransferred} transferred 
-               out of ${taskSnapshot.totalBytes}`
-                );
-                console.log(
-                    `${taskSnapshot.bytesTransferred} transferred 
-               out of ${taskSnapshot.totalBytes}`
-                );
-            });
+            // task.on("state_changed", (taskSnapshot) => {
+            //     console.log(
+            //         `${taskSnapshot.bytesTransferred} transferred 
+            //    out of ${taskSnapshot.totalBytes}`
+            //     );
+            // });
 
             this.setState({ spinner: true })
 
@@ -172,7 +130,7 @@ export default class Studio extends Component {
                         folders.push(folder);
                     } else {
                         folders.push(item)
-                    }                    
+                    }
                 })
                 this.setState({ folders });
             }
@@ -184,6 +142,113 @@ export default class Studio extends Component {
         }
         // setLoading(false);
     };
+
+    rename = async () => {
+        if (this.state.folderView) {
+            var params = {
+                folder_id: this.state.selectedFolderId,
+                rename: this.state.rename
+            }
+            this.setState({spinner:true});
+            await renameFolderAndFile(params);
+            var folders = [];
+            this.state.folders.forEach((item) => {
+                if (item.f_id == params.folder_id) {
+                    var folderitem = item;
+                    folderitem.folder_d_name = params.rename
+                    folders.push(folderitem);
+                } else {
+                    folders.push(item)
+                }
+            })
+            this.setState({folders, spinner:false});
+
+        } else {
+
+        }
+
+        this.setState({visibleRenameOverlay:false, rename:''});
+        this.RBSheetR.close()
+
+    }
+
+    delete = async () => {
+        if (this.state.folderView) {
+            var params = {
+                folder_id: this.state.selectedFolderId,
+            }
+            this.setState({spinner:true});
+            await deleteFolderAndFile(params);
+            var folders = [];
+            this.state.folders.forEach((item) => {
+                if (item.f_id != params.folder_id) {                    
+                    folders.push(item)
+                }
+            })
+            this.setState({folders, spinner:false});
+
+        } else {
+
+        }
+
+        this.setState({visibleRenameOverlay:false, rename:''});
+        this.RBSheetR.close()
+
+    }
+
+    async loadFiles() {
+        var folders = await getAssets({ creator_id: global.user.cid });
+        if (folders.length > 0) {
+            this.setState({
+                asset_name: folders[0].asset_name,
+                selectedFolder: folders[0].asset_name,
+            });
+        }
+        this.setState({ folders });
+    }
+
+    shareToCustomer = async () => {
+        var folder = this.state.folders.filter(item=>{
+            if ( item.f_id ==  this.state.selectedFolderId ) return item;
+        })[0];
+
+        this.setState({ spinner: true });
+        await shareToCustomer({ asset_id: folder.asset_id });
+        var folders = [];
+        this.state.folders.forEach((item) => {
+            if (item.asset_id == folder.asset_id) {
+                var folderitem = item;
+                folderitem.shared_flag = 1
+                folders.push(folderitem);
+            } else {
+                folders.push(item)
+            }
+        })
+        this.setState({ folders });
+        this.setState({ spinner: false });
+        this.RBSheetR.close();
+    }
+
+    finishJob = async (folder) => {
+        this.setState({ spinner: true });
+        await finishJob({ asset_id: folder.asset_id });
+        var folders = [];
+        this.state.folders.forEach((item) => {
+            if (item.asset_id == folder.asset_id) {
+                var folderitem = item;
+                folderitem.finished_flag = 1
+                folders.push(folderitem);
+            } else {
+                folders.push(item)
+            }
+        })
+        this.setState({ folders });
+        this.setState({ spinner: false });
+    }
+
+    componentWillUnmount() {
+        this._unsubscribe();
+    }
 
     _renderAssetFolder = (folder, index) => {
         return (
@@ -198,80 +263,54 @@ export default class Studio extends Component {
                         })
                     }}
                 >
-                    <Icon name="folder" size={(WIDTH - 45) / 3} color="#011f6f" />
-                    {folder.finished_flag || folder.shared_flag ? <Icon name="check-circle" size={25} color="#3ddb48" style={{ position: 'absolute', top: 17, left: 8 }} />: null }                    
-                    <Text style={{ alignSelf: 'center', bottom: 0, position: 'absolute' }}>{folder.folder_name}</Text>
+                    <Icon name="folder" size={width} color="#011f6f" />
+                    {folder.finished_flag || folder.shared_flag ? <Icon name="check-circle" size={25} color="#3ddb48" style={{ position: 'absolute', top: 17, left: 8 }} /> : null}
+                    <Text style={{ alignSelf: 'center', bottom: 0, position: 'absolute' }}>
+                        {folder.folder_d_name ? folder.folder_d_name : folder.folder_name}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
+                    onPress={() => {
+                        this.setState({
+                            selectedFolderId: folder.f_id,
+                            folder_d_name: folder.folder_d_name ? folder.folder_d_name : folder.folder_name
+                        })
+                        this.RBSheetR.open()
+                    }}
                     style={{ alignSelf: 'center', padding: 2, width: 30, height: 30, alignItems: 'center', }}>
                     <Ionicon name="ellipsis-horizontal" size={24} />
                 </TouchableOpacity>
             </View>
         )
     };
+
     _renderAssetFile = (file) => {
         return (
-            <View key={file.file_name}>
+            <View>
                 <TouchableOpacity >
-                    <Icon name="file" size={(WIDTH - 45) / 3} color="#011f6f" />
-                    {/* <Icon name="check-circle" size={25} color="green" style={{ position: 'absolute', top: 17, left: 8 }} /> */}
-                    <Text style={{ alignSelf: 'center', bottom: -8, position: 'absolute' }}>{file.file_name}</Text>
+                    {file.file_type.indexOf('image') > -1 ?
+                        <FastImage
+                            style={{ width: width - 10, height: height, margin: 5 }}
+                            source={{ uri: file.url }}
+                        /> :
+                        <View style={{ width: width - 10, height: height, margin: 5 }}>
+                            <Video
+                                source={{ uri: file.url }}
+                                resizeMode={"cover"}
+                                style={[styles.videostyle, {
+                                    width: 40,
+                                    height: 40
+                                }]}
+                            />
+                            <Icon name="play" size={25} color="lightgray" style={styles.videoPlayer}> </Icon>
+                        </View>}
+                    <Text style={{ textAlign: 'center', width: width - 10 }}>{file.file_name}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={{ alignSelf: 'center', borderRadius: 15, padding: 2, width: 30, height: 30, alignItems: 'center', borderWidth: 1, borderColor: 'gray', marginTop: 10 }}>
-                    <EntypoIcon name="dots-three-vertical" size={24} />
+                <TouchableOpacity style={{ alignSelf: 'center', padding: 2, width: 30, height: 30, alignItems: 'center', marginTop: 10 }}>
+                    <Ionicon name="ellipsis-horizontal" size={24} />
                 </TouchableOpacity>
             </View>
         )
     };
-
-    async loadFiles() {
-        var folders = await getAssets({ creator_id: global.user.cid });
-        if (folders.length > 0) {
-            this.setState({
-                asset_name: folders[0].asset_name,
-                selectedFolder: folders[0].asset_name
-            });
-        }
-        this.setState({ folders });        
-    }
-
-    shareToCustomer = async (folder) => {
-        this.setState({spinner: true});
-        await shareToCustomer({asset_id: folder.asset_id});
-        var folders = [];
-        this.state.folders.forEach((item) => {
-            if (item.asset_id == folder.asset_id) {
-                var folderitem = item;
-                folderitem.shared_flag = 1
-                folders.push(folderitem);
-            } else {
-                folders.push(item)
-            }                    
-        })
-        this.setState({ folders });
-        this.setState({spinner: false});
-    }
-
-    finishJob = async (folder) => {
-        this.setState({spinner: true});
-        await finishJob({asset_id: folder.asset_id});
-        var folders = [];
-        this.state.folders.forEach((item) => {
-            if (item.asset_id == folder.asset_id) {
-                var folderitem = item;
-                folderitem.finished_flag = 1
-                folders.push(folderitem);
-            } else {
-                folders.push(item)
-            }                    
-        })
-        this.setState({ folders });
-        this.setState({spinner: false});
-    }
-
-    componentWillUnmount() {
-        this._unsubscribe();
-    }
 
     render() {
         return (
@@ -306,7 +345,7 @@ export default class Studio extends Component {
                         source={require('../../assets/img/upload-icon.png')} />
                 </TouchableOpacity>}
 
-                <View style={{ flexDirection: 'row', justifyContent: 'flex-end', paddingRight:5, borderBottomColor: 'gray', borderBottomWidth: 1 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'flex-end', paddingRight: 5, borderBottomColor: 'gray', borderBottomWidth: 1 }}>
                     {!this.state.folderView &&
                         <View style={{ flexDirection: 'row', alignItems: 'center', position: 'absolute', left: 20 }}>
                             <Icon name="home" size={25} />
@@ -335,7 +374,7 @@ export default class Studio extends Component {
                 </ScrollView>}
 
                 {!this.state.folderView && <ScrollView style={styles.innerTab}>
-                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignContent: 'stretch' }}>
+                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignSelf: 'center' }}>
                         {this.state.files.length > 0 && this.state.files.map((file, i) => {
                             return (
                                 <View key={i}>
@@ -351,13 +390,14 @@ export default class Studio extends Component {
                     ref={ref => {
                         this.RBSheetR = ref;
                     }}
-                    height={200}
+                    // height={200}
                     closeOnDragDown={true}
                     closeOnPressMask={true}
                     customStyles={{
                         container: {
                             borderTopRightRadius: 20,
-                            borderTopLeftRadius: 20
+                            borderTopLeftRadius: 20,
+                            paddingHorizontal:20
                         },
                         draggableIcon: {
                             backgroundColor: "lightgrey",
@@ -365,25 +405,55 @@ export default class Studio extends Component {
                         }
                     }}
                 >
-                    <ScrollView>
-                    {this.state.folderView && this.state.folders.length > 0 && this.state.folders.map((folder, i) => {
-                        return (
-                            <TouchableOpacity
-                                key={folder.folder_name}
-                                style={{ marginTop: 10 }}
-                                onPress={async () => {
-                                    var params = {
-                                        refPath: this.state.asset_name + '/' + folder.folder_name,
-                                        folder_id: folder.f_id
-                                    }
-                                    this.uploadAsset(params);
-                                }}
-                            >
-                                <Text style={styles.btnStyle}>{folder.folder_name}</Text>
-                            </TouchableOpacity>
-                        );
-                    })}
-                    </ScrollView>
+                    {this.state.folderView && <View>
+                        <Text style={{ fontSize: 25, textAlign:'center' }}>{this.state.folder_d_name}</Text>
+
+                        <TouchableOpacity
+                            style={{ marginTop: 10 }}
+                            onPress={() => {this.shareToCustomer();}}
+                        >
+                            <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems:'center' }}>
+                                <Icon name="share-variant" size={20} />
+                                <Text style={styles.btnStyle}>Share to Customer</Text>
+                            </View>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={{ marginTop: 10 }}
+                            onPress={() => {this.setState({ visibleRenameOverlay: true });}}
+                        >
+                            <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems:'center' }}>
+                                <Icon name="form-textbox" size={20} />
+                                <Text style={styles.btnStyle}>Rename</Text>
+                            </View>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={{ marginTop: 10 }}
+                            onPress={() => {this.delete();}}
+                        >
+                            <View style={{ flexDirection: 'row', justifyContent: 'flex-start' , alignItems:'center'}}>
+                                <Icon name="trash-can-outline" size={20} color="red"/>
+                                <Text style={[styles.btnStyle, {color:'red'}]}>Delete</Text>
+                            </View>
+                        </TouchableOpacity>
+                    </View>}
+
+                    <Overlay
+                        isVisible={this.state.visibleRenameOverlay} onBackdropPress={() => this.setState({ visibleRenameOverlay: false, rename:'' })}>
+                        <Input
+                            renderErrorMessage={false}
+                            inputContainerStyle={{ width: WIDTH * 0.8 }}
+                            onChangeText={(value) => {
+                                this.setState({ rename: value })
+                            }} />
+                        {!this.state.rename && <Text style={{ padding: 3, color: 'red' }}>this is required</Text>}
+                        <Button
+                            title="Rename"
+                            onPress={() =>
+                                this.rename()}
+                        />
+                    </Overlay>
+
+
                 </RBSheet>
             </SafeAreaView>
         );
@@ -419,7 +489,7 @@ const styles = StyleSheet.create({
         textAlign: 'center'
     },
     popovercontent: {
-        backgroundColor:'white',
+        backgroundColor: 'white',
         borderRadius: 5,
         shadowColor: "#000",
         shadowOffset: {

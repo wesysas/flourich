@@ -427,6 +427,28 @@ export const shareToCustomer = async (data) => {
     }
 };
 
+export const renameFolderAndFile = async (data) => {
+    try {
+        var res = await _post('/v1/booking/studio_rename_folder_file', data);
+        return res;
+    } catch (err) {
+        // Handle Error Here
+        _handleError(err);
+        return [];
+    }
+};
+
+export const deleteFolderAndFile = async (data) => {
+    try {
+        var res = await _post('/v1/booking/studio_delete_folder_file', data);
+        return res;
+    } catch (err) {
+        // Handle Error Here
+        _handleError(err);
+        return [];
+    }
+};
+
 export const getAssets = async (data) => {
     try {
         var res = await _post('/v1/booking/get_assets', data);
