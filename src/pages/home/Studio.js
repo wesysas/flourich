@@ -10,7 +10,9 @@ import RBSheet from "react-native-raw-bottom-sheet";
 import {
     getAssets, uploadAsset, saveStudioData, shareToCustomer, finishJob,
     renameFolderAndFile,
-    deleteFolderAndFile
+    deleteFolderAndFile,
+    shareToStory,
+    addToPortfolio
 } from "../../shared/service/api";
 import { Button, Input, ListItem, Overlay } from 'react-native-elements';
 import LinearGradient from 'react-native-linear-gradient/index';
@@ -39,6 +41,7 @@ export default class Studio extends Component {
             refPath: '',
             folder_d_name: '',
             file_d_name: '',
+            selectedFileId: '',
             visibleRenameOverlay: false,
             rename: '',
         };
@@ -143,6 +146,15 @@ export default class Studio extends Component {
         // setLoading(false);
     };
 
+    shareToStory = async () => {
+        var params;
+        await shareToStory (params);
+    }
+
+    addToPortfoilo = async () => {
+        var params;
+        await addToPortfolio(params);
+    }
     rename = async () => {
         if (this.state.folderView) {
             var params = {
@@ -259,6 +271,7 @@ export default class Studio extends Component {
                             files: folder.folder_files,
                             folderView: false,
                             selectedFolder: folder.folder_name,
+                            folder_d_name: folder.folder_d_name ? folder.folder_d_name : folder.folder_name,
                             selectedFolderId: folder.f_id
                         })
                     }}
@@ -305,7 +318,15 @@ export default class Studio extends Component {
                         </View>}
                     <Text style={{ textAlign: 'center', width: width - 10 }}>{file.file_name}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={{ alignSelf: 'center', padding: 2, width: 30, height: 30, alignItems: 'center', marginTop: 10 }}>
+                <TouchableOpacity 
+                    onPress={()=>{
+                        this.setState({
+                            file_d_name : file.file_d_name?file.file_d_name:file.file_name,
+                            selectedFileId: file.file_id
+                        })    
+                        this.RBSheetR.open()                    
+                    }}
+                    style={{ alignSelf: 'center', padding: 2, width: 30, height: 30, alignItems: 'center', marginTop: 10 }}>
                     <Ionicon name="ellipsis-horizontal" size={24} />
                 </TouchableOpacity>
             </View>
@@ -325,20 +346,12 @@ export default class Studio extends Component {
 
                 {!this.state.folderView && <TouchableOpacity
                     style={{ position: 'absolute', left: WIDTH / 2 - 40, bottom: 20, height: 80, zIndex: 5 }}
-                    onPress={() => {
-                        if (this.state.folders.length == 0) {
-                            alert('You can\'t upload to Studio');
-                            return;
+                    onPress={() => {                        
+                        var params = {
+                            refPath: this.state.asset_name + '/' + this.state.selectedFolder,
+                            folder_id: this.state.selectedFolderId
                         }
-                        if (this.state.folderView) {
-                            this.RBSheetR.open();
-                        } else {
-                            var params = {
-                                refPath: this.state.asset_name + '/' + this.state.selectedFolder,
-                                folder_id: this.state.selectedFolderId
-                            }
-                            this.uploadAsset(params);
-                        }
+                        this.uploadAsset(params);
                     }}>
                     <Image style={{ width: 80, height: 80 }}
                         resizeMode="contain"
@@ -357,7 +370,7 @@ export default class Studio extends Component {
                             }}>Back</Text>
                         </View>
                     }
-                    <Text style={{ fontSize: 20 }}>{this.state.selectedFolder}</Text>
+                    <Text style={{ fontSize: 20 }}>{this.state.folderView?this.state.selectedFolder: this.state.folder_d_name}</Text>
                 </View>
 
 
@@ -415,6 +428,46 @@ export default class Studio extends Component {
                             <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems:'center' }}>
                                 <Icon name="share-variant" size={20} />
                                 <Text style={styles.btnStyle}>Share to Customer</Text>
+                            </View>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={{ marginTop: 10 }}
+                            onPress={() => {this.setState({ visibleRenameOverlay: true });}}
+                        >
+                            <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems:'center' }}>
+                                <Icon name="form-textbox" size={20} />
+                                <Text style={styles.btnStyle}>Rename</Text>
+                            </View>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={{ marginTop: 10 }}
+                            onPress={() => {this.delete();}}
+                        >
+                            <View style={{ flexDirection: 'row', justifyContent: 'flex-start' , alignItems:'center'}}>
+                                <Icon name="trash-can-outline" size={20} color="red"/>
+                                <Text style={[styles.btnStyle, {color:'red'}]}>Delete</Text>
+                            </View>
+                        </TouchableOpacity>
+                    </View>}
+                    {!this.state.folderView && <View>
+                        <Text style={{ fontSize: 25, textAlign:'center' }}>{this.state.file_d_name}</Text>
+
+                        <TouchableOpacity
+                            style={{ marginTop: 10 }}
+                            onPress={() => {this.shareToStory();}}
+                        >
+                            <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems:'center' }}>
+                                <Icon name="share-variant" size={20} />
+                                <Text style={styles.btnStyle}>Share to Story</Text>
+                            </View>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={{ marginTop: 10 }}
+                            onPress={() => {this.addToPortfoilo();}}
+                        >
+                            <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems:'center' }}>
+                                <Ionicon name="image-outline" size={20} />
+                                <Text style={styles.btnStyle}>Add To Portfolio</Text>
                             </View>
                         </TouchableOpacity>
                         <TouchableOpacity

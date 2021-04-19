@@ -449,6 +449,28 @@ export const deleteFolderAndFile = async (data) => {
     }
 };
 
+export const shareToStory = async (data) => {
+    try {
+        var res = await _post('/v1/booking/studio_share_to_story', data);
+        return res;
+    } catch (err) {
+        // Handle Error Here
+        _handleError(err);
+        return [];
+    }
+};
+
+export const addToPortfolio = async (data) => {
+    try {
+        var res = await _post('/v1/booking/studio_add_to_portfolio', data);
+        return res;
+    } catch (err) {
+        // Handle Error Here
+        _handleError(err);
+        return [];
+    }
+};
+
 export const getAssets = async (data) => {
     try {
         var res = await _post('/v1/booking/get_assets', data);
