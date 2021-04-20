@@ -67,7 +67,17 @@ const BookingModal = ({ parent }) => {
     return (
         <Popover
             isVisible={parent.state.showPopover}
-            onRequestClose={() => parent.setState({ showPopover: false })}>
+            onRequestClose={async () => {
+                var booking = parent.state.booking;
+                var bookings = parent.state.bookings;
+                var index = bookings.findIndex(function(c) {
+                    return c.bid == booking.bid;
+                });
+                bookings[index].eta = parent.state.from_time;
+                parent.setState({bookings});
+                parent.setState({ showPopover: false });
+                var newBooking = await updateBooking({booking:bookings[index]});
+                }}>
             <Card containerStyle={{margin:0, borderWidth: 0}}>
                 <View style={styles.new}>
                     <Image

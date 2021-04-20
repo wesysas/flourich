@@ -1,4 +1,4 @@
-import React, { Component} from 'react';
+import React, { Component } from 'react';
 import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity, Platform } from 'react-native';
 import { Button, Avatar, ListItem } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -11,7 +11,7 @@ import Moment from 'moment';
 import { LogBox, FlatList } from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
 import Spinner from 'react-native-loading-spinner-overlay';
-import { getCreatorMediaData, getMe, uploadPortfolio, uploadStory, getReviews, getCreatorService, getCreatorProfile} from '../../shared/service/api';
+import { getCreatorMediaData, getMe, uploadPortfolio, uploadStory, getReviews, getCreatorService, getCreatorProfile } from '../../shared/service/api';
 import { SERVER_URL, WIDTH } from '../../globalconfig';
 import BackButton from '../../components/BackButton';
 import { btnBackgroundColor, ios_red_color, btnGradientProps } from "../../GlobalStyles";
@@ -24,12 +24,13 @@ import LinearGradient from 'react-native-linear-gradient/index';
 import { local } from '../../shared/const/local';
 import Video from 'react-native-video';
 import Toast from 'react-native-simple-toast';
+import FastImage from 'react-native-fast-image';
 
 const styles = StyleSheet.create({
     container: {
         // flexGrow: 1,
         // paddingHorizontal: 30,
-    },   
+    },
     headerTitle: {
         fontSize: 20,
         marginBottom: 20,
@@ -47,13 +48,13 @@ const styles = StyleSheet.create({
     separate: {
         marginVertical: 20
     },
-    
-    btnStyle:{
+
+    btnStyle: {
         alignItems: 'center',
-        paddingVertical:10,
-        marginHorizontal:20,
-        fontSize:16,
-        textAlign:'center'
+        paddingVertical: 10,
+        marginHorizontal: 20,
+        fontSize: 16,
+        textAlign: 'center'
     },
     mozaicImg: {
         borderRadius: 10,
@@ -75,7 +76,7 @@ const styles = StyleSheet.create({
     reviewContainer: {
         paddingBottom: 10
     },
-    reviewDescription:{
+    reviewDescription: {
         paddingHorizontal: 20
     }
 });
@@ -87,67 +88,67 @@ export default class Profile extends Component {
         this.state = {
             userid: '',
             spinner: false,
-            service:[],
-            story:[],
+            service: [],
+            story: [],
             portfolio: [],
 
             featured: 0,
-            portfolio_flag:1,
+            portfolio_flag: 1,
             user: global.user,
             min: 100,
             max: 100,
             category: 'Food',
-            rbSheetVisible:true,
-            typeSheetVisible:false,
-            gallarySheetVisible:false,
-            image_video:'',
+            rbSheetVisible: true,
+            typeSheetVisible: false,
+            gallarySheetVisible: false,
+            image_video: '',
         };
         this.activIndex = 3,
 
-        this.user = null;
+            this.user = null;
         this.RBSheetR = null;
-        this.bottomSheetList = [           
+        this.bottomSheetList = [
             {
                 title: 'Portfolio Post',
                 onPress: () => {
-                    this.setState({portfolio_flag:1});
-                    this.setState({rbSheetVisible:false});
-                    this.setState({typeSheetVisible:true});
+                    this.setState({ portfolio_flag: 1 });
+                    this.setState({ rbSheetVisible: false });
+                    this.setState({ typeSheetVisible: true });
                     // this.uploadPortfolio();
-                 }
+                }
             },
             {
                 title: 'Story',
                 onPress: () => {
-                    this.setState({portfolio_flag:0});
-                    this.setState({featured:0});
-                    this.setState({rbSheetVisible:false});
-                    this.setState({typeSheetVisible:true});
+                    this.setState({ portfolio_flag: 0 });
+                    this.setState({ featured: 0 });
+                    this.setState({ rbSheetVisible: false });
+                    this.setState({ typeSheetVisible: true });
                 }
             },
             {
                 title: 'Story highlight',
                 onPress: () => {
-                    this.setState({portfolio_flag:1});
-                    this.setState({featured:1});
-                    this.setState({rbSheetVisible:false});
-                    this.setState({typeSheetVisible:true});
+                    this.setState({ portfolio_flag: 1 });
+                    this.setState({ featured: 1 });
+                    this.setState({ rbSheetVisible: false });
+                    this.setState({ typeSheetVisible: true });
                 }
             },
         ];
-        this.bottomTypeSheetList = [  
+        this.bottomTypeSheetList = [
             {
                 title: 'Please select a type',
                 onPress: () => {
                 }
-            }, 
+            },
             {
                 title: 'Image',
                 onPress: () => {
                     this.setState({
-                        image_video:'image',
-                        typeSheetVisible:false,
-                        gallarySheetVisible:true
+                        image_video: 'image',
+                        typeSheetVisible: false,
+                        gallarySheetVisible: true
                     });
                 }
             },
@@ -155,19 +156,19 @@ export default class Profile extends Component {
                 title: 'Video',
                 onPress: () => {
                     this.setState({
-                        image_video:'video',
-                        typeSheetVisible:false,
-                        gallarySheetVisible:true
+                        image_video: 'video',
+                        typeSheetVisible: false,
+                        gallarySheetVisible: true
                     });
                 }
             },
         ];
-        this.bottomGallarySheetList = [  
+        this.bottomGallarySheetList = [
             {
                 title: 'Please select option',
                 onPress: () => {
                 }
-            }, 
+            },
             {
                 title: 'Gallery',
                 onPress: () => {
@@ -184,65 +185,62 @@ export default class Profile extends Component {
     }
 
     async componentDidMount() {
-        LogBox.ignoreLogs(['Animated: `useNativeDriver`']);        
+        LogBox.ignoreLogs(['Animated: `useNativeDriver`']);
         this._unsubscribe = this.props.navigation.addListener('focus', () => {
             this.refreshScreen();
         });
     }
-  
+
     componentWillUnmount() {
-      this._unsubscribe();
+        this._unsubscribe();
     }
 
     _renderCarouselItem = ({ item, index }) => {
         return (
-            <TouchableOpacity style={{justifyContent:'center', alignItems:'center'}}
-            onPress={()=>{this.props.navigation.navigate('StoryView', {story: item})}}
-            >
-                {item.media_type == 'video' &&
-                <View style={{
-                    width:80,
-                    height:80,
-                    borderRadius:40,
+            <View style={{alignContent:'center', alignItems:'center'}}>
+            <TouchableOpacity
+                onPress={() => { this.props.navigation.navigate('StoryView', { story: item }) }}
+                style={{
+                    borderRadius: WIDTH / 5,
+                    width: WIDTH / 5 + 15,
                     borderColor: 'red',
                     borderWidth: 2,
                     padding: 5,
                     borderStyle: 'dotted'
-                }}>
-                <Video 
-                    source={{ uri: SERVER_URL + item.media_url }}
-                    keyExtractor={item => item.id}
+                }}
+            >
+                {item.media_type == 'video' &&
+                    <Video
+                        source={item.media_url.indexOf('http') > -1 ? { uri: item.media_url } : { uri: SERVER_URL + item.media_url }}
+                        resizeMode="cover"
+                        style={{
+                            width: WIDTH / 5,
+                            height: WIDTH / 5,
+                            borderRadius: WIDTH / 5,
+                        }}
+                    />}
+                {item.media_type == 'photo' && <FastImage
+                    resizeMode="cover"
                     style={{
-                        width:68,
-                        height:68,
-                        alignSelf:'center',
-                        borderRadius:34,
+                        width: WIDTH / 5, height: WIDTH / 5,
+                        borderRadius: WIDTH / 5,
                     }}
-                /></View>}
-                {item.media_type == 'photo' &&
-                <Avatar
-                    rounded
-                    size="large"
-                    containerStyle={{
-                        alignSelf:'center',
-                        borderColor: 'red',
-                        borderWidth: 2,
-                        padding: 5,
-                        borderStyle: 'dotted'
-                    }}
-                    source={{uri: SERVER_URL+item.media_url }}
-                />}
-                {item.featured==1 && <Text style={{marginTop:-15, width:55, fontSize: 8, backgroundColor:ios_red_color, borderRadius:10, color:'white', textAlign:'center', padding:3}}>FEATURED</Text>}
-                <Text style={{textAlign:'center'}}>Story {index+1}</Text>
+
+                    source={item.media_url.indexOf('http') > -1 ? { uri: item.media_url } : { uri: SERVER_URL + item.media_url }} />}
+
+                
             </TouchableOpacity>
+            {item.featured == 1 && <Text style={{ marginTop: -15, width: 55, fontSize: 8, backgroundColor: ios_red_color, borderRadius: 10, color: 'white', textAlign: 'center', padding: 3 }}>FEATURED</Text>}
+            <Text style={{ textAlign: 'center' }}>Story {index + 1}</Text>
+            </View>
         );
     }
 
-   async refreshScreen() {
+    async refreshScreen() {
         this.RBSheetR.close();
         var data = await getCreatorProfile({
             userid: global.user.cid,
-            limit: 2,            
+            limit: 2,
         })
         var user = data.user;//await getMe({ userid: global.user.cid });
         var reviews = data.reviews;//await getReviews({ userid: global.user.cid, limit: 2 });
@@ -250,33 +248,32 @@ export default class Profile extends Component {
         var service = data.service;//await getCreatorService({ userid: global.user.cid });
 
         global.user = user;
-        this.setState({user});
-        this.setState({reviews});
-        this.setState({story: result.story});
-        this.setState({portfolio: result.portfolio});
-        this.setState({service});
+        this.setState({ user });
+        this.setState({ reviews });
+        this.setState({ story: result.story });
+        this.setState({ portfolio: result.portfolio });
+        this.setState({ service });
 
-        if (service.length>0)
-        {
-            var sorted = service.sort(function(a, b) {
+        if (service.length > 0) {
+            var sorted = service.sort(function (a, b) {
                 if (a.category_id < b.category_id) {
-                  return -1;
+                    return -1;
                 }
-                return 0;          
+                return 0;
             });
 
             var category = sorted.map((prop, key) => { return prop.category });
             category = [...new Set(category)];
 
-            this.setState({category:category.join(", ")});
-            this.setState({min: Math.min.apply(null, service.map((prop, key) => { return prop.price }))});
-            this.setState({max: Math.max.apply(null, service.map((prop, key) => { return prop.price }))});        
+            this.setState({ category: category.join(", ") });
+            this.setState({ min: Math.min.apply(null, service.map((prop, key) => { return prop.price })) });
+            this.setState({ max: Math.max.apply(null, service.map((prop, key) => { return prop.price })) });
         }
     }
     /**
      *  open image picker for portfolio
      */
-     async uploadPortfolio() {
+    async uploadPortfolio() {
 
         // Pick a single file
         try {
@@ -300,7 +297,7 @@ export default class Profile extends Component {
             data.append("userid", global.user.cid);
             data.append("media_type", res.type);
 
-            this.setState({spinner: true});
+            this.setState({ spinner: true });
             var response = await uploadPortfolio(data);
 
         } catch (err) {
@@ -310,24 +307,24 @@ export default class Profile extends Component {
                 throw err;
             }
         }
-        this.setState({spinner: false});
+        this.setState({ spinner: false });
         this.refreshScreen();
     }
 
     openCameraPicker = () => {
-        if(this.state.image_video == 'video') {
+        if (this.state.image_video == 'video') {
             this.openStoryVideoPicker();
         }
-        if(this.state.image_video == 'image') {
+        if (this.state.image_video == 'image') {
             this.openStoryPicker();
         }
     }
 
     openGallaryPicker = () => {
-        if(this.state.image_video == 'video') {
+        if (this.state.image_video == 'video') {
             this.openStoryVideoPickerFromGallary();
         }
-        if(this.state.image_video == 'image') {
+        if (this.state.image_video == 'image') {
             this.openStoryPickerFromGallary();
         }
     }
@@ -340,32 +337,32 @@ export default class Profile extends Component {
         ImagePicker.openCamera({
             // cropping: true,
             // includeBase64:true,
-            showCropGuidelines:false,
-          }).then(image => {
+            showCropGuidelines: false,
+        }).then(image => {
             this._uploadStory(image, "photo");
             this.refreshScreen();
-          }).catch(err => {
-              console.log(err);
-              Toast.show(err.message);
-          });
+        }).catch(err => {
+            console.log(err);
+            Toast.show(err.message);
+        });
     }
 
     /**
      * open image gallary for story
      */
-     openStoryPickerFromGallary = () => {
+    openStoryPickerFromGallary = () => {
 
         ImagePicker.openPicker({
             // cropping: true,
             // includeBase64:true,
-            showCropGuidelines:false,
-          }).then(image => {
+            showCropGuidelines: false,
+        }).then(image => {
             this._uploadStory(image, "photo");
             this.refreshScreen();
-          }).catch(err => {
-              console.log(err);
-              Toast.show(err.message);
-          });
+        }).catch(err => {
+            console.log(err);
+            Toast.show(err.message);
+        });
     }
 
     /**
@@ -374,77 +371,77 @@ export default class Profile extends Component {
      * upload story image and video to server.
      */
 
-    _uploadStory = async (media, media_type="photo") => {
+    _uploadStory = async (media, media_type = "photo") => {
         var userid = await getUserId();
-        this.setState({"userid": userid});
+        this.setState({ "userid": userid });
         console.log(userid);
         var ext = media.mime;
         var ext_a = ext.split("/");
-        if(ext_a.length > 1) {
+        if (ext_a.length > 1) {
             ext = ext_a[1];
         }
 
-        this.setState({spinner: true});
+        this.setState({ spinner: true });
 
         const data = new FormData();
         data.append("media", {
             name: "creator." + ext,
             type: media.mime,
             uri:
-              Platform.OS === "android" ? media.path : media.path.replace("file://", "")
-          });
+                Platform.OS === "android" ? media.path : media.path.replace("file://", "")
+        });
         data.append("userid", userid);
         data.append("media_type", media_type);
         data.append("featured", this.state.featured);
 
         console.log(data);
 
-        if(this.state.portfolio_flag == 1) {
+        if (this.state.portfolio_flag == 1) {
             var res = await uploadPortfolio(data);
         } else {
             var res = await uploadStory(data);
         }
 
-        this.setState({spinner: false});
-        if(res != null) {
+        this.setState({ spinner: false });
+        if (res != null) {
             this.refreshScreen();
         }
     }
     openStoryVideoPicker = () => {
 
         ImagePicker.openCamera({
-            includeBase64:true,
-            showCropGuidelines:false,
+            includeBase64: true,
+            showCropGuidelines: false,
             mediaType: 'video',
-          }).then(video => {
+        }).then(video => {
             this._uploadStory(video, 'video');
             this.refreshScreen();
-          }).catch(err => {
-              console.log(err);
-              Toast.show(err.message);
+        }).catch(err => {
+            console.log(err);
+            Toast.show(err.message);
 
-          });
+        });
     }
 
 
     openStoryVideoPickerFromGallary = () => {
 
         ImagePicker.openPicker({
-            includeBase64:true,
-            showCropGuidelines:false,
+            includeBase64: true,
+            showCropGuidelines: false,
             mediaType: 'video',
-          }).then(video => {
+        }).then(video => {
             this._uploadStory(video, 'video');
             this.refreshScreen();
-          }).catch(err => {
-              console.log(err);
-              Toast.show(err.message);
+        }).catch(err => {
+            console.log(err);
+            Toast.show(err.message);
 
-          });
+        });
     }
 
     logOut = async () => {
-        this.setState({spinner:true});
+        this.setState({ spinner: true });
         await logout({ cid: global.user.cid });
         await saveStorage(local.isLogin, 'false');
         await saveStorage(local.token, '');
@@ -459,19 +456,19 @@ export default class Profile extends Component {
 
         await saveStorage('login_type', '');
 
-        this.setState({spinner:false});
+        this.setState({ spinner: false });
         this.props.navigation.navigate("Index");
-    }  
-
-    deletePortfolio = (id) =>{
-
-        var new_prot = this.state.portfolio.filter((item) =>{
-            if(item.id != id)  return item;
-        })
-        this.setState({portfolio: new_prot});
     }
-   
-    render () {
+
+    deletePortfolio = (id) => {
+
+        var new_prot = this.state.portfolio.filter((item) => {
+            if (item.id != id) return item;
+        })
+        this.setState({ portfolio: new_prot });
+    }
+
+    render() {
         return (
             <ScrollView contentContainerStyle={styles.container}>
                 <Spinner
@@ -487,103 +484,107 @@ export default class Profile extends Component {
                     marginVertical: 30,
                     marginHorizontal: 20
                 }}>
-                    <Text style={styles.headerTitle}>{this.state.user.first_name??''} {this.state.user.last_name}</Text>
+                    <Text style={styles.headerTitle}>{this.state.user.first_name ?? ''} {this.state.user.last_name}</Text>
                     <Text style={styles.bodyText}>{this.state.user.fulladdress} {this.state.user.street}</Text>
                     {this.state.service && <Text style={styles.bodyText}>£ {this.state.min}~{this.state.max}</Text>}
                     {this.state.service && <Text style={styles.bodyText}>{this.state.category}</Text>}
                     <Text style={styles.bodyText}>{this.state.user.weburl}</Text>
-    
+
                     {/* summary header */}
-    
+
                     <View style={[styles.separate, { flexDirection: 'row', justifyContent: 'space-between' }]}>
                         <TouchableOpacity onPress={() => { this.props.navigation.navigate('ProfileEdit') }}
-                            style={{borderWidth:1,
-                                padding:10,
-                                marginVertical:10,
-                                borderColor:'lightgrey', 
-                                width : 150,
-                                borderRadius:5
+                            style={{
+                                borderWidth: 1,
+                                padding: 10,
+                                marginVertical: 10,
+                                borderColor: 'lightgrey',
+                                width: 150,
+                                borderRadius: 5
                             }}
                         >
-                            <Text style={{ fontSize: 18, textAlign:'center', color:'grey' }} >Edit Profile</Text>
+                            <Text style={{ fontSize: 18, textAlign: 'center', color: 'grey' }} >Edit Profile</Text>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => {
-                            this.setState({rbSheetVisible:true});
-                            this.setState({typeSheetVisible:false});
+                            this.setState({ rbSheetVisible: true });
+                            this.setState({ typeSheetVisible: false });
                             this.RBSheetR.open();
                         }}
-                        style={{borderWidth:1,
-                            padding:10,
-                            marginVertical:10,
-                            borderColor:'lightgrey', 
-                            backgroundColor:'#f7f9fc', 
-                            width : 150,
-                            borderRadius:5
-                        }}
+                            style={{
+                                borderWidth: 1,
+                                padding: 10,
+                                marginVertical: 10,
+                                borderColor: 'lightgrey',
+                                backgroundColor: '#f7f9fc',
+                                width: 150,
+                                borderRadius: 5
+                            }}
                         >
-                            <Text style={{ fontSize: 18, textAlign:'center' }}>Add New</Text>
+                            <Text style={{ fontSize: 18, textAlign: 'center' }}>Add New</Text>
                         </TouchableOpacity>
                     </View>
-    
+
                     {/* carousel part */}
-                    <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', paddingVertical:10, marginHorizontal:5,
-                    borderBottomWidth:1, borderTopWidth:1, borderColor:'lightgrey' }}>
+                    <View style={{
+                        flex: 1, flexDirection: 'row', justifyContent: 'center', paddingVertical: 10, marginHorizontal: 5,
+                        borderBottomWidth: 1, borderTopWidth: 1, borderColor: 'lightgrey'
+                    }}>
                         <Carousel
                             layout={"default"}
                             ref={(c) => { this._carousel = c; }}
                             data={this.state.story}
                             sliderWidth={300}
                             itemWidth={100}
-                            renderItem={(item, index)=>this._renderCarouselItem(item, index)}
+                            renderItem={(item, index) => this._renderCarouselItem(item, index)}
                             firstItem={1}
                             onSnapToItem={index => {
                                 this.activIndex = index;
                             }} />
                     </View>
                     {/* image mozaic part */}
-                    <SafeAreaView style={{ flex: 1, marginTop:40 }}>
-                        <PhotoGrid source={this.state.portfolio} callbackFrom={(id)=>{this.deletePortfolio(id)}}/>
+                    <SafeAreaView style={{ flex: 1, marginTop: 40 }}>
+                        <PhotoGrid source={this.state.portfolio} callbackFrom={(id) => { this.deletePortfolio(id) }} />
                     </SafeAreaView>
 
-                    {global.user.rating_point && 
+                    {global.user.rating_point &&
                         <View style={[styles.separate, {
                             flexDirection: 'row',
-                            alignItems: 'center',       
+                            alignItems: 'center',
                         }]}>
                             <Icon name="star" color="green" size={25} />
-                            <Text style={{fontSize:20}}> {global.user.rating_point} ({global.user.rating_count})</Text>
+                            <Text style={{ fontSize: 20 }}> {global.user.rating_point} ({global.user.rating_count})</Text>
                         </View>
                     }
                     <FlatList
                         data={this.state.reviews}
-                        renderItem={({ item }) => 
-                        <View style={styles.reviewContainer}>
-                            <ListItem>
-                                <Avatar
-                                    rounded
-                                    size="medium"
-                                    source={{uri: SERVER_URL+ item.avatar}}
-                                />
-                                <ListItem.Content>
-                                    <ListItem.Title>{item.first_name} {item.last_name}</ListItem.Title>
-                                    <ListItem.Subtitle>
-                                        {Moment(item.updated_at).fromNow()}
-                                    </ListItem.Subtitle>
-                                </ListItem.Content>
-                            </ListItem>
-                            <Text style={styles.reviewDescription}>{item.review}</Text>
-                        </View>
-                            }
-                    />  
-                    
-                    {global.user.rating_point && 
-                    <Button
-                        type="clear"    
-                        style={{marginVertical:20}}
-                        titleStyle={{ textDecorationLine: 'underline', color:'black', fontSize:15 }}    
-                        title={"See all "+global.user.rating_count+" reviews"}
-                        onPress={() => this.props.navigation.navigate('AllReview')}
-                    />}
+                        renderItem={({ item }) =>
+                            <View style={styles.reviewContainer}>
+                                <ListItem>
+                                    <Avatar
+                                        rounded
+                                        size="medium"
+                                        source={{ uri: SERVER_URL + item.avatar }}
+                                    />
+                                    <ListItem.Content>
+                                        <ListItem.Title>{item.first_name} {item.last_name}</ListItem.Title>
+                                        <ListItem.Subtitle>
+                                            {Moment(item.updated_at).fromNow()}
+                                        </ListItem.Subtitle>
+                                    </ListItem.Content>
+                                </ListItem>
+                                <Text style={styles.reviewDescription}>{item.review}</Text>
+                            </View>
+                        }
+                    />
+
+                    {global.user.rating_point &&
+                        <Button
+                            type="clear"
+                            style={{ marginVertical: 20 }}
+                            titleStyle={{ textDecorationLine: 'underline', color: 'black', fontSize: 15 }}
+                            title={"See all " + global.user.rating_count + " reviews"}
+                            onPress={() => this.props.navigation.navigate('AllReview')}
+                        />}
 
 
                     <Button
@@ -596,7 +597,7 @@ export default class Profile extends Component {
                             this.logOut()
                         }}
                     />
-    
+
                 </View>
                 <RBSheet
                     ref={ref => {
@@ -608,11 +609,11 @@ export default class Profile extends Component {
                             borderTopRightRadius: 20,
                             borderTopLeftRadius: 20
                         },
-                      draggableIcon: {
-                        backgroundColor: "lightgrey",
-                        width:120,
-                        height:5
-                      }
+                        draggableIcon: {
+                            backgroundColor: "lightgrey",
+                            width: 120,
+                            height: 5
+                        }
                     }}
                     height={200}
                     openDuration={250}
@@ -625,18 +626,18 @@ export default class Profile extends Component {
                         </ListItem>
                     ))}
                     {this.state.typeSheetVisible && this.bottomTypeSheetList.map((l, i) => (
-                            <ListItem key={i} containerStyle={[styles.bottomSheetItem, l.containerStyle]} onPress={l.onPress}>
-                                <ListItem.Content style={{ alignItems: 'center' }}>
-                                    <ListItem.Title style={l.titleStyle}>{l.title}</ListItem.Title>
-                                </ListItem.Content>
-                            </ListItem>
+                        <ListItem key={i} containerStyle={[styles.bottomSheetItem, l.containerStyle]} onPress={l.onPress}>
+                            <ListItem.Content style={{ alignItems: 'center' }}>
+                                <ListItem.Title style={l.titleStyle}>{l.title}</ListItem.Title>
+                            </ListItem.Content>
+                        </ListItem>
                     ))}
                     {this.state.gallarySheetVisible && this.bottomGallarySheetList.map((l, i) => (
-                            <ListItem key={i} containerStyle={[styles.bottomSheetItem, l.containerStyle]} onPress={l.onPress}>
-                                <ListItem.Content style={{ alignItems: 'center' }}>
-                                    <ListItem.Title style={l.titleStyle}>{l.title}</ListItem.Title>
-                                </ListItem.Content>
-                            </ListItem>
+                        <ListItem key={i} containerStyle={[styles.bottomSheetItem, l.containerStyle]} onPress={l.onPress}>
+                            <ListItem.Content style={{ alignItems: 'center' }}>
+                                <ListItem.Title style={l.titleStyle}>{l.title}</ListItem.Title>
+                            </ListItem.Content>
+                        </ListItem>
                     ))}
                 </RBSheet>
             </ScrollView>

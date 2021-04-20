@@ -385,7 +385,7 @@ export default class Studio extends Component {
         return (
             <SafeAreaView style={{
                 flex: 1,
-                marginTop: Platform.OS == 'ios'? 35: 0,
+                marginTop: Platform.OS == 'ios' ? 35 : 0,
             }}>
                 <Spinner
                     visible={this.state.spinner}
@@ -413,8 +413,8 @@ export default class Studio extends Component {
                 </TouchableOpacity>}
 
                 <View style={{ paddingRight: 5, borderBottomColor: 'gray', borderBottomWidth: 0.5 }}>
-                    
-                    <Text style={{ fontSize: 20, textAlign:'center' }}>{this.state.folderView ? this.state.selectedFolder : this.state.folder_d_name}</Text>
+
+                    <Text style={{ fontSize: 20, textAlign: 'center' }}>{this.state.folderView ? this.state.selectedFolder : this.state.folder_d_name}</Text>
                 </View>
 
 
@@ -536,22 +536,25 @@ export default class Studio extends Component {
 
                     <Overlay
                         isVisible={this.state.visibleRenameOverlay} onBackdropPress={() => this.setState({ visibleRenameOverlay: false, rename: '' })}>
-                        <Input
-                            renderErrorMessage={false}
-                            inputContainerStyle={{ width: WIDTH * 0.8 }}
-                            onChangeText={(value) => {
-                                this.setState({ rename: value })
-                            }} />
-                        {!this.state.rename && <Text style={{ padding: 3, color: 'red' }}>this is required</Text>}
 
-                        <Button
-                            buttonStyle={{ marginTop: 20, borderRadius: 8, height: 40 }}
-                            ViewComponent={LinearGradient}
-                            linearGradientProps={btnGradientProps}
-                            title="Rename"
-                            onPress={() =>
-                                this.rename()}
-                        />
+                        <View>
+                            <Input
+                                renderErrorMessage={false}
+                                inputContainerStyle={{ width: WIDTH * 0.8 }}
+                                onChangeText={(value) => {
+                                    this.setState({ rename: value })
+                                }} />
+                            {!this.state.rename && <Text style={{ padding: 3, color: 'red' }}>this is required</Text>}
+
+                            <Button
+                                buttonStyle={{ marginTop: 20, borderRadius: 8, height: 40 }}
+                                ViewComponent={LinearGradient}
+                                linearGradientProps={btnGradientProps}
+                                title="Rename"
+                                onPress={() =>
+                                    this.rename()}
+                            />
+                        </View>
                     </Overlay>
 
 

@@ -181,7 +181,6 @@ export default class Booking extends Component {
                             var pastBookings = await getBookings({creator_id:global.user.cid, status:[9], date_filter:365});
                             this.setState({bookings});
                             this.setState({pastBookings});
-                            console.log(bookings);
                         }
                     }}
                     tabBarPosition='overlayTop'
