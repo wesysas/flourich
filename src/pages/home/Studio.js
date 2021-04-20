@@ -48,7 +48,7 @@ export default class Studio extends Component {
         this._unsubscribe = this.props.navigation.addListener('focus', async () => {
             this.loadFiles();
         });
-        this.loadFiles(); // PLEASE REMOVE WHEN BUILDING
+        // this.loadFiles(); // PLEASE REMOVE WHEN BUILDING
     }
 
     async uploadAsset(storagePath) {
