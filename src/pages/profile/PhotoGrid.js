@@ -86,7 +86,7 @@ class PhotoGrid extends Component {
                   <ImageBackground
                     borderRadius={10}
                     style={[styles.image, { width: firstImageWidth, height: firstImageWidth }, this.props.imageStyle]}
-                    source={{ uri: SERVER_URL + image.media_url }}
+                    source={image.media_url.indexOf('http') > -1?{uri: image.media_url}:{ uri: SERVER_URL + image.media_url }}
                   >
                     <View style={styles.lastWrapper}>
                       <Text style={[styles.textCount, this.props.textStyles]}>+{morenumber}</Text>
@@ -94,7 +94,7 @@ class PhotoGrid extends Component {
                   </ImageBackground> :
                   <View style={{ width: firstImageWidth, height: firstImageWidth }}>
                     <Video 
-                      source={{ uri: SERVER_URL + image.media_url }}
+                      source={image.media_url.indexOf('http') > -1?{uri: image.media_url}:{ uri: SERVER_URL + image.media_url }}
                       keyExtractor={image => image.id}
                       resizeMode={"cover"}
                       style={[styles.videostyle, {
@@ -120,11 +120,11 @@ class PhotoGrid extends Component {
                     borderRadius={10}
                     key={index}
                     style={[styles.image, { width: firstImageWidth, height: firstImageHeight }]}
-                    source={{ uri: SERVER_URL + image.media_url }}
+                    source={image.media_url.indexOf('http') > -1?{uri: image.media_url}:{ uri: SERVER_URL + image.media_url }}
                   /> :
                   <View style={{ width: firstImageWidth, height: firstImageWidth }}>
                     <Video 
-                      source={{ uri: SERVER_URL + image.media_url }}
+                      source={image.media_url.indexOf('http') > -1?{uri: image.media_url}:{ uri: SERVER_URL + image.media_url }}
                       keyExtractor={image.id}
                       resizeMode={"cover"}
                       style={[styles.videostyle, {
@@ -162,11 +162,11 @@ class PhotoGrid extends Component {
                         borderRadius={10}
                         key={index}
                         style={[styles.image, { width: secondImageWidth, height: secondImageHeight }, this.props.imageStyle]}
-                        source={{ uri: SERVER_URL + image.media_url }}
+                        source={image.media_url.indexOf('http') > -1?{uri: image.media_url}:{ uri: SERVER_URL + image.media_url }}
                       /> :
                       <View style={{ width: secondImageWidth, height: secondImageHeight }}>
                         <Video
-                          source={{ uri: SERVER_URL + image.media_url }}
+                          source={image.media_url.indexOf('http') > -1?{uri: image.media_url}:{ uri: SERVER_URL + image.media_url }}
                           keyExtractor={image.id}
                           resizeMode={"cover"}
                           style={[styles.videostyle, { width: secondImageWidth, height: secondImageHeight }, this.props.imageStyle]}
@@ -290,13 +290,13 @@ class PhotoGrid extends Component {
                 resizeMode="contain"
                 style={{ width: width, height: height}}
                 
-                       source={{uri:SERVER_URL + this.state.selectedMedia.media_url}}/>
+                       source={this.state.selectedMedia.media_url.indexOf('http') > -1?{uri: this.state.selectedMedia.media_url}:{uri:SERVER_URL + this.state.selectedMedia.media_url}}/>
               
               </ImageZoom>
               :
               this.state.selectedMedia &&
               <VideoPlayer
-                video={{ uri: SERVER_URL + this.state.selectedMedia.media_url }}
+                video={this.state.selectedMedia.media_url.indexOf('http') > -1?{uri: this.state.selectedMedia.media_url}:{ uri: SERVER_URL + this.state.selectedMedia.media_url }}
                 autoplay={true}
                 style={{ backgroundColor: '#b9b9b978', height: isIphoneX()?height-40:height - 70 }}
               />

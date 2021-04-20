@@ -48,6 +48,7 @@ import { SERVER_URL } from './src/globalconfig';
 import { getUserId } from './src/shared/service/storage';
 import { getNewBookings, unreadMessage } from './src/shared/service/api'
 import { ifIphoneX } from 'react-native-iphone-x-helper';
+import Preview from './src/pages/home/Preview';
 
 const RootStack = createStackNavigator();
 const HomeStack = createStackNavigator();
@@ -249,6 +250,7 @@ export default function App() {
                 <RootStack.Screen name="Start" component={Start} options={{ headerShown: false }} />
                 <RootStack.Screen name="Complete" component={Complete} options={{ headerShown: false }} />
                 <RootStack.Screen name="Progress" component={Progress} options={{ headerShown: false }} />
+                <RootStack.Screen name="Preview" component={Preview} options={{ headerShown: false }} />
             </RootStack.Navigator>
         </NavigationContainer>
     );

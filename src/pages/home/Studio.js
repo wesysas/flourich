@@ -14,10 +14,11 @@ import {
 import { Button, Input, ListItem, Overlay } from 'react-native-elements';
 import LinearGradient from 'react-native-linear-gradient/index';
 import { WIDTH } from '../../globalconfig';
-import {btnGradientProps} from '../../GlobalStyles';
+import { btnGradientProps } from '../../GlobalStyles';
 import storage from "@react-native-firebase/storage";
 import FastImage from 'react-native-fast-image';
 import Video from 'react-native-video';
+import Back from '../../components/Back';
 
 const width = (WIDTH - 45) / 3;
 const height = width;
@@ -143,19 +144,19 @@ export default class Studio extends Component {
     };
 
     shareToStoryAndPortfolio = async (flag) => {
-        var file = this.state.files.filter(item=>{
-            if(item.file_id == this.state.selectedFileId) return item;
-        })[0];        
+        var file = this.state.files.filter(item => {
+            if (item.file_id == this.state.selectedFileId) return item;
+        })[0];
         var params = {
-            flag:flag,
+            flag: flag,
             creator_id: global.user.cid,
             featured: 0,
-            media_type: file.file_type.indexOf('image') > -1?'photo': 'video',
+            media_type: file.file_type.indexOf('image') > -1 ? 'photo' : 'video',
             media_url: file.url
         }
-        this.setState({spinner: true});
+        this.setState({ spinner: true });
         var res = await shareToStoryAndPortfolio(params);
-        this.setState({spinner: false});
+        this.setState({ spinner: false });
         this.RBSheetR.close()
         if (res && res.code == 'already') {
             alert('Already Shared');
@@ -163,7 +164,7 @@ export default class Studio extends Component {
         if (res && res.code == 'success') {
             alert('Successfully Shared');
         }
-        if(!res) {
+        if (!res) {
             alert('Error Happens');
         }
     }
@@ -174,7 +175,7 @@ export default class Studio extends Component {
                 folder_id: this.state.selectedFolderId,
                 rename: this.state.rename
             }
-            this.setState({spinner:true});
+            this.setState({ spinner: true });
             await renameFolderAndFile(params);
             var folders = [];
             this.state.folders.forEach((item) => {
@@ -186,14 +187,14 @@ export default class Studio extends Component {
                     folders.push(item)
                 }
             })
-            this.setState({folders, spinner:false});
+            this.setState({ folders, spinner: false });
 
         } else {
             var params = {
                 file_id: this.state.selectedFileId,
                 rename: this.state.rename
             }
-            this.setState({spinner:true});
+            this.setState({ spinner: true });
             await renameFolderAndFile(params);
             var files = [];
             this.state.files.forEach((item) => {
@@ -205,10 +206,10 @@ export default class Studio extends Component {
                     files.push(item)
                 }
             })
-            this.setState({files, spinner:false});
+            this.setState({ files, spinner: false });
         }
 
-        this.setState({visibleRenameOverlay:false, rename:''});
+        this.setState({ visibleRenameOverlay: false, rename: '' });
         this.RBSheetR.close()
 
     }
@@ -218,32 +219,32 @@ export default class Studio extends Component {
             var params = {
                 folder_id: this.state.selectedFolderId,
             }
-            this.setState({spinner:true});
+            this.setState({ spinner: true });
             await deleteFolderAndFile(params);
             var folders = [];
             this.state.folders.forEach((item) => {
-                if (item.f_id != params.folder_id) {                    
+                if (item.f_id != params.folder_id) {
                     folders.push(item)
                 }
             })
-            this.setState({folders, spinner:false});
+            this.setState({ folders, spinner: false });
 
         } else {
             var params = {
                 file_id: this.state.selectedFileId,
             }
-            this.setState({spinner:true});
+            this.setState({ spinner: true });
             await deleteFolderAndFile(params);
             var files = [];
             this.state.files.forEach((item) => {
-                if (item.file_id != params.file_id) {                    
+                if (item.file_id != params.file_id) {
                     files.push(item)
                 }
             })
-            this.setState({files, spinner:false});
+            this.setState({ files, spinner: false });
         }
 
-        this.setState({visibleRenameOverlay:false, rename:''});
+        this.setState({ visibleRenameOverlay: false, rename: '' });
         this.RBSheetR.close()
 
     }
@@ -260,8 +261,8 @@ export default class Studio extends Component {
     }
 
     shareToCustomer = async () => {
-        var folder = this.state.folders.filter(item=>{
-            if ( item.f_id ==  this.state.selectedFolderId ) return item;
+        var folder = this.state.folders.filter(item => {
+            if (item.f_id == this.state.selectedFolderId) return item;
         })[0];
 
         this.setState({ spinner: true });
@@ -339,7 +340,14 @@ export default class Studio extends Component {
     _renderAssetFile = (file) => {
         return (
             <View>
-                <TouchableOpacity >
+                <TouchableOpacity
+
+                    onPress={() => {
+                        var ext = file.file_type.indexOf('image') > -1 ? 'photo' : 'video';
+
+                        this.props.navigation.navigate('Preview', { link: file.url, type: ext })
+                    }}
+                >
                     {file.file_type.indexOf('image') > -1 ?
                         <FastImage
                             style={{ width: width - 10, height: height, margin: 5 }}
@@ -356,15 +364,15 @@ export default class Studio extends Component {
                             />
                             <Icon name="play" size={25} color="lightgray" style={styles.videoPlayer}> </Icon>
                         </View>}
-                    <Text style={{ textAlign: 'center', width: width - 10 }}>{file.file_d_name?file.file_d_name: file.file_name}</Text>
+                    <Text style={{ textAlign: 'center', width: width - 10 }}>{file.file_d_name ? file.file_d_name : file.file_name}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity 
-                    onPress={()=>{
+                <TouchableOpacity
+                    onPress={() => {
                         this.setState({
-                            file_d_name : file.file_d_name?file.file_d_name:file.file_name,
+                            file_d_name: file.file_d_name ? file.file_d_name : file.file_name,
                             selectedFileId: file.file_id
-                        })    
-                        this.RBSheetR.open()                    
+                        })
+                        this.RBSheetR.open()
                     }}
                     style={{ alignSelf: 'center', padding: 2, width: 30, height: 30, alignItems: 'center', marginTop: 10 }}>
                     <Ionicon name="ellipsis-horizontal" size={24} />
@@ -377,16 +385,22 @@ export default class Studio extends Component {
         return (
             <SafeAreaView style={{
                 flex: 1,
+                marginTop: Platform.OS == 'ios'? 35: 0,
             }}>
                 <Spinner
                     visible={this.state.spinner}
                 />
-                {/* <BackButton navigation={this.props.navigation} /> */}
+                {!this.state.folderView && <Back onPress={() => {
+                    this.setState({
+                        folderView: !this.state.folderView,
+                        selectedFolder: this.state.asset_name ? this.state.asset_name : 'Home'
+                    })
+                }} />}
                 <Text style={{ fontSize: 25, fontWeight: 'bold', color: 'black', textAlign: 'center', marginTop: 20 }}>Studio</Text>
 
                 {!this.state.folderView && <TouchableOpacity
                     style={{ position: 'absolute', left: WIDTH / 2 - 40, bottom: 20, height: 80, zIndex: 5 }}
-                    onPress={() => {                        
+                    onPress={() => {
                         var params = {
                             refPath: this.state.asset_name + '/' + this.state.selectedFolder,
                             folder_id: this.state.selectedFolderId
@@ -398,19 +412,9 @@ export default class Studio extends Component {
                         source={require('../../assets/img/upload-icon.png')} />
                 </TouchableOpacity>}
 
-                <View style={{ flexDirection: 'row', justifyContent: 'flex-end', paddingRight: 5, borderBottomColor: 'gray', borderBottomWidth: 1 }}>
-                    {!this.state.folderView &&
-                        <View style={{ flexDirection: 'row', alignItems: 'center', position: 'absolute', left: 20 }}>
-                            <Icon name="home" size={25} />
-                            <Text onPress={() => {
-                                this.setState({
-                                    folderView: !this.state.folderView,
-                                    selectedFolder: this.state.asset_name ? this.state.asset_name : 'Home'
-                                })
-                            }}>Back</Text>
-                        </View>
-                    }
-                    <Text style={{ fontSize: 20 }}>{this.state.folderView?this.state.selectedFolder: this.state.folder_d_name}</Text>
+                <View style={{ paddingRight: 5, borderBottomColor: 'gray', borderBottomWidth: 0.5 }}>
+                    
+                    <Text style={{ fontSize: 20, textAlign:'center' }}>{this.state.folderView ? this.state.selectedFolder : this.state.folder_d_name}</Text>
                 </View>
 
 
@@ -450,7 +454,7 @@ export default class Studio extends Component {
                         container: {
                             borderTopRightRadius: 20,
                             borderTopLeftRadius: 20,
-                            paddingHorizontal:20
+                            paddingHorizontal: 20
                         },
                         draggableIcon: {
                             backgroundColor: "lightgrey",
@@ -459,79 +463,79 @@ export default class Studio extends Component {
                     }}
                 >
                     {this.state.folderView && <View>
-                        <Text style={{ fontSize: 25, textAlign:'center' }}>{this.state.folder_d_name}</Text>
+                        <Text style={{ fontSize: 25, textAlign: 'center' }}>{this.state.folder_d_name}</Text>
 
                         <TouchableOpacity
                             style={{ marginTop: 10 }}
-                            onPress={() => {this.shareToCustomer();}}
+                            onPress={() => { this.shareToCustomer(); }}
                         >
-                            <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems:'center' }}>
+                            <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
                                 <Icon name="share-variant" size={20} />
                                 <Text style={styles.btnStyle}>Share to Customer</Text>
                             </View>
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={{ marginTop: 10 }}
-                            onPress={() => {this.setState({ visibleRenameOverlay: true });}}
+                            onPress={() => { this.setState({ visibleRenameOverlay: true }); }}
                         >
-                            <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems:'center' }}>
+                            <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
                                 <Icon name="form-textbox" size={20} />
                                 <Text style={styles.btnStyle}>Rename</Text>
                             </View>
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={{ marginTop: 10 }}
-                            onPress={() => {this.delete();}}
+                            onPress={() => { this.delete(); }}
                         >
-                            <View style={{ flexDirection: 'row', justifyContent: 'flex-start' , alignItems:'center'}}>
-                                <Icon name="trash-can-outline" size={20} color="red"/>
-                                <Text style={[styles.btnStyle, {color:'red'}]}>Delete</Text>
+                            <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
+                                <Icon name="trash-can-outline" size={20} color="red" />
+                                <Text style={[styles.btnStyle, { color: 'red' }]}>Delete</Text>
                             </View>
                         </TouchableOpacity>
                     </View>}
                     {!this.state.folderView && <View>
-                        <Text style={{ fontSize: 25, textAlign:'center' }}>{this.state.file_d_name}</Text>
+                        <Text style={{ fontSize: 25, textAlign: 'center' }}>{this.state.file_d_name}</Text>
 
                         <TouchableOpacity
                             style={{ marginTop: 10 }}
-                            onPress={() => {this.shareToStoryAndPortfolio('story');}}
+                            onPress={() => { this.shareToStoryAndPortfolio('story'); }}
                         >
-                            <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems:'center' }}>
+                            <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
                                 <Icon name="share-variant" size={20} />
                                 <Text style={styles.btnStyle}>Share to Story</Text>
                             </View>
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={{ marginTop: 10 }}
-                            onPress={() => {this.shareToStoryAndPortfolio('portfolio');}}
+                            onPress={() => { this.shareToStoryAndPortfolio('portfolio'); }}
                         >
-                            <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems:'center' }}>
+                            <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
                                 <Ionicon name="image-outline" size={20} />
                                 <Text style={styles.btnStyle}>Add To Portfolio</Text>
                             </View>
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={{ marginTop: 10 }}
-                            onPress={() => {this.setState({ visibleRenameOverlay: true });}}
+                            onPress={() => { this.setState({ visibleRenameOverlay: true }); }}
                         >
-                            <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems:'center' }}>
+                            <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
                                 <Icon name="form-textbox" size={20} />
                                 <Text style={styles.btnStyle}>Rename</Text>
                             </View>
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={{ marginTop: 10 }}
-                            onPress={() => {this.delete();}}
+                            onPress={() => { this.delete(); }}
                         >
-                            <View style={{ flexDirection: 'row', justifyContent: 'flex-start' , alignItems:'center'}}>
-                                <Icon name="trash-can-outline" size={20} color="red"/>
-                                <Text style={[styles.btnStyle, {color:'red'}]}>Delete</Text>
+                            <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
+                                <Icon name="trash-can-outline" size={20} color="red" />
+                                <Text style={[styles.btnStyle, { color: 'red' }]}>Delete</Text>
                             </View>
                         </TouchableOpacity>
                     </View>}
 
                     <Overlay
-                        isVisible={this.state.visibleRenameOverlay} onBackdropPress={() => this.setState({ visibleRenameOverlay: false, rename:'' })}>
+                        isVisible={this.state.visibleRenameOverlay} onBackdropPress={() => this.setState({ visibleRenameOverlay: false, rename: '' })}>
                         <Input
                             renderErrorMessage={false}
                             inputContainerStyle={{ width: WIDTH * 0.8 }}
@@ -539,7 +543,7 @@ export default class Studio extends Component {
                                 this.setState({ rename: value })
                             }} />
                         {!this.state.rename && <Text style={{ padding: 3, color: 'red' }}>this is required</Text>}
-                        
+
                         <Button
                             buttonStyle={{ marginTop: 20, borderRadius: 8, height: 40 }}
                             ViewComponent={LinearGradient}
@@ -568,21 +572,10 @@ const styles = StyleSheet.create({
     },
     btnStyle: {
         alignItems: 'center',
-        backgroundColor: '#f7f9fc',
         paddingVertical: 10,
         marginHorizontal: 20,
         borderRadius: 5,
         fontSize: 16,
-
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 1,
-        },
-        shadowOpacity: 0.18,
-        shadowRadius: 1.00,
-
-        elevation: 1,
         textAlign: 'center'
     },
     popovercontent: {

@@ -1,14 +1,7 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity, Image } from 'react-native';
-import { Button } from 'react-native-elements';
-import LinearGradient from 'react-native-linear-gradient/index';
-import { LogBox } from 'react-native';
-import ImagePicker from 'react-native-image-crop-picker';
-import { uploadCard, uploadAvatar } from '../../shared/service/api';
-import { getUserId } from '../../shared/service/storage';
-import { btnGradientProps } from '../../GlobalStyles';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
-import { DefaultBtnHeight, HEIGHT, WIDTH } from '../../globalconfig';
+import { View, StyleSheet, SafeAreaView } from 'react-native';
+
+import { HEIGHT, WIDTH } from '../../globalconfig';
 import BackButton from '../../components/BackButton';
 import { SERVER_URL } from '../../globalconfig';
 
@@ -30,47 +23,26 @@ const styles = StyleSheet.create({
         backgroundColor: '#ffd5fe70',
         height: HEIGHT
     },
-    headerTitle: {
-        fontSize: 30,
-        fontWeight: 'bold',
-        marginBottom: 20,
-        color: 'black'
-    },
-    subTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: 'gray',
-        marginVertical: 10
-    },
-    separate: {
-        marginVertical: 20
-    },
-    btnStyle: {
-        marginVertical: 10,
-        borderRadius: 8,
-        height: DefaultBtnHeight
-    }
 });
-export default class StoryView extends Component {
+export default class Preview extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            strory: '',
+            link: '',
+            type: '',
             spinner: false,
         }
-        this.imagePicker = ImagePicker;
     }
 
     componentDidMount() {
         if (this.props.route.params) {
-            this.setState({ story: this.props.route.params.story });
+            this.setState({ 
+                link: this.props.route.params.link,
+                type: this.props.route.params.type,
+            });
         }
-        console.log(this.state.story)
     }
 
-    clickSkipButton = () => {
-        this.props.navigation.navigate('Home');
-    }
     render() {
         return (
             <SafeAreaView>
@@ -79,13 +51,13 @@ export default class StoryView extends Component {
                 />
                 <View style={styles.container}>
                     <BackButton navigation={this.props.navigation} />
-                    {this.state.story && this.state.story.media_type == 'video' &&
+                    {this.state.type == 'video' &&
                         <VideoPlayer
-                            video={this.state.story.media_url.indexOf('http') > -1?{uri: this.state.story.media_url}:{ uri: SERVER_URL + this.state.story.media_url }}
+                            video={this.state.link.indexOf('http') > -1 ? {uri: this.state.link}:{ uri: SERVER_URL + this.state.link }}
                             autoplay={true}
                             style={{ backgroundColor: '#b9b9b978', height: isIphoneX() ? HEIGHT - 40 : HEIGHT - 70 }}
                         />}
-                    {this.state.story && this.state.story.media_type == 'photo' &&
+                    {this.state.type == 'photo' &&
                         <ImageZoom
                             cropWidth={WIDTH}
                             cropHeight={isIphoneX() ? HEIGHT - 40 : HEIGHT - 70}
@@ -96,9 +68,9 @@ export default class StoryView extends Component {
                             <FastImage
                                 resizeMode="contain"
                                 style={{ width: WIDTH, height: HEIGHT }}
-                                source={this.state.story.media_url.indexOf('http') > -1?{uri: this.state.story.media_url}:{ uri: SERVER_URL + this.state.story.media_url }} />
-                        </ImageZoom>
-                    }
+                                source={this.state.link.indexOf('http') > -1 ? {uri: this.state.link}:{ uri: SERVER_URL + this.state.link }} 
+                                />
+                        </ImageZoom>}
                 </View>
             </SafeAreaView>
         )
