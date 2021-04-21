@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>FlourichCreator</string>
+	<string>Flourich Creator</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -28,7 +28,7 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>com.googleusercontent.apps.978751469400-c303fj6md5lksgp776k57ov17v7fen02</string>
-      			<string>fb1364584603914038</string>
+				<string>fb1364584603914038</string>
 			</array>
 		</dict>
 	</array>
@@ -109,10 +109,10 @@
 	<string>Flourich</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
-	<string>fbapi</string>
-	<string>fb-messenger-share-api</string>
-	<string>fbauth2</string>
-	<string>fbshareextension</string>
+		<string>fbapi</string>
+		<string>fb-messenger-share-api</string>
+		<string>fbauth2</string>
+		<string>fbshareextension</string>
 	</array>
 </dict>
 </plist>
