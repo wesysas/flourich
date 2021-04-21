@@ -74,6 +74,7 @@ const BookingModal = ({ parent }) => {
                     return c.bid == booking.bid;
                 });
                 bookings[index].eta = parent.state.from_time;
+                bookings[index].start_at = parent.state.from_time;
                 parent.setState({bookings});
                 parent.setState({ showPopover: false });
                 var newBooking = await updateBooking({booking:bookings[index]});
@@ -123,6 +124,13 @@ const BookingModal = ({ parent }) => {
                         onConfirm={(date) => {
                             parent.setState({isFromTimePickerVisible:false});
                             parent.setState({from_time:date});
+                            var booking = parent.state.booking;
+                            var bookings = parent.state.bookings;
+                            var index = bookings.findIndex(function(c) {
+                                return c.bid == booking.bid;
+                            });
+                            bookings[index].start_at = date;
+                            parent.setState({bookings});
                         }}
                         onCancel={() => {
                             parent.setState({isFromTimePickerVisible:false});
@@ -156,9 +164,15 @@ const BookingModal = ({ parent }) => {
                             parent.setState({isDatePickerVisible:false});
                             parent.setState({from_time:date});
                             parent.setState({isFromTimePickerVisible:true});
+                            var booking = parent.state.booking;
+                            var bookings = parent.state.bookings;
+                            var index = bookings.findIndex(function(c) {
+                                return c.bid == booking.bid;
+                            });
+                            bookings[index].start_at = date;
+                            parent.setState({bookings});
                         }}
                         onCancel={() => {
-                            parent.setState({from_time:date});
                             parent.setState({isDatePickerVisible:false});
                         }}
                     />
@@ -189,6 +203,13 @@ const BookingModal = ({ parent }) => {
                                 parent.setState({from_time:date});
                                 parent.setState({to_time:date});
                                 parent.setState({isToTimePickerVisible:true});
+                                var booking = parent.state.booking;
+                                var bookings = parent.state.bookings;
+                                var index = bookings.findIndex(function(c) {
+                                    return c.bid == booking.bid;
+                                });
+                                bookings[index].start_at = date;
+                                parent.setState({bookings});
                             }}
                             onCancel={() => {
                                 parent.setState({isFromTimePickerVisible:false});
