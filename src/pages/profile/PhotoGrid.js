@@ -97,6 +97,7 @@ class PhotoGrid extends Component {
                       source={image.media_url.indexOf('http') > -1?{uri: image.media_url}:{ uri: SERVER_URL + image.media_url }}
                       keyExtractor={image => image.id}
                       resizeMode={"cover"}
+                      muted={true}
                       style={[styles.videostyle, {
                         width: firstImageWidth,
                         height: firstImageHeight
@@ -127,6 +128,7 @@ class PhotoGrid extends Component {
                       source={image.media_url.indexOf('http') > -1?{uri: image.media_url}:{ uri: SERVER_URL + image.media_url }}
                       keyExtractor={image.id}
                       resizeMode={"cover"}
+                      muted={true}
                       style={[styles.videostyle, {
                         width: firstImageWidth,
                         height: firstImageHeight
@@ -169,6 +171,7 @@ class PhotoGrid extends Component {
                           source={image.media_url.indexOf('http') > -1?{uri: image.media_url}:{ uri: SERVER_URL + image.media_url }}
                           keyExtractor={image.id}
                           resizeMode={"cover"}
+                          muted={true}
                           style={[styles.videostyle, { width: secondImageWidth, height: secondImageHeight }, this.props.imageStyle]}
                          
                         />
