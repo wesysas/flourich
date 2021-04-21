@@ -213,6 +213,7 @@ export default class Profile extends Component {
                     <Video
                         source={item.media_url.indexOf('http') > -1 ? { uri: item.media_url } : { uri: SERVER_URL + item.media_url }}
                         resizeMode="cover"
+                        muted={true}
                         style={{
                             width: WIDTH / 5,
                             height: WIDTH / 5,
