@@ -1,17 +1,17 @@
 import React, { Component } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Dimensions, SafeAreaView, Image } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Dimensions, SafeAreaView, Image, Platform } from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicon from 'react-native-vector-icons/Ionicons';
 import Spinner from "react-native-loading-spinner-overlay";
 import RBSheet from "react-native-raw-bottom-sheet";
 import {
-    getAssets, uploadAsset, saveStudioData, shareToCustomer, finishJob,
+    getAssets, saveStudioData, shareToCustomer, finishJob,
     renameFolderAndFile,
     deleteFolderAndFile,
     shareToStoryAndPortfolio,
 } from "../../shared/service/api";
-import { Button, Input, ListItem, Overlay } from 'react-native-elements';
+import { Button, Input, ListItem, Overlay, Slider } from 'react-native-elements';
 import LinearGradient from 'react-native-linear-gradient/index';
 import { WIDTH } from '../../globalconfig';
 import { btnGradientProps } from '../../GlobalStyles';
@@ -19,6 +19,7 @@ import storage from "@react-native-firebase/storage";
 import FastImage from 'react-native-fast-image';
 import Video from 'react-native-video';
 import Back from '../../components/Back';
+import ImagePicker from 'react-native-image-crop-picker';
 
 const width = (WIDTH - 45) / 3;
 const height = width;
@@ -41,67 +42,108 @@ export default class Studio extends Component {
             selectedFileId: '',
             visibleRenameOverlay: false,
             rename: '',
+            onuploading: false
         };
         this.RBSheetR = null;
+        this.RBSheetUpload = null;
+
+        this.bottomTypeSheetList = [
+            {
+                title: 'Please select a type',
+                onPress: () => {
+                }
+            },
+            {
+                title: 'Image',
+                onPress: () => {
+                    this.openImageFromGallary()
+                }
+            },
+            {
+                title: 'Video',
+                onPress: () => {
+                    this.openVideoPickerFromGallary()
+                }
+            },
+        ];
     }
 
     async componentDidMount() {
         this._unsubscribe = this.props.navigation.addListener('focus', async () => {
             this.loadFiles();
         });
-        // this.loadFiles(); // PLEASE REMOVE WHEN BUILDING
+        this.loadFiles(); // PLEASE REMOVE WHEN BUILDING
     }
 
-    async uploadAsset(storagePath) {
-        // Pick a single file
-        try {
-            const res = await DocumentPicker.pick({
-                type: [DocumentPicker.types.allFiles],
-            });
+    openImageFromGallary = () => {
+        ImagePicker.openPicker({
+            showCropGuidelines: false,
+        }).then(image => {
+            this._uploadFile(image);
+        }).catch(err => {
+            console.log(err);
+            this.RBSheetUpload.close();
+        });
+    }
 
-            this._uploadFile(res, storagePath);
+    openVideoPickerFromGallary = () => {
+        ImagePicker.openPicker({
+            includeBase64: true,
+            showCropGuidelines: false,
+            mediaType: 'video',
+        }).then(video => {
+            this._uploadFile(video);
+        }).catch(err => {
+            console.log(err);
+            this.RBSheetUpload.close();
+        });
+    }
 
-        } catch (err) {
-            if (DocumentPicker.isCancel(err)) {
-                // User cancelled the picker, exit any dialogs or menus and move on
-            } else {
-                throw err;
-            }
+    uploadAsset() {
+        if (this.state.onuploading) {
+            alert('Uploading Is On Processing');
+            return;
         }
-        global.upload_asset = false;
-        this.RBSheetR.close();
+        this.RBSheetUpload.open();
     }
 
-    _uploadFile = async (filePath, storagePath) => {
+    _uploadFile = async (filePath) => {
+        this.RBSheetUpload.close();
         try {
+
+            var refPath = this.state.asset_name + '/' + this.state.selectedFolder;
+
             // Check if file selected
             if (Object.keys(filePath).length == 0)
                 return alert("Please Select any File");
             //   setLoading(true);
 
+            const uri = filePath.sourceURL;
             // Create Reference
+            const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri;
 
             const reference = storage().ref(
-                storagePath.refPath + `/${filePath.name}`
+                refPath + `/${filePath.filename}`
             );
-
             // Put File
             const task = reference.putFile(
-                filePath.uri.replace("file://", "")
+                uploadUri
             );
             // You can do different operation with task
             // task.pause();
             // task.resume();
             // task.cancel();
 
-            // task.on("state_changed", (taskSnapshot) => {
-            //     console.log(
-            //         `${taskSnapshot.bytesTransferred} transferred 
-            //    out of ${taskSnapshot.totalBytes}`
-            //     );
-            // });
+            task.on("state_changed", (taskSnapshot) => {
+                console.log(
+                    `${taskSnapshot.bytesTransferred} transferred 
+               out of ${taskSnapshot.totalBytes}`
+                );
+                var pro = Math.round(taskSnapshot.bytesTransferred / taskSnapshot.totalBytes * 100);
+                this.setState({progress:pro});
+            });
 
-            this.setState({ spinner: true })
+            this.setState({ spinner: true, onuploading: true })
 
             await task
 
@@ -110,13 +152,15 @@ export default class Studio extends Component {
             var params = {
                 creator_id: global.user.cid,
                 url: url,
-                file_name: filePath.name,
-                folder_id: storagePath.folder_id,
-                file_type: filePath.type
+                file_name: filePath.filename,
+                folder_id: this.state.selectedFolderId,
+                file_type: filePath.mime
             }
+            console.log(params);
+
             var result = await saveStudioData(params);
 
-            this.setState({ spinner: false })
+            this.setState({ spinner: false, onuploading: false })
             if (result) {
                 var folders = [];
                 this.state.folders.forEach((item) => {
@@ -134,7 +178,6 @@ export default class Studio extends Component {
                 })
                 this.setState({ folders });
             }
-
 
         } catch (error) {
             console.log("Error->", error);
@@ -401,16 +444,27 @@ export default class Studio extends Component {
                 {!this.state.folderView && <TouchableOpacity
                     style={{ position: 'absolute', left: WIDTH / 2 - 40, bottom: 20, height: 80, zIndex: 5 }}
                     onPress={() => {
-                        var params = {
-                            refPath: this.state.asset_name + '/' + this.state.selectedFolder,
-                            folder_id: this.state.selectedFolderId
-                        }
-                        this.uploadAsset(params);
+                        this.uploadAsset();
                     }}>
                     <Image style={{ width: 80, height: 80 }}
                         resizeMode="contain"
                         source={require('../../assets/img/upload-icon.png')} />
                 </TouchableOpacity>}
+
+                {!this.state.folderView && this.state.onuploading && 
+                    <View style={{ position: 'absolute', bottom:0, alignItems: 'stretch', justifyContent: 'center',  width: WIDTH}}>
+                        {this.state.progress < 100 ?<Text>{this.state.progress}%</Text> : <Text>processing files ...</Text>}
+                        <Slider
+                            value={this.state.progress}
+                            maximumValue={100}
+                            maximumTrackTintColor='#c7e0dc'
+                            minimumTrackTintColor='#76c371'
+                            trackStyle={{ height: 8 }}
+                            thumbStyle={{ backgroundColor: 'red', width:8, height:8 }}
+                            disabled
+                        />
+                    </View>
+                }
 
                 <View style={{ paddingRight: 5, borderBottomColor: 'gray', borderBottomWidth: 0.5 }}>
 
@@ -558,6 +612,34 @@ export default class Studio extends Component {
                     </Overlay>
 
 
+                </RBSheet>
+
+                <RBSheet
+                    ref={ref => {
+                        this.RBSheetUpload = ref;
+                    }}
+                    closeOnDragDown={true}
+                    customStyles={{
+                        container: {
+                            borderTopRightRadius: 20,
+                            borderTopLeftRadius: 20
+                        },
+                        draggableIcon: {
+                            backgroundColor: "lightgrey",
+                            width: 120,
+                            height: 5
+                        }
+                    }}
+                    height={200}
+                    openDuration={250}
+                >
+                    {this.bottomTypeSheetList.map((l, i) => (
+                        <ListItem key={i} containerStyle={[styles.bottomSheetItem, l.containerStyle]} onPress={l.onPress}>
+                            <ListItem.Content style={{ alignItems: 'center' }}>
+                                <ListItem.Title style={l.titleStyle}>{l.title}</ListItem.Title>
+                            </ListItem.Content>
+                        </ListItem>
+                    ))}
                 </RBSheet>
             </SafeAreaView>
         );

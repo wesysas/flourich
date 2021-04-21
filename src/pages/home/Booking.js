@@ -72,7 +72,7 @@ const CustomCard = ({item, parent}) => {
                 <View style={styles.newSideTxt}>
                     <Text style={styles.name}>{item.first_name} {item.last_name}</Text>
                     <IconText iconName="map-marker" size={20} txt={item.customer_location} />
-                    <Text style={styles.summaryTxt}>{Moment(item.start_at).format(("D MMM"))}  |  {Moment(item.start_at).format(("HH:mm"))}  |  £ {item.price}</Text>
+                    <Text style={styles.summaryTxt}>{Moment(item.start_at).format(("D MMM | HH:mm"))} |  £ {item.price}</Text>
                 </View>
             </View>
             <View>
