@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { StyleSheet, Text, View, Platform, Image, TouchableOpacity } from 'react-native';
 
+import NotificationSounds, { playSampleSound } from 'react-native-notification-sounds';
 import SplashScreen from 'react-native-splash-screen';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -126,23 +127,23 @@ const HomeTabs = () => {
     var [badgeNum, setBadgeNum] = useState(0);
     var [message, setMessage] = useState(0);
 
-    useEffect( () => {
+    useEffect(() => {
 
         async function fetchData() {
             var userid = await getUserId();
-            var result = await getNewBookings({userid:userid});
+            var result = await getNewBookings({ userid: userid });
             console.log(result);
-            if(result) {
+            if (result) {
                 console.log(result);
                 setBadgeNum(result.count);
             }
-            var unread = await unreadMessage({cid:userid});
+            var unread = await unreadMessage({ cid: userid });
             console.log(unread);
-            if(unread) {
+            if (unread) {
                 setMessage(unread.unread);
             }
-          }
-          fetchData();
+        }
+        fetchData();
 
     }, [])
 
@@ -150,22 +151,30 @@ const HomeTabs = () => {
 
     global.socket.on('new-bookings', async (mes) => {
         var userid = await getUserId();
-        if(userid == mes.creator_id){
+        if (userid == mes.creator_id) {
             badgeNum++;
+
+            NotificationSounds.getNotifications('notification').then(soundsList => {
+                console.warn('SOUNDS', JSON.stringify(soundsList));
+                /*
+                Play the notification sound.
+                pass the complete sound object.
+                This function can be used for playing the sample sound
+                */
+                playSampleSound(soundsList[1]);
+                // if you want to stop any playing sound just call:
+                // stopSampleSound();
+            });
+            setBadgeNum(badgeNum)
         }
-        setBadgeNum(badgeNum)
     });
 
     global.socket.on('new-message', async (mes) => {
-       console.log('----------new message on creator--------', mes);
-        if(mes.to == 'creator'+global.user.cid){
+        if (mes.to == 'creator' + global.user.cid) {
             message++;
             setMessage(message);
         }
     });
-
-    // const {routeName} = navigation.state;
-    // console.log(routerName);
 
     return (
         <Tab.Navigator
@@ -191,22 +200,22 @@ const HomeTabs = () => {
                 options={({ navigation }) => (
                     navigation.isFocused()?setBadgeNum(0):null,
                     {
-                    tabBarBadge: badgeNum > 0 ? badgeNum : null,
-                    
-                    tabBarIcon: ({ color }) => (
-                        <Icon name="calendar-blank" color={color} size={25} />
-                    ),
-                })} />
+                        tabBarBadge: badgeNum > 0 ? badgeNum : null,
+
+                        tabBarIcon: ({ color }) => (
+                            <Icon name="calendar-blank" color={color} size={25} />
+                        ),
+                    })} />
             <Tab.Screen name="Inbox" component={InboxStacks}
                 options={({ navigation }) => (
-                    navigation.isFocused()?setMessage(0):null,
+                    navigation.isFocused() ? setMessage(0) : null,
                     {
-                    tabBarBadge: message > 0 ? message : null,
-                    
-                    tabBarIcon: ({ color }) => (
-                        <Icon name="comment-outline" color={color} size={25} />
-                    ),
-                })} />
+                        tabBarBadge: message > 0 ? message : null,
+
+                        tabBarIcon: ({ color }) => (
+                            <Icon name="comment-outline" color={color} size={25} />
+                        ),
+                    })} />
 
             <Tab.Screen name="Studio" component={Studio}
                 options={{
@@ -243,7 +252,7 @@ export default function App() {
                 <RootStack.Screen name="SignUpStacks" component={SignUpStacks} options={{ headerShown: false }} />
                 <RootStack.Screen name="AllReview" component={AllReview} options={{ headerShown: false }} />
 
-                
+
                 <RootStack.Screen name="StoryView" component={StoryView} options={{ headerShown: false }} />
                 <RootStack.Screen name="CustomCamera" component={CustomCamera} options={{ headerShown: false }} />
                 <RootStack.Screen name="ChatBox" component={ChatBox} options={{ headerShown: false }} />

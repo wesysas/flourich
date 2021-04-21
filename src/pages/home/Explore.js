@@ -459,8 +459,9 @@ export default class Explore extends Component {
                             title={'Your location'}
                         />
                         {
-                            this.state.bookings.map((booking) => (
-                                <Marker
+                            this.state.bookings.map((booking) => 
+                                
+                                {booking.customer_lat && booking.customer_long && <Marker
                                     key={booking.bid.toString()}
                                     coordinate={
                                         {
@@ -469,8 +470,8 @@ export default class Explore extends Component {
                                         }
                                     }
                                     title={booking.first_name+' '+booking.last_name}
-                                />
-                            ))
+                                />}
+                            )
                         }
                     </MapView>
                 </View>

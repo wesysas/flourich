@@ -6510,6 +6510,11 @@ react-native-modalbox@^2.0.2:
   dependencies:
     prop-types "^15.5.10"
 
+react-native-notification-sounds@^0.5.3:
+  version "0.5.3"
+  resolved "https://registry.yarnpkg.com/react-native-notification-sounds/-/react-native-notification-sounds-0.5.3.tgz#69a8be1b97819de58590b80083d21bdecc951f6b"
+  integrity sha512-gt5i1ymGF1Jd063lxG5lp1ThFJNLfqmUa0Un86us2HTlVxrk94C2c7/G3rcVIWnNoM9MPuo1dr5IaC4WMBI68g==
+
 react-native-parsed-text@0.0.22:
   version "0.0.22"
   resolved "https://registry.yarnpkg.com/react-native-parsed-text/-/react-native-parsed-text-0.0.22.tgz#a23c756eaa5d6724296814755085127f9072e5f5"
