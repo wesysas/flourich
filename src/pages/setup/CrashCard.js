@@ -15,11 +15,9 @@ export default class IdCardScan1 extends Component {
       .scanCard()
       .then(card => {
         // the scanned card
-        console.log(card);
       })
       .catch((err) => {
         // the user cancelled
-        console.log(err);
       })
   }
 

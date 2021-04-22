@@ -172,19 +172,19 @@ export default class Explore extends Component {
                 .then((result) => {
                     switch (result) {
                     case RESULTS.UNAVAILABLE:
-                        console.log('This feature is not available (on this device / in this context)');
+                        //console.log('This feature is not available (on this device / in this context)');
                         break;
                     case RESULTS.DENIED:
-                        console.log('The permission has not been requested / is denied but requestable');
+                        //console.log('The permission has not been requested / is denied but requestable');
                         break;
                     case RESULTS.LIMITED:
-                        console.log('The permission is limited: some actions are possible');
+                        //console.log('The permission is limited: some actions are possible');
                         break;
                     case RESULTS.GRANTED:
-                        console.log('The permission is granted');
+                        //console.log('The permission is granted');
                         break;
                     case RESULTS.BLOCKED:
-                        console.log('The permission is denied and not requestable anymore');
+                        //console.log('The permission is denied and not requestable anymore');
                         break;
                     }
                 })
@@ -200,14 +200,14 @@ export default class Explore extends Component {
                     }
                 );
                 if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-                    console.log("You can use the location")
+                    //console.log("You can use the location")
     
                 } else {
-                    console.log("location permission denied")
+                    //console.log("location permission denied")
                 }
             }
         } catch (err) {
-            console.warn(err)
+            //console.warn(err)
         }
     }
 
@@ -229,7 +229,7 @@ export default class Explore extends Component {
                 this.onRegionChange(region, region.latitude, region.longitude);                
                 this.searchSubmit("");
             },
-            error => console.log(error),
+            //error => console.log(error),
             { enableHighAccuracy: true, timeout: 2000, maximumAge: 1000 }
         );
 
@@ -252,13 +252,11 @@ export default class Explore extends Component {
             lastLat: lastLat || this.state.lastLat,
             lastLong: lastLong || this.state.lastLong
         });
-        console.log(this.state.mapRegion);
         var update = updateLocation({cid:global.user.cid, lat:region.latitude, long:region.longitude});
     }
 
     componentWillUnmount() {
         this._unsubscribe();
-        console.log('UNSAFE_componentWillUnmount');
         navigator.geolocation.clearWatch(this.watchId);
     }
 

@@ -80,7 +80,6 @@ export default class SignupPage extends ValidationComponent {
         try{
             await GoogleSignin.hasPlayServices();
             const userInfo = await GoogleSignin.signIn();
-            console.log(userInfo);
             // {
             //     idToken: string,
             //     serverAuthCode: string,
@@ -120,38 +119,13 @@ export default class SignupPage extends ValidationComponent {
         }
     }
 
-    // need to check
-    // _loginWithFacebook = async() => {
-    //     LoginManager.logInWithPermissions(["public_profile"]).then(
-    //         function(result) {
-    //           if (result.isCancelled) {
-    //             console.log("Login cancelled");
-    //             alert('login cancelled')
-    //           } else {
-    //             console.log(
-    //               "Login success with permissions: " +
-    //                 result.grantedPermissions.toString()
-    //             );
-    //             AccessToken.getCurrentAccessToken().then(accessToken =>
-    //                 console.log(accessToken),
-    //                );
-    //           }
-    //         },
-    //         function(error) {
-    //           console.log("Login fail with error: " + error);
-    //         }
-    //     );
-    // }
-
     _signupWithEmail = async() => {
         var validate = this.validate({
             email: { required: true},
             password: { required: true,minlength:6},
             confirmPassword : { required: true, equalPassword : this.state.password} 
         });
-        console.log('validate', validate);
         if(validate) {
-            console.log(this.state);
             this.setState({spinner: true});
             var res = await registerWithEmail(this.state);
             this.setState({spinner: false});
@@ -169,7 +143,6 @@ export default class SignupPage extends ValidationComponent {
         }
     };
     render() {
-        // const { user } = this.state;
         return (
             <ScrollView style={styles.container}>
                 <Spinner

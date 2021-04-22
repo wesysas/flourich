@@ -69,7 +69,6 @@ export default class Studio extends Component {
                         if (i == 1 && from == 1){
                             var transactions = await getTransaction({ userid: global.user.cid });
                             this.setState({transactions});
-                            console.log("-----transactions----------", transactions);
                         }
                     }}
                 >

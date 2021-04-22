@@ -36,7 +36,6 @@ export default class ProfileAvatar extends Component {
                         this.uploadAvatarImage(image);
                         this.RBSheetR.close();
                       }).catch(err => {
-                          console.log(err);
                           this.RBSheetR.close();
                       });
                 }
@@ -55,7 +54,6 @@ export default class ProfileAvatar extends Component {
                         this.uploadAvatarImage(image);
                         this.RBSheetR.close();
                       }).catch(err => {
-                        console.log(err);
                         this.RBSheetR.close();
                     });
                 }
@@ -77,7 +75,6 @@ export default class ProfileAvatar extends Component {
         this.setState({spinner: true});
         var res = await uploadAvatar(this.state);
         this.setState({spinner: false});
-        console.log(filename);
         if(res != null) {
             if (this.state.avatar)
                 global.user.avatar = res.avatar;

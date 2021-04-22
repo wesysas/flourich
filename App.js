@@ -132,13 +132,10 @@ const HomeTabs = () => {
         async function fetchData() {
             var userid = await getUserId();
             var result = await getNewBookings({ userid: userid });
-            console.log(result);
             if (result) {
-                console.log(result);
                 setBadgeNum(result.count);
             }
             var unread = await unreadMessage({ cid: userid });
-            console.log(unread);
             if (unread) {
                 setMessage(unread.unread);
             }

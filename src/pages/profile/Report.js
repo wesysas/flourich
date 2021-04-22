@@ -57,7 +57,6 @@ export default class SetupDetail extends ValidationComponent {
 
     async componentDidMount() { 
         let progress = 0;
-        console.log(global.user);
         this.setState({ progress });
         setTimeout(() => {
             this.setState({ indeterminate: false });

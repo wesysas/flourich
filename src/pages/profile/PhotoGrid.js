@@ -151,10 +151,7 @@ class PhotoGrid extends Component {
                   borderRadius: 10,
                 }}
                   onPress={() => {
-
-                    console.log('i\'m here www');
                     this.setState({ showZoomimg: true, selectedMedia: image })
-                    console.log(this.state.selectedMedia);
                   }}>
                   {
                     image.media_type == 'photo' ?
@@ -212,7 +209,6 @@ class PhotoGrid extends Component {
     
     this.setState({spinner:false});
 
-    console.log(res);
     if (res) {
       this.props.callbackFrom(this.state.selectedMedia.id);
     }

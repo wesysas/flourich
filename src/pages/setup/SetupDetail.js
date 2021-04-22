@@ -77,7 +77,6 @@ export default class SetupDetail extends ValidationComponent {
     }
     async componentDidMount() {
         LogBox.ignoreLogs(['Warning: `componentWillReceiveProps`']);
-        console.log(global.user.cid);
         var default_service = await getDefaultService();
         var categories = await getCategories();
         var service_type = default_service.map((service) => {
@@ -131,7 +130,6 @@ export default class SetupDetail extends ValidationComponent {
         
         if(validate) {
             this.setState({spinner:true});
-            console.log(this.state);
             var res = await createProfile(this.state);
             this.setState({spinner:false});
             global.user.first_name = this.state.firstname;
@@ -431,8 +429,7 @@ export default class SetupDetail extends ValidationComponent {
                                 ViewComponent={LinearGradient}
                                 linearGradientProps={btnGradientProps}
                                 title="ADD"
-                                onPress={() => {            
-                                    console.log('------', this.state.selected_categories);                        
+                                onPress={() => {                              
                                     if (this.state.selected_categories.length){
                                         this.state.selected_service.categories = this.state.selected_categories;
                                         this.state.service.push(this.state.selected_service);

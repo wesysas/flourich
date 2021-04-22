@@ -111,12 +111,10 @@ export default class CustomCamera extends Component {
             const photo = await this.camera.takePictureAsync(options);
             this.setState({'capturing': false})
             var base64photo = 'data:image/jpg;base64,' + photo.base64;
-            console.log(base64photo);
             this.setState({'photo': base64photo});
         }
     };
     saveCard = async () => {
-        console.log('save card image');
     }
     renderCamera() {
         return (

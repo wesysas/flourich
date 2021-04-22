@@ -8,7 +8,6 @@ const _post = async (url, data)=> {
             .then(response => {
                 resolve(response.data);
           }).catch(error => {
-              console.log(error)
               reject(error);
             });
 

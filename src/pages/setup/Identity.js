@@ -83,7 +83,6 @@ export default class Identity extends Component {
                 this.uploadAvatarImage(image);
                 this.RBSheetR.close();
               }).catch(err => {
-                console.log(err);
                 this.RBSheetR.close();
             });
         }else{
@@ -97,7 +96,6 @@ export default class Identity extends Component {
                 this.uploadCardImage(image);
                 this.RBSheetR.close();
               }).catch(err => {
-                console.log(err);
                 this.RBSheetR.close();
             });
         }
@@ -115,7 +113,6 @@ export default class Identity extends Component {
                 this.uploadAvatarImage(image);
                 this.RBSheetR.close();
               }).catch(err => {
-                  console.log(err);
                   this.RBSheetR.close();
               });
     
@@ -130,7 +127,6 @@ export default class Identity extends Component {
                 this.uploadCardImage(image);
                 this.RBSheetR.close();
               }).catch(err => {
-                  console.log(err);
                   this.RBSheetR.close();
               });
     

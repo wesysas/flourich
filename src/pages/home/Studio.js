@@ -81,7 +81,6 @@ export default class Studio extends Component {
         }).then(image => {
             this._uploadFile(image);
         }).catch(err => {
-            console.log(err);
             this.RBSheetUpload.close();
         });
     }
@@ -94,7 +93,6 @@ export default class Studio extends Component {
         }).then(video => {
             this._uploadFile(video);
         }).catch(err => {
-            console.log(err);
             this.RBSheetUpload.close();
         });
     }
@@ -134,11 +132,7 @@ export default class Studio extends Component {
             // task.resume();
             // task.cancel();
 
-            task.on("state_changed", (taskSnapshot) => {
-                console.log(
-                    `${taskSnapshot.bytesTransferred} transferred 
-               out of ${taskSnapshot.totalBytes}`
-                );
+            task.on("state_changed", (taskSnapshot) => {                
                 var pro = Math.round(taskSnapshot.bytesTransferred / taskSnapshot.totalBytes * 100);
                 this.setState({progress:pro});
             });
@@ -179,7 +173,6 @@ export default class Studio extends Component {
             }
 
         } catch (error) {
-            console.log("Error->", error);
             alert(`Error-> ${error}`);
         }
         // setLoading(false);

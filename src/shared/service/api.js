@@ -22,16 +22,15 @@ const _post = async (url, data)=> {
 const _handleError = (err) => {
 
     if( err.response == null) {
-        console.log(err);
+        // console.log(err);
     }else{
         const message = err.response.data.message;
         const status = err.response.status;
         if(status == 401) {
             saveStorage(local.user, null);
             saveStorage(local.token, null);
-            console.log("Token expired, Please login again.");
         }else{
-            console.log(message);
+            // console.log(message);
         }
     }
 }

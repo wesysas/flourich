@@ -156,7 +156,6 @@ export default class SetupDetail extends ValidationComponent {
         this.setState({spinner:true});        
         var user = this.state.user;
         user.service = this.state.service;
-        console.log('----', user.service);
         var res = await updateProfile(user);
         this.setState({spinner:false});
         if(res != null) {            

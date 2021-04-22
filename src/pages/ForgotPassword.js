@@ -85,11 +85,9 @@ export default class ForgotPassword extends ValidationComponent {
             // confirmPassword : {equalPassword : this.state.password}
         });
         if(validate) {
-            console.log(this.state);
             this.setState({spinner: true});
             var res = await checkEmail({email: this.state.email, user: 'creator'})
             this.setState({spinner: false});
-            console.log(res);
             if (res != null && res.message != '401') {
                 this.setState({checked: true})
             } else {
@@ -107,7 +105,6 @@ export default class ForgotPassword extends ValidationComponent {
             this.setState({spinner: true});
             var res = await resetPassword({email: this.state.email, user: 'creator', password: this.state.password})
             this.setState({spinner: false});
-            console.log(res);
             if (res != null && res.message != '401') {
                 Toast.show('Successfully Updated');
                 this.setState({btnDisabled: true});

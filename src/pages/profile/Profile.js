@@ -261,7 +261,6 @@ export default class Profile extends Component {
                 return 0;
             });
 
-            console.log(sorted);
             var category = sorted.map((prop, key) => { return prop.category });
             category = [...new Set(category)];
 
@@ -282,12 +281,6 @@ export default class Profile extends Component {
             const res = await DocumentPicker.pick({
                 type: [DocumentPicker.types.allFiles],
             });
-            console.log(
-                res.uri,
-                res.type, // mime type
-                res.name,
-                res.size
-            );
 
             const data = new FormData();
             data.append("media", {
@@ -344,7 +337,6 @@ export default class Profile extends Component {
             this._uploadStory(image, "photo");
             this.refreshScreen();
         }).catch(err => {
-            console.log(err);
             Toast.show(err.message);
         });
     }
@@ -362,7 +354,6 @@ export default class Profile extends Component {
             this._uploadStory(image, "photo");
             this.refreshScreen();
         }).catch(err => {
-            console.log(err);
             Toast.show(err.message);
         });
     }
@@ -376,7 +367,6 @@ export default class Profile extends Component {
     _uploadStory = async (media, media_type = "photo") => {
         var userid = await getUserId();
         this.setState({ "userid": userid });
-        console.log(userid);
         var ext = media.mime;
         var ext_a = ext.split("/");
         if (ext_a.length > 1) {
@@ -395,8 +385,6 @@ export default class Profile extends Component {
         data.append("userid", userid);
         data.append("media_type", media_type);
         data.append("featured", this.state.featured);
-
-        console.log(data);
 
         if (this.state.portfolio_flag == 1) {
             var res = await uploadPortfolio(data);
@@ -419,7 +407,6 @@ export default class Profile extends Component {
             this._uploadStory(video, 'video');
             this.refreshScreen();
         }).catch(err => {
-            console.log(err);
             Toast.show(err.message);
 
         });
@@ -436,7 +423,6 @@ export default class Profile extends Component {
             this._uploadStory(video, 'video');
             this.refreshScreen();
         }).catch(err => {
-            console.log(err);
             Toast.show(err.message);
 
         });
@@ -449,12 +435,11 @@ export default class Profile extends Component {
         await saveStorage(local.token, '');
         await saveStorage(local.user, '');
 
-        var login_type = await getStorage('login_type');
-        console.log(login_type);
-        if (login_type == 'google') {
-            await GoogleSignin.revokeAccess();
-            await GoogleSignin.signOut();
-        }
+        // var login_type = await getStorage('login_type');
+        // if (login_type == 'google') {
+        //     await GoogleSignin.revokeAccess();
+        //     await GoogleSignin.signOut();
+        // }
 
         await saveStorage('login_type', '');
 

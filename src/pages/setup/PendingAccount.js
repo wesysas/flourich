@@ -29,7 +29,6 @@ export default class PendingAccount extends Component {
 
     componentDidMount() {       
         let progress = 0;
-        console.log(global.user);
         this.setState({ progress });
         setTimeout(() => {
             this.setState({ indeterminate: false });

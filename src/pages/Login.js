@@ -145,7 +145,6 @@ export default class LoginPage extends ValidationComponent {
             { token, parameters: PROFILE_REQUEST_PARAMS },
             (error, user) => {
                 if (error) {
-                    console.log('login info has error: ' + error);
                 } else {                    
                     this.save(user);
                     var params = {
@@ -171,7 +170,7 @@ export default class LoginPage extends ValidationComponent {
         LoginManager.logInWithPermissions(['public_profile', 'email']).then(
             login => {
                 if (login.isCancelled) {
-                    console.log('Login cancelled');
+                    // console.log('Login cancelled');
                 } else {
                     AccessToken.getCurrentAccessToken().then(data => {
                         const accessToken = data.accessToken.toString();
@@ -181,7 +180,7 @@ export default class LoginPage extends ValidationComponent {
                 }
             },
             error => {
-                console.log('Login fail with error: ' + error);
+                // console.log('Login fail with error: ' + error);
             },
         );
     };
@@ -232,8 +231,6 @@ export default class LoginPage extends ValidationComponent {
         await saveStorage('login_type', login_type);
         global.user = datafromserver.user;
         var userid = datafromserver.user.cid;
-        // this._getMe(userid);
-        console.log("----trying to login----");
 
         this.props.navigation.navigate("Home");
     }
@@ -244,7 +241,6 @@ export default class LoginPage extends ValidationComponent {
             password: { required: true,minlength:6},
         });
         if(validate) {
-            console.log("----trying to login----");
             this.setState({spinner: true});
             var res = await loginWithEmail(this.state);
             this.setState({spinner: false});
@@ -262,7 +258,6 @@ export default class LoginPage extends ValidationComponent {
         this.setState({spinner: true});
         var data = {userid: userid};
         getMe(data).then( data => {
-            console.log(data);
             this.setState({spinner: false});
             if(data != null ){
                 var confirm_approved = data.confirm_approved;
