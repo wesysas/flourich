@@ -185,7 +185,6 @@ export default class Profile extends Component {
     }
 
     async componentDidMount() {
-        LogBox.ignoreLogs(['Animated: `useNativeDriver`']);
         this._unsubscribe = this.props.navigation.addListener('focus', () => {
             this.refreshScreen();
         });
@@ -232,7 +231,6 @@ export default class Profile extends Component {
                 
             </TouchableOpacity>
             {item.featured == 1 && <Text style={{ marginTop: -15, width: 55, fontSize: 8, backgroundColor: ios_red_color, borderRadius: 10, color: 'white', textAlign: 'center', padding: 3 }}>FEATURED</Text>}
-            <Text style={{ textAlign: 'center' }}>Story {index + 1}</Text>
             </View>
         );
     }
@@ -263,8 +261,11 @@ export default class Profile extends Component {
                 return 0;
             });
 
+            console.log(sorted);
             var category = sorted.map((prop, key) => { return prop.category });
             category = [...new Set(category)];
+
+            category =category.filter(i=> {if(i) return i;})
 
             this.setState({ category: category.join(", ") });
             this.setState({ min: Math.min.apply(null, service.map((prop, key) => { return prop.price })) });

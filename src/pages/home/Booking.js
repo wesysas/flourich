@@ -286,7 +286,8 @@ const styles = StyleSheet.create({
     sideIcon: {
         position: 'absolute',
         right: 5,
-        top: 5
+        top: 5,
+        zIndex:10
     },
 
     name: {

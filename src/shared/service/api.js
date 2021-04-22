@@ -292,6 +292,18 @@ export const removePortfolio = async (data) => {
       }
 }
 
+/** remove story */
+export const removeStory = async (data) => {
+    try {
+        var res = await _post('/v1/profile/removestory', data);
+        return res;
+    } catch (err) {
+        // Handle Error Here
+        _handleError(err);
+        return null;
+    }
+}
+
 export const getDefaultService = async (data) => {
     try {
         var res = await _post('/v1/profile/get_default_service', data);

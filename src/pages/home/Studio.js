@@ -101,7 +101,7 @@ export default class Studio extends Component {
 
     uploadAsset() {
         if (this.state.onuploading) {
-            alert('Uploading Is On Processing');
+            alert('Upload in process');
             return;
         }
         this.RBSheetUpload.open();
@@ -156,7 +156,6 @@ export default class Studio extends Component {
                 folder_id: this.state.selectedFolderId,
                 file_type: filePath.mime
             }
-            console.log(params);
 
             var result = await saveStudioData(params);
 

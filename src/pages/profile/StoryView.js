@@ -1,20 +1,14 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity, Image } from 'react-native';
-import { Button } from 'react-native-elements';
-import LinearGradient from 'react-native-linear-gradient/index';
-import { LogBox } from 'react-native';
+import { View, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
-import { uploadCard, uploadAvatar } from '../../shared/service/api';
-import { getUserId } from '../../shared/service/storage';
-import { btnGradientProps } from '../../GlobalStyles';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
+import { removeStory } from '../../shared/service/api';
+import Icon from 'react-native-vector-icons/FontAwesome5'
 import { DefaultBtnHeight, HEIGHT, WIDTH } from '../../globalconfig';
 import BackButton from '../../components/BackButton';
 import { SERVER_URL } from '../../globalconfig';
 
 import { isIphoneX } from 'react-native-iphone-x-helper';
 import ImageZoom from 'react-native-image-pan-zoom';
-import Video from 'react-native-video';
 import VideoPlayer from 'react-native-video-player';
 import FastImage from 'react-native-fast-image';
 
@@ -65,11 +59,11 @@ export default class StoryView extends Component {
         if (this.props.route.params) {
             this.setState({ story: this.props.route.params.story });
         }
-        console.log(this.state.story)
     }
 
-    clickSkipButton = () => {
-        this.props.navigation.navigate('Home');
+    removeStory = async () => {
+        await removeStory({id: this.state.story.id});
+        this.props.navigation.goBack(null);
     }
     render() {
         return (
@@ -79,6 +73,14 @@ export default class StoryView extends Component {
                 />
                 <View style={styles.container}>
                     <BackButton navigation={this.props.navigation} />
+                    <TouchableOpacity
+                    style={{position:'absolute', top:50, right: 50, zIndex:100}}
+                        onPress={()=>{
+                            this.removeStory()
+                        }}
+                    >
+                        <Icon name="trash" size={30} color="red" />
+                    </TouchableOpacity>                    
                     {this.state.story && this.state.story.media_type == 'video' &&
                         <VideoPlayer
                             video={this.state.story.media_url.indexOf('http') > -1?{uri: this.state.story.media_url}:{ uri: SERVER_URL + this.state.story.media_url }}
