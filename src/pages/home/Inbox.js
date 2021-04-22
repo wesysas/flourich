@@ -95,7 +95,7 @@ export default class Inbox extends Component {
                                   >
                                       <Avatar
                                           rounded
-                                          size="large"
+                                          size="medium"
                                           source={{uri: SERVER_URL+item.avatar}}
                                       />
                                       <ListItem.Content style={{marginLeft:10}}>
