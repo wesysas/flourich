@@ -26,11 +26,7 @@ export default class Inbox extends Component {
         this._unsubscribe = this.props.navigation.addListener('focus', async () => {
             var bookings = await lastMessage({creator_id:global.user.cid, status:[2,3,4,5,6,7,8,9]});
             this.setState({bookings});
-        });
-        var bookings = await lastMessage({creator_id:global.user.cid, status:[2,3,4,5,6,7,8,9]});
-        this.setState({bookings});
-
-        
+        });        
     }
 
     componentWillUnmount() {
