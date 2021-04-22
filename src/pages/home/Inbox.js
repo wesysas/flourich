@@ -27,6 +27,10 @@ export default class Inbox extends Component {
             var bookings = await lastMessage({creator_id:global.user.cid, status:[2,3,4,5,6,7,8,9]});
             this.setState({bookings});
         });
+        var bookings = await lastMessage({creator_id:global.user.cid, status:[2,3,4,5,6,7,8,9]});
+        this.setState({bookings});
+
+        
     }
 
     componentWillUnmount() {
@@ -126,14 +130,13 @@ export default class Inbox extends Component {
                                   >
                                           <Avatar
                                               rounded
-                                              size="large"
+                                              size="medium"
                                               source={{uri: SERVER_URL+item.avatar}}
                                           />
                                           <ListItem.Content style={{marginLeft:10}}>
                                               <ListItem.Title>{item.first_name} {item.last_name}</ListItem.Title>
                                               <ListItem.Subtitle>
-                                                  Latest message display here and upon click opens on a screen
-                                                  with all messages
+                                                {item.first_name} {item.last_name} booked at {Moment(item.created_at).format(("D MMM HH:mm"))}
                                               </ListItem.Subtitle>
                                           </ListItem.Content>
                                           <TouchableOpacity style={{ alignItems: 'center' }}>
