@@ -137,7 +137,7 @@ export default class LoginPage extends ValidationComponent {
       getInfoFromToken = async (token) => {
         const PROFILE_REQUEST_PARAMS = {
             fields: {
-                string: 'id,name,first_name,last_name',
+                string: 'id,name,first_name,last_name, email, picture',
             },
         };
         const profileRequest = new GraphRequest(
@@ -145,20 +145,20 @@ export default class LoginPage extends ValidationComponent {
             { token, parameters: PROFILE_REQUEST_PARAMS },
             (error, user) => {
                 if (error) {
-                } else {                    
-                    this.save(user);
+                    alert(error);
+                } else {
                     var params = {
                         email: user.email?user.email:'',
-                        first_name: user.givenName?user.givenName:'',
-                        last_name: user.familyName?user.familyName:'',
-                        avatar: user.photo?user.photo:'',
+                        first_name: user.first_name?user.first_name:'',
+                        last_name: user.last_name?user.last_name:'',
+                        avatar: user.picture?user.picture.data.url:'',
                         login_type: 'facebook'
                     }        
                     this.saveSocialUser(params);
                 }
             },
         );
-        // new GraphRequestManager().addRequest(profileRequest).start();
+        new GraphRequestManager().addRequest(profileRequest).start();
     };
 
     save = async (user) => {
@@ -174,7 +174,6 @@ export default class LoginPage extends ValidationComponent {
                 } else {
                     AccessToken.getCurrentAccessToken().then(data => {
                         const accessToken = data.accessToken.toString();
-
                         this.getInfoFromToken(accessToken);
                     });
                 }
