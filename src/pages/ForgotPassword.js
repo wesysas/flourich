@@ -3,8 +3,8 @@ import { View, Text, StyleSheet, Image, ScrollView, TextInput } from 'react-nati
 import { Button } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import LinearGradient from 'react-native-linear-gradient/index';
-import {btnGradientProps} from '../GlobalStyles';
-import { checkEmail, resetPassword }  from '../shared/service/auth';
+import { btnGradientProps } from '../GlobalStyles';
+import { checkEmail, resetPassword } from '../shared/service/auth';
 import { saveStorage } from '../shared/service/storage';
 import ValidationComponent from 'react-native-form-validator';
 import { local } from '../shared/const/local';
@@ -21,26 +21,26 @@ const styles = StyleSheet.create({
         width: 'auto'
     },
     btnContainer: {
-        height:HEIGHT / 1.6,
-        flexDirection:'column',
+        height: HEIGHT / 1.6,
+        flexDirection: 'column',
         // justifyContent: 'space-evenly',
         paddingHorizontal: 30,
         marginVertical: 10,
     },
     txtInputStyle: {
-        borderWidth:1, 
-        borderRadius:10, 
-        borderColor:'gray', 
-        paddingHorizontal:14, 
-        fontSize: 18, 
+        borderWidth: 1,
+        borderRadius: 10,
+        borderColor: 'gray',
+        paddingHorizontal: 14,
+        fontSize: 18,
         height: DefaultBtnHeight,
-        marginVertical:10
+        marginVertical: 10
     },
     btn: {
         // paddingVertical:14,
-        height:DefaultBtnHeight,
+        height: DefaultBtnHeight,
         borderRadius: 8,
-        marginVertical:10
+        marginVertical: 10
     },
     btnText: {
         fontSize: 20
@@ -52,10 +52,10 @@ const styles = StyleSheet.create({
     },
     numberPart: {
         flexDirection: 'row',
-        alignItems:'center'
+        alignItems: 'center'
     },
     error: {
-        color:'red'
+        color: 'red'
     }
 });
 
@@ -66,7 +66,7 @@ export default class ForgotPassword extends ValidationComponent {
         this.state = {
             email: '',//'test9@t.com',
             password: '',//'123123',
-            confirmPassword :'',//'123123',
+            confirmPassword: '',//'123123',
             spinner: false,
             checked: false,
             btnDisabled: false
@@ -74,41 +74,43 @@ export default class ForgotPassword extends ValidationComponent {
     }
     componentDidMount() {
     };
-    
+
     componentWillUnmount() {
     };
 
-    checkEmail = async() => {
+    checkEmail = async () => {
         var validate = this.validate({
-            email: {email: true, required: true},
+            email: { email: true, required: true },
             // password: {minlength:6},
             // confirmPassword : {equalPassword : this.state.password}
         });
-        if(validate) {
-            this.setState({spinner: true});
-            var res = await checkEmail({email: this.state.email, user: 'creator'})
-            this.setState({spinner: false});
+        if (validate) {
+            this.setState({ spinner: true });
+            var res = await checkEmail({ email: this.state.email, user: 'creator' });
+            console.log(res);
+            this.setState({ spinner: false });
             if (res != null && res.message != '401') {
-                this.setState({checked: true})
+                this.setState({ checked: true })
+
             } else {
                 Toast.show('Your email is not registered')
             }
         }
     }
 
-    resetPassword = async() => {
+    resetPassword = async () => {
         var validate = this.validate({
-            password: {required: true, minlength:6},
-            confirmPassword : {required: true, equalPassword : this.state.password}
+            password: { required: true, minlength: 6 },
+            confirmPassword: { required: true, equalPassword: this.state.password }
         });
-        if(validate) {
-            this.setState({spinner: true});
-            var res = await resetPassword({email: this.state.email, user: 'creator', password: this.state.password})
-            this.setState({spinner: false});
+        if (validate) {
+            this.setState({ spinner: true });
+            var res = await resetPassword({ email: this.state.email, user: 'creator', password: this.state.password })
+            this.setState({ spinner: false });
             if (res != null && res.message != '401') {
                 Toast.show('Successfully Updated');
-                this.setState({btnDisabled: true});
-                setTimeout(() => {                    
+                this.setState({ btnDisabled: true });
+                setTimeout(() => {
                     this.props.navigation.navigate('Login');
                 }, 1000);
             } else {
@@ -127,27 +129,27 @@ export default class ForgotPassword extends ValidationComponent {
                 <Image style={styles.image} source={require('../assets/img/get_started_logo.jpg')} />
                 <View style={styles.btnContainer}>
                     <View style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            justifyContent: 'space-evenly',
-                        }}>
-                        <Text style={{ textAlign: 'center', fontSize:25 }}>Forgot Password
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'space-evenly',
+                    }}>
+                        <Text style={{ textAlign: 'center', fontSize: 25, marginVertical:10 }}>Forgot Password
                         </Text>
                     </View>
 
                     {!this.state.checked && <View>
-                    <TextInput
-                        style={styles.txtInputStyle}
-                        placeholder="email@address.com"
-                        value={this.state.email}
-                        onChangeText={value => {
-                            this.setState({"email":value});
-                        }}
-                    ></TextInput>
-                    {this.isFieldInError('email') && this.getErrorsInField('email').map(errorMessage => <Text style={styles.error}>{errorMessage}</Text>) }
-                    
-                    <Button
-                        buttonStyle={ styles.btn }
+                        <TextInput
+                            style={styles.txtInputStyle}
+                            placeholder="email@address.com"
+                            value={this.state.email}
+                            onChangeText={value => {
+                                this.setState({ "email": value });
+                            }}
+                        ></TextInput>
+                        {this.isFieldInError('email') && this.getErrorsInField('email').map(errorMessage => <Text style={styles.error}>{errorMessage}</Text>)}
+
+                        <Button
+                            buttonStyle={styles.btn}
                             ViewComponent={LinearGradient}
                             titleStyle={styles.btnTitle}
                             linearGradientProps={btnGradientProps}
@@ -156,48 +158,34 @@ export default class ForgotPassword extends ValidationComponent {
                                 // navigation.navigate('Verify')
                                 this.checkEmail();
                             }}
-                        /> 
-                        </View>}
+                        />
+                    </View>}
 
-                {this.state.checked && <View>
-                    <TextInput
-                        style={styles.txtInputStyle}
-                        placeholder="password"
-                        value={this.state.password}
-                        onChangeText={value => {
-                            this.setState({"password":value});
-                        }}
-                        secureTextEntry={true}
-                    ></TextInput>
-                    {this.isFieldInError('password') && this.getErrorsInField('password').map(errorMessage => <Text style={styles.error}>{errorMessage}</Text>) }
-
-                    <TextInput
-                        style={styles.txtInputStyle}
-                        placeholder="Confirmation password"
-                        value={this.state.confirmPassword}
-                        onChangeText={value => {
-                            this.setState({"confirmPassword":value});
-                            // this.validate({
-                            //     email: {email: true},
-                            //     password: {minlength:6},
-                            // });
-                        }}
-                        secureTextEntry={true}
-                    ></TextInput>
-                    {this.isFieldInError('confirmPassword') && this.getErrorsInField('confirmPassword').map(errorMessage => <Text style={styles.error}>{errorMessage}</Text>) }
-
+                    {this.state.checked && <View>
+                        <Text style={{ textAlign: 'center', fontSize: 17 }}>Please Check Your Email.{"\n"}System just sent new password through your email address.{"\n"}
+                            <Text
+                                style={{ textDecorationLine: 1, color: 'blue' }}
+                                onPress={() => {
+                                    this.setState({ checked: false });
+                                    this.checkEmail();
+                                }}>
+                                Resend
+                    </Text>
+                        </Text>
                         <Button
-                        buttonStyle={ styles.btn }
+                            buttonStyle={styles.btn}
                             ViewComponent={LinearGradient}
                             titleStyle={styles.btnTitle}
                             linearGradientProps={btnGradientProps}
-                            title="Update Password"
+                            title="Go To Login"
                             disabled={this.state.btnDisabled}
                             onPress={() => {
-                                this.resetPassword();
+                                this.props.navigation.navigate('Login');
                             }}
                         />
-                </View>}
+                    </View>}
+
+
                 </View>
             </ScrollView>
         )

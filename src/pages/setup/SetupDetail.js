@@ -114,7 +114,6 @@ export default class SetupDetail extends ValidationComponent {
                 businessname: { required: true },
                 fulladdress: { required: true },
                 postalcode: { required: true },
-                weburl: { required: true },
                 instagramurl: { required: true },
             });
         }else{
@@ -123,7 +122,6 @@ export default class SetupDetail extends ValidationComponent {
                 lastname: { required: true },
                 fulladdress: { required: true },
                 postalcode: { required: true },
-                weburl: { required: true },
                 instagramurl: { required: true },
             });
         }
@@ -319,16 +317,8 @@ export default class SetupDetail extends ValidationComponent {
                 </View>
                 
                 <View style={styles.separate}>
-                    <Text>Website</Text>
-                    <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder=''
-                        value={this.state.weburl}
-                        onChangeText={ value => {
-                            this.setState({"weburl":value})
-                        }}
-                    />
-                    {this.isFieldInError('weburl') && this.getErrorsInField('weburl').map(errorMessage => <Text key="weburl" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
-
-                    <Text>Instagram URL</Text>
+                    
+                    <Text>Instagram*</Text>
                     <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder=''
                         value={this.state.instagramurl}
                         onChangeText={ value => {
@@ -337,7 +327,15 @@ export default class SetupDetail extends ValidationComponent {
                     />
                     {this.isFieldInError('instagramurl') && this.getErrorsInField('instagramurl').map(errorMessage => <Text key="instagramurl" style={{ color:'red', marginTop: -25, marginLeft: 10}}>{errorMessage}</Text>) }
 
-                    <Text>Linkedin (optional)</Text>
+                    <Text>Website</Text>
+                    <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder=''
+                        value={this.state.weburl}
+                        onChangeText={ value => {
+                            this.setState({"weburl":value})
+                        }}
+                    />
+
+                    <Text>Linkedin</Text>
                     <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder=''
                         value={this.state.linkedin}
                         onChangeText={ value => {
@@ -345,7 +343,7 @@ export default class SetupDetail extends ValidationComponent {
                         }}
                     />
 
-                    <Text>Behance (optional)</Text>
+                    <Text>Behance</Text>
                     <Input style={{paddingHorizontal:0}} inputContainerStyle ={{ marginHorizontal:-10 }} placeholder=''
                         value={this.state.behance}
                         onChangeText={ value => {
